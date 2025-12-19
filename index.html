@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>hLogic</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+        <div class="sidebar">
+            <h2>Canvas Settings</h2>
+            <div class="control-group">
+                <label>Canvas Width: <span id="widthValue">1000</span>px</label>
+                <input type="range" id="widthSlider" min="400" max="4000" value="1000" step="50">
+            </div>
+
+            <div class="control-group">
+                <label>Canvas Height: <span id="heightValue">900</span>px</label>
+                <input type="range" id="heightSlider" min="300" max="3500" value="900" step="50">
+            </div>
+
+            <h2 style="margin-top: 30px;" id="editorStateTitle">Objects</h2>
+            
+            <div class="object-palette" id="objectPalette">
+                <!-- Operators will be added here dynamically -->
+            </div>
+            <h2 style="margin-top: 30px;" id="toolsStateTitle">Tools</h2>
+            <div class="object-palette" id="toolsPalette" >
+                 <!-- Tools will be added here dynamically -->
+            </div>
+        </div>
+        <!-- Canvas area -->    
+        <div class="canvas-container" id="canvasContainer">
+            <canvas id="canvas"></canvas>
+            <!-- Different tools and general manipulation -->
+            <div class="controls">
+                <button class="btn" id="resetView">Reset View</button>
+                <button class="btn" id="clearCanvas">Clear All</button>
+            </div>
+            <!-- Canvas information -->
+            <div class="info">
+                <div>Zoom: <span id="zoomLevel">100</span>%</div>
+                <div>Objects: <span id="objectCount">0</span></div>
+                <div>Position&nbsp;&nbsp;&nbsp;[ X: <span id="mousePositionX">0</span> | Y:<span id="mousePositionY">0</span> ]</div>
+                <div id="modeInfo">Mode: Pan (Click & Drag)</div>
+            </div>
+        </div>
+    </div>
+        <script src="js/ui.js"></script>
+        <script src="js/logic.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>
