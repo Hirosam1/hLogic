@@ -35,23 +35,13 @@ canvas.addEventListener('wheel', (e) => {
     draw();
 });
 
-function mouseDownOperatorEd(pos, e){
+function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedOperator) {
         // Place the selected object
         if (pos.x >= 0 && pos.x <= canvasWidth &&
             pos.y >= 0 && pos.y <= canvasHeight) {
-            let imgSize = [(gridSize*selectedOperator.ratio.x), (gridSize*selectedOperator.ratio.y)];
-            if (selectedOperator.type === 'image') {
-                /*canvasItems.push({
-                    name: selectedOperator.name,
-                    type: 'image',
-                    logic: selectedOperator.logic,
-                    img: selectedOperator.img,
-                    x: snapToGrid(pos.x - imgSize[0]/2),
-                    y: snapToGrid(pos.y - imgSize[1]/2),
-                    width: imgSize[0],
-                    height: imgSize[1]
-                });*/
+            if (selectedOperator.icon.type == 'image') {
+                let imgSize = [gridSize*selectedOperator.icon.ratio.x, gridSize*selectedOperator.icon.ratio.y];
                 canvasItems.push(new OperatorCanvasItem(selectedOperator,
                                     snapToGrid(pos.x - imgSize[0]/2),
                                     snapToGrid(pos.y - imgSize[1]/2),
@@ -74,12 +64,16 @@ function mouseDownOperatorEd(pos, e){
     }
 }
 
+function mouseDownNodeEdt(pos, e){
+
+}
+
 // Canvas mouse events ========
 //Mouse down
 canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
     if(editorState == editorStates.operatorEditor){
-        mouseDownOperatorEd(pos,e);
+        mouseDownOperatorEdt(pos, e);
         if(!draggedObject){
             isPanning = true;
             lastMouseX = e.clientX;
@@ -87,7 +81,7 @@ canvas.addEventListener('mousedown', (e) => {
             canvas.classList.add('panning');
         }
     }else if(editorState == editorState.nodeEditor){
-    
+        mouseDownNodeEdt(pos, e);
     }
 
 });
@@ -168,5 +162,5 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-preloadOperators();
+preloadPalletMenu();
 initCanvas();

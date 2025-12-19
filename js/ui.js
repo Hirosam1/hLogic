@@ -29,6 +29,8 @@ let isPanning = false;
 let draggedObject = null;
 let selectedOperator = null;
 let placingMode = false;
+//Resources?
+let operators = []
 
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -65,10 +67,10 @@ function addOperatorToPalette(operator){
         item.className = 'palette-item';
         
         const imgElement = document.createElement('img');
-        imgElement.src = operator.imgSrc;
+        imgElement.src = operator.icon.imgSrc;
         item.appendChild(imgElement);
-        //Load img data to operator
-        operator.img = img;
+        //Load img data to operator icon field
+        operator.icon.img = img;
         item.onclick = () => {
             if(editorState == editorStates.operatorEditor){
                 document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
@@ -82,25 +84,25 @@ function addOperatorToPalette(operator){
         };
 
         paletteDiv.appendChild(item);
-        paletteImages.push({ img, src: operator.imgSrc });
+        paletteImages.push({ img, src: operator.icon.imgSrc });
 
     };
     img.onerror = () => {
-    console.error(`Failed to load image: ${operator.imgSrc}`);
+    console.error(`Failed to load image: ${operator.icon.imgSrc}`);
     };
-    img.src = operator.imgSrc;
+    img.src = operator.icon.imgSrc;
 }
 
-function preloadOperators(){
-    const operators = [
-        new Operator('circleDebug', 'none','imgs/circle_white.svg', SQUARE_RATIO),
-        new Operator('squareDebug', 'none','imgs/square_white.svg', SQUARE_RATIO),
-        new Operator('switch', 'switch','imgs/switch_2x2.svg', H_SQUARE_RATIO),
-        new Operator('output', 'output','imgs/output_2x2.svg', H_SQUARE_RATIO),
-        new Operator('not', 'not','imgs/not_2x2.svg', H_SQUARE_RATIO),
-        new Operator('and', 'and','imgs/and_4x3.svg', GLOBAL_RATIO),
-        new Operator('or', 'or','imgs/or_4x3.svg', GLOBAL_RATIO),
-        new Operator('xor', 'xor','imgs/xor_4x3.svg', GLOBAL_RATIO),
+function preloadPalletMenu(){
+    operators = [
+        new Operator('circleDebug', 'none', new Icon('imgs/circle_white.svg', SQUARE_RATIO)),
+        new Operator('squareDebug', 'none', new Icon('imgs/square_white.svg', SQUARE_RATIO)),
+        new Operator('switch', 'switch', new Icon('imgs/switch_2x2.svg', H_SQUARE_RATIO)),
+        new Operator('output', 'output', new Icon('imgs/output_2x2.svg', H_SQUARE_RATIO)),
+        new Operator('not', 'not', new Icon('imgs/not_2x2.svg', H_SQUARE_RATIO)),
+        new Operator('and', 'and', new Icon('imgs/and_4x3.svg', GLOBAL_RATIO)),
+        new Operator('or', 'or', new Icon('imgs/or_4x3.svg', GLOBAL_RATIO)),
+        new Operator('xor', 'xor', new Icon('imgs/xor_4x3.svg', GLOBAL_RATIO)),
     ];
     operators.forEach(operator =>{
         addOperatorToPalette(operator);
@@ -141,7 +143,6 @@ function addNodeMode(img, imgSrc){
     imgElement.src = imgSrc;
     item.id = "nodeEditor";
     item.appendChild(imgElement);
-
     item.onclick = () => {
         selectedOperator = null;
         if(editorState == editorStates.operatorEditor){
@@ -191,8 +192,8 @@ function draw() {
 
     // Draw objects
     canvasItems.forEach(obj => {
-        if (obj.type === 'image' && obj.img.complete) {
-            ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+        if (obj.icon.type === 'image' && obj.icon.img.complete) {
+            ctx.drawImage(obj.icon.img, obj.x, obj.y, obj.width, obj.height);
         }
     });
 
@@ -208,7 +209,7 @@ function snapToGrid(value) {
 function getObjectAt(x, y) {
     for (let i = canvasItems.length - 1; i >= 0; i--) {
         const obj = canvasItems[i];
-        if (obj.type === 'image') {
+        if (obj.icon.type === 'image') {
             if (x >= obj.x && x <= obj.x + obj.width &&
                 y >= obj.y && y <= obj.y + obj.height) {
                 return obj;
