@@ -18,7 +18,7 @@ let lastMouseY = 0;
 let draggedObject = null;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
-let selectedTool = null;
+let selectedOperator = null;
 let placingMode = false;
 const editorStates = {operatorEditor : 0, nodeEditor : 1};
 let editorState = editorStates.operatorEditor;
@@ -35,12 +35,12 @@ function screenToCanvas(screenX, screenY) {
 function updateInfo(){
 //Update Mode field.
    if(draggedObject){
-        document.getElementById('modeInfo').textContent = 'Mode: Dragging (' + draggedObject.logic + ') operator';
+        document.getElementById('modeInfo').textContent = 'Mode: Dragging (' + draggedObject.name + ') operator';
    }else if(placingMode){
-        document.getElementById('modeInfo').textContent = 'Mode: Place (' + selectedTool.logic + ') operator';
+        document.getElementById('modeInfo').textContent = 'Mode: Place (' + selectedOperator.name + ') operator';
    }
    else{
-        document.getElementById('modeInfo').textContent = editorState == editorStates.operatorEditor ? 'Mode: Pan (Click & Drag)' : 'Mode: Pan (Node mode)';
+        document.getElementById('modeInfo').textContent = editorState == editorStates.operatorEditor ? 'Mode: Pan (Click & Drag)' : 'Mode: Connect (Node mode)';
    }
    //Mue position
    let pos = screenToCanvas(lastMouseX, lastMouseY);
@@ -52,42 +52,29 @@ function updateInfo(){
 function addOperatorToPalette(operator){
     const img = new Image();
     img.onload = () => {
-        let imgSrc = operator.imgSrc;
-        let logicVal = operator.logicType;
-        let ratioVal = operator.ratio;
-
         const paletteDiv = document.getElementById('objectPalette');
         const item = document.createElement('div');
         item.className = 'palette-item';
         
         const imgElement = document.createElement('img');
-        imgElement.src = imgSrc;
+        imgElement.src = operator.imgSrc;
         item.appendChild(imgElement);
-
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-btn';
-        removeBtn.textContent = '×';
-
+        //Load img data to operator
+        operator.img = img;
         item.onclick = () => {
             if(editorState == editorStates.operatorEditor){
                 document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
                 item.classList.add('selected');
-                selectedTool = {
-                    type: 'image',
-                    img: img,
-                    imgSrc: imgSrc,
-                    logic: logicVal,
-                    ratio:ratioVal
-                };
+                selectedOperator = operator;
                 placingMode = true;
                 canvas.classList.add('placing');
                 canvas.style.cursor = 'crosshair';
-                document.getElementById('modeInfo').textContent = 'Mode: Place (' + logicVal + ') operator';
+                updateInfo();
             }
         };
 
         paletteDiv.appendChild(item);
-        paletteImages.push({ img, src: imgSrc });
+        paletteImages.push({ img, src: operator.imgSrc });
 
     };
     img.onerror = () => {
@@ -98,18 +85,19 @@ function addOperatorToPalette(operator){
 
 function preloadOperators(){
     const operators = [
-        {logicType:'debug', imgSrc:'imgs/circle_white.svg', ratio: SQUARE_RATIO},
-        {logicType:'debug', imgSrc:'imgs/square_white.svg', ratio: SQUARE_RATIO},
-        {logicType:'switch', imgSrc:'imgs/switch_2x2.svg', ratio: H_SQUARE_RATIO},
-        {logicType:'output', imgSrc:'imgs/output_2x2.svg', ratio: H_SQUARE_RATIO},
-        {logicType:'not', imgSrc:'imgs/not_2x2.svg', ratio: H_SQUARE_RATIO},
-        {logicType:'and', imgSrc:'imgs/and_4x3.svg', ratio: GLOBAL_RATIO},
-        {logicType: 'or', imgSrc: 'imgs/or_4x3.svg', ratio: GLOBAL_RATIO},
+        new OperatorObject('circleDebug', 'none','imgs/circle_white.svg', SQUARE_RATIO),
+        new OperatorObject('squareDebug', 'none','imgs/square_white.svg', SQUARE_RATIO),
+        new OperatorObject('switch', 'switch','imgs/switch_2x2.svg', H_SQUARE_RATIO),
+        new OperatorObject('output', 'output','imgs/output_2x2.svg', H_SQUARE_RATIO),
+        new OperatorObject('not', 'not','imgs/not_2x2.svg', H_SQUARE_RATIO),
+        new OperatorObject('and', 'and','imgs/and_4x3.svg', GLOBAL_RATIO),
+        new OperatorObject('or', 'or','imgs/or_4x3.svg', GLOBAL_RATIO),
+        new OperatorObject('xor', 'xor','imgs/xor_4x3.svg', GLOBAL_RATIO),
     ];
     operators.forEach(operator =>{
         addOperatorToPalette(operator);
     });
-
+    //Node Tool menu
     const node_mode_imgSrc = "imgs/nodes_icon.svg";
     const node_mode_img = new Image();
     node_mode_img.onload = () => {
@@ -121,14 +109,16 @@ function preloadOperators(){
     node_mode_img.src = node_mode_imgSrc;
 }
 
-function cancelSelectedTool(){
-    // Cancel placing mode
+function cancelselectedOperator(){
+    if(editorState == editorStates.nodeEditor){
+        editorState = editorStates.operatorEditor;
+        console.log("Editor mode activated");
+    }
     placingMode = false;
-    selectedTool = null;
+    selectedOperator = null;
     canvas.classList.remove('placing');
     canvas.style.cursor = 'grab';
     document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
-    editorState = editorStates.operatorEditor;
     nodeEditor = document.getElementById("nodeEditor");
     nodeEditor.classList.remove('active');
     updateInfo();
@@ -145,16 +135,18 @@ function addNodeMode(img, imgSrc){
     item.appendChild(imgElement);
 
     item.onclick = () => {
-        selectedTool = null;
-        document.getElementById('modeInfo').textContent = 'Mode: Node selector';
+        selectedOperator = null;
         if(editorState == editorStates.operatorEditor){
-            cancelSelectedTool();
+            cancelselectedOperator();
+            console.log("Node mode activated");
             editorState = editorStates.nodeEditor;
             item.classList.add('active');
+            canvas.classList.add('placing');
+            canvas.style.cursor = 'crosshair';
             updateInfo();
         }
         else if(editorState == editorStates.nodeEditor){
-            cancelSelectedTool();
+            cancelselectedOperator();
             updateInfo();
         }
     };

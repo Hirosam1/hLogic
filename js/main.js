@@ -1,5 +1,6 @@
 let paletteImages = [];
 let objects = [];
+let nodes = []
 
 // Canvas controls
 document.getElementById('widthSlider').addEventListener('input', (e) => {
@@ -41,16 +42,17 @@ canvas.addEventListener('wheel', (e) => {
 });
 
 function mouseDownOperatorEd(pos, e){
-    if (placingMode && selectedTool) {
+    if (placingMode && selectedOperator) {
         // Place the selected object
         if (pos.x >= 0 && pos.x <= canvasWidth &&
             pos.y >= 0 && pos.y <= canvasHeight) {
-            let imgSize = [(gridSize*selectedTool.ratio.x), (gridSize*selectedTool.ratio.y)];
-            if (selectedTool.type === 'image') {
+            let imgSize = [(gridSize*selectedOperator.ratio.x), (gridSize*selectedOperator.ratio.y)];
+            if (selectedOperator.type === 'image') {
                 objects.push({
+                    name: selectedOperator.name,
                     type: 'image',
-                    logic: selectedTool.logic,
-                    img: selectedTool.img,
+                    logic: selectedOperator.logic,
+                    img: selectedOperator.img,
                     x: snapToGrid(pos.x - imgSize[0]/2),
                     y: snapToGrid(pos.y - imgSize[1]/2),
                     width: imgSize[0],
@@ -78,17 +80,17 @@ function mouseDownOperatorEd(pos, e){
 canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
     if(editorState == editorStates.operatorEditor){
-        console.log("Mode: Changed to operator editor");
         mouseDownOperatorEd(pos,e);
+        if(!draggedObject){
+            isPanning = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            canvas.classList.add('panning');
+        }
     }else if(editorState == editorState.nodeEditor){
-        console.log("Mode: Changed to operator editor");
+    
     }
-     if(!draggedObject){
-        isPanning = true;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-        canvas.classList.add('panning');
-    }
+
 });
 
 //Mouse move
@@ -99,7 +101,7 @@ canvas.addEventListener('mousemove', (e) => {
         draggedObject.x = snapToGrid(pos.x - dragOffsetX);
         draggedObject.y = snapToGrid(pos.y - dragOffsetY);
         shouldDraw = true;
-    } else if (isPanning && !selectedTool) {
+    } else if (isPanning && !selectedOperator) {
         panX += e.clientX - lastMouseX;
         panY += e.clientY - lastMouseY;
         shouldDraw = true;
@@ -114,12 +116,16 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseup', () => {
     draggedObject = null;
     isPanning = false;
-    if (!placingMode) {
-                draggedObject=null;
-        canvas.style.cursor = 'grab';
-        updateInfo();
+    if(editorState == editorStates.operatorEditor){
+        if (!placingMode) {
+                    draggedObject=null;
+            canvas.style.cursor = 'grab';
+            updateInfo();
+        }
+        canvas.classList.remove('panning');
+    }else if(editorState == editorStates.nodeEditor){
+
     }
-    canvas.classList.remove('panning');
 });
 
 //Mouse leave
@@ -131,6 +137,7 @@ canvas.addEventListener('mouseleave', () => {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
+    const panScale = 25;
     if (e.key === '+' || e.key === '=') {
         zoom = Math.min(zoom * 1.2, 5);
         document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
@@ -144,7 +151,21 @@ document.addEventListener('keydown', (e) => {
         draggedObject = null;
         draw();
     } else if (e.key === 'Escape') {
-        cancelSelectedTool();
+        cancelselectedOperator();
+    }else if(e.key === 'd'){
+        panX-=panScale;
+        draw();
+    }
+    else if(e.key === 'w'){
+        panY+=panScale;
+        draw();
+    }else if(e.key === 'a'){
+        panX+=panScale;
+        draw();
+    }
+    else if(e.key === 's'){
+        panY-=panScale;
+        draw();
     }
 });
 
