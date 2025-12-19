@@ -26,14 +26,6 @@ document.getElementById('clearCanvas').addEventListener('click', () => {
     }
 });
 
-// Mouse wheel zoom
-canvas.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    zoom = Math.max(0.1, Math.min(5, zoom * delta));
-    document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
-    draw();
-});
 
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedOperator) {
@@ -130,6 +122,15 @@ canvas.addEventListener('mouseup', () => {
     }
 });
 
+// Mouse wheel zoom
+canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    zoom = clamp(zoom*delta, minZoom, maxZoom);
+    document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
+    draw();
+});
+
 //Mouse leave
 canvas.addEventListener('mouseleave', () => {
     draggedObject = null;
@@ -141,11 +142,11 @@ canvas.addEventListener('mouseleave', () => {
 document.addEventListener('keydown', (e) => {
     const panScale = 25;
     if (e.key === '+' || e.key === '=') {
-        zoom = Math.min(zoom * 1.2, 5);
+        zoom = Math.min(zoom * 1.2, maxZoom);
         document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
         draw();
     } else if (e.key === '-') {
-        zoom = Math.max(zoom / 1.2, 0.1);
+        zoom = Math.max(zoom / 1.2, minZoom);
         document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
         draw();
     } else if (e.key === 'Delete' && draggedObject) {

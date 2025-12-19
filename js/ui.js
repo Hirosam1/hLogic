@@ -4,7 +4,9 @@ const container = document.getElementById('canvasContainer');
 const GLOBAL_RATIO = {x: 4, y: 3};
 const SQUARE_RATIO = {x: 4, y: 4};
 const H_SQUARE_RATIO = {x: 2, y: 2};
-const gridSize = 20;
+const gridSize = 30;
+const maxZoom = 7;
+const minZoom = 0.2;
 
 //Canvas settings and view state.
 let canvasWidth = 1000;
