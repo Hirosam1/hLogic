@@ -22,6 +22,7 @@ document.getElementById('resetView').addEventListener('click', () => {
 document.getElementById('clearCanvas').addEventListener('click', () => {
     if (confirm('Clear all canvas Items?')) {
         canvasItems = [];
+        _nodes = [];
         draw();
     }
 });
@@ -64,8 +65,18 @@ function mouseDownOperatorEdt(pos, e){
 }
 
 function mouseDownNodeEdt(pos, e){
-    nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
+    if(!nodeStartPos){
+        nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
+    }else{
+        let nodeEndPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
+        _nodes.push({
+            nodeStartPos : nodeStartPos,
+            nodeEndPos : nodeEndPos
+            })
+        nodeStartPos=null;
+    }
     updateInfo();
+    draw();
 }
 
 // Canvas mouse events ========

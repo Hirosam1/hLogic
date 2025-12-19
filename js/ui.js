@@ -14,11 +14,8 @@ let canvasHeight = 900;
 let zoom = 1;
 let panX = 0;
 let panY = 0;
-//Loaded items on Canvas
+//Loaded items on Pallet Objects
 let paletteImages = [];
-let objects = [];
-let canvasItems = [];
-let nodes = []
 //Input information
 let lastMouseX = 0;
 let lastMouseY = 0;
@@ -32,9 +29,10 @@ let draggedObject = null;
 let selectedOperator = null;
 let placingMode = false;
 let nodeStartPos = null;
-//Resources?
-let operators = []
-
+//Resources
+let operators = [];
+let _nodes = [];
+let canvasItems = [];
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
@@ -174,6 +172,25 @@ function addNodeMode(img, imgSrc){
     paletteImages.push({ img, src: imgSrc });
 }
 
+function drawLine(startPos, endPos){
+    ctx.strokeStyle = '#100ae5';
+    lineWidth = 3;
+    ctx.lineWidth = lineWidth / zoom;
+
+    ctx.beginPath();
+    ctx.moveTo(startPos.x, startPos.y);
+    ctx.lineTo(endPos.x, endPos.y);
+    ctx.stroke();
+}
+
+function drawPoint(pos, radius, fillStyle='#e60a41'){
+    ctx.fillStyle = fillStyle;
+    // Parameters: centerX, centerY, radius, startAngle (radians), endAngle (radians), counterclockwise (boolean)
+    ctx.arc(pos.x, pos.y, radius, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -200,6 +217,12 @@ function draw() {
         ctx.stroke();
     }
 
+
+    //Draw Nodes
+    _nodes.forEach(node => {
+        drawLine(node.nodeStartPos, node.nodeEndPos);
+    })
+
     // Draw objects
     canvasItems.forEach(obj => {
         if (obj.icon.type === 'image' && obj.icon.img.complete) {
@@ -208,35 +231,25 @@ function draw() {
     });
     ctx.closePath();
     let canvasPos = screenToCanvas(lastMouseX,lastMouseY);
+    canvasPos.x = snapToGrid(canvasPos.x);
+    canvasPos.y = snapToGrid(canvasPos.y);
     if(editorState == editorStates.nodeEditor && !nodeStartPos){
         let radius = 4;
         ctx.fillStyle = '#100ae5'
-        ctx.arc(snapToGrid(canvasPos.x), snapToGrid(canvasPos.y), radius, 0, 2 * Math.PI, false);
+        ctx.arc(canvasPos.x, canvasPos.y, radius, 0, 2 * Math.PI, false);
         ctx.closePath();
         ctx.fill();
+        drawPoint({x: canvasPos.x, y: canvasPos.y});
     }
-    //Draw connections
+    //Draw live creation
     if(nodeStartPos){
-        let radius = 4;
-        ctx.fillStyle = '#e60a41';
-        // Parameters: centerX, centerY, radius, startAngle (radians), endAngle (radians), counterclockwise (boolean)
-        ctx.arc(nodeStartPos.x, nodeStartPos.y, radius, 0, 2 * Math.PI, false);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = '#100ae5';
-        lineWidth = 3;
-        ctx.lineWidth = lineWidth / zoom;
-
-        ctx.beginPath();
-        ctx.moveTo(nodeStartPos.x, nodeStartPos.y);
-        ctx.lineTo(snapToGrid(canvasPos.x), snapToGrid(canvasPos.y));
-        ctx.stroke();
+        drawLine(nodeStartPos, canvasPos);
+        drawPoint({x: nodeStartPos.x, x : nodeStartPos.y});
     }
 
     ctx.restore();
 
-    document.getElementById('objectCount').textContent = canvasItems.length;
+    document.getElementById('objectCount').textContent = canvasItems.length + _nodes.length;
 }
 
 function snapToGrid(value) {

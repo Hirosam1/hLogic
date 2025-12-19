@@ -24,3 +24,14 @@ class OperatorCanvasItem extends Operator{
         this.height = height;
     }
 }
+
+class Node{
+    constructor(value=0, edgesN=1, type=undefined){
+        this.value = value;
+        this.edgesN=edgesN;
+        this.nextNodes=[];
+        for(i=0; i < edgesN; i++){
+            this.nextNodes.push(undefined);
+        }
+    }
+}

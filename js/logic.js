@@ -1,3 +1,6 @@
+const MAX_ITERATIONS=1000;
+let runIterations = 0;
+
 class Logic{
     constructor(inputN=2){
         this.inputN = inputN;
@@ -19,7 +22,7 @@ class Logic{
 class Actuators {
     constructor(type="output"){
         this.type = type;
-        this.actuatorXYPos = [1.0,0.5];
+        this.actuatorXYPos = [1.0, 0.5];
     }
     process(data){
         throw new Error('Method "process()" must be implemented');
