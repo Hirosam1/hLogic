@@ -5,23 +5,31 @@ const GLOBAL_RATIO = {x: 4, y: 3};
 const SQUARE_RATIO = {x: 4, y: 4};
 const H_SQUARE_RATIO = {x: 2, y: 2};
 
+//Canvas settings and view state.
 let canvasWidth = 1000;
 let canvasHeight = 900;
 let gridSize = 20;
 let zoom = 1;
 let panX = 0;
 let panY = 0;
-
-let isPanning = false;
+//Loaded items on Canvas
+let paletteImages = [];
+let objects = [];
+let canvasItems = [];
+let nodes = []
+//Input information
 let lastMouseX = 0;
 let lastMouseY = 0;
-let draggedObject = null;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
-let selectedOperator = null;
-let placingMode = false;
+//Editor states and settings
 const editorStates = {operatorEditor : 0, nodeEditor : 1};
 let editorState = editorStates.operatorEditor;
+let isPanning = false;
+let draggedObject = null;
+let selectedOperator = null;
+let placingMode = false;
+
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
@@ -85,14 +93,14 @@ function addOperatorToPalette(operator){
 
 function preloadOperators(){
     const operators = [
-        new OperatorObject('circleDebug', 'none','imgs/circle_white.svg', SQUARE_RATIO),
-        new OperatorObject('squareDebug', 'none','imgs/square_white.svg', SQUARE_RATIO),
-        new OperatorObject('switch', 'switch','imgs/switch_2x2.svg', H_SQUARE_RATIO),
-        new OperatorObject('output', 'output','imgs/output_2x2.svg', H_SQUARE_RATIO),
-        new OperatorObject('not', 'not','imgs/not_2x2.svg', H_SQUARE_RATIO),
-        new OperatorObject('and', 'and','imgs/and_4x3.svg', GLOBAL_RATIO),
-        new OperatorObject('or', 'or','imgs/or_4x3.svg', GLOBAL_RATIO),
-        new OperatorObject('xor', 'xor','imgs/xor_4x3.svg', GLOBAL_RATIO),
+        new Operator('circleDebug', 'none','imgs/circle_white.svg', SQUARE_RATIO),
+        new Operator('squareDebug', 'none','imgs/square_white.svg', SQUARE_RATIO),
+        new Operator('switch', 'switch','imgs/switch_2x2.svg', H_SQUARE_RATIO),
+        new Operator('output', 'output','imgs/output_2x2.svg', H_SQUARE_RATIO),
+        new Operator('not', 'not','imgs/not_2x2.svg', H_SQUARE_RATIO),
+        new Operator('and', 'and','imgs/and_4x3.svg', GLOBAL_RATIO),
+        new Operator('or', 'or','imgs/or_4x3.svg', GLOBAL_RATIO),
+        new Operator('xor', 'xor','imgs/xor_4x3.svg', GLOBAL_RATIO),
     ];
     operators.forEach(operator =>{
         addOperatorToPalette(operator);
@@ -109,7 +117,7 @@ function preloadOperators(){
     node_mode_img.src = node_mode_imgSrc;
 }
 
-function cancelselectedOperator(){
+function cancelSelectedOperator(){
     if(editorState == editorStates.nodeEditor){
         editorState = editorStates.operatorEditor;
         console.log("Editor mode activated");
@@ -137,7 +145,7 @@ function addNodeMode(img, imgSrc){
     item.onclick = () => {
         selectedOperator = null;
         if(editorState == editorStates.operatorEditor){
-            cancelselectedOperator();
+            cancelSelectedOperator();
             console.log("Node mode activated");
             editorState = editorStates.nodeEditor;
             item.classList.add('active');
@@ -146,7 +154,7 @@ function addNodeMode(img, imgSrc){
             updateInfo();
         }
         else if(editorState == editorStates.nodeEditor){
-            cancelselectedOperator();
+            cancelSelectedOperator();
             updateInfo();
         }
     };
@@ -182,7 +190,7 @@ function draw() {
     }
 
     // Draw objects
-    objects.forEach(obj => {
+    canvasItems.forEach(obj => {
         if (obj.type === 'image' && obj.img.complete) {
             ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
         }
@@ -190,7 +198,7 @@ function draw() {
 
     ctx.restore();
 
-    document.getElementById('objectCount').textContent = objects.length;
+    document.getElementById('objectCount').textContent = canvasItems.length;
 }
 
 function snapToGrid(value) {
@@ -198,8 +206,8 @@ function snapToGrid(value) {
 }
 
 function getObjectAt(x, y) {
-    for (let i = objects.length - 1; i >= 0; i--) {
-        const obj = objects[i];
+    for (let i = canvasItems.length - 1; i >= 0; i--) {
+        const obj = canvasItems[i];
         if (obj.type === 'image') {
             if (x >= obj.x && x <= obj.x + obj.width &&
                 y >= obj.y && y <= obj.y + obj.height) {

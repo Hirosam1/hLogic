@@ -1,7 +1,3 @@
-let paletteImages = [];
-let objects = [];
-let nodes = []
-
 // Canvas controls
 document.getElementById('widthSlider').addEventListener('input', (e) => {
     canvasWidth = parseInt(e.target.value);
@@ -24,13 +20,11 @@ document.getElementById('resetView').addEventListener('click', () => {
 });
 
 document.getElementById('clearCanvas').addEventListener('click', () => {
-    if (confirm('Clear all objects?')) {
-        objects = [];
+    if (confirm('Clear all canvas Items?')) {
+        canvasItems = [];
         draw();
     }
 });
-
-
 
 // Mouse wheel zoom
 canvas.addEventListener('wheel', (e) => {
@@ -48,7 +42,7 @@ function mouseDownOperatorEd(pos, e){
             pos.y >= 0 && pos.y <= canvasHeight) {
             let imgSize = [(gridSize*selectedOperator.ratio.x), (gridSize*selectedOperator.ratio.y)];
             if (selectedOperator.type === 'image') {
-                objects.push({
+                /*canvasItems.push({
                     name: selectedOperator.name,
                     type: 'image',
                     logic: selectedOperator.logic,
@@ -57,7 +51,12 @@ function mouseDownOperatorEd(pos, e){
                     y: snapToGrid(pos.y - imgSize[1]/2),
                     width: imgSize[0],
                     height: imgSize[1]
-                });
+                });*/
+                canvasItems.push(new OperatorCanvasItem(selectedOperator,
+                                    snapToGrid(pos.x - imgSize[0]/2),
+                                    snapToGrid(pos.y - imgSize[1]/2),
+                                    imgSize[0],
+                                    imgSize[1]));
             }
             draw();
         }
@@ -147,11 +146,11 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
         draw();
     } else if (e.key === 'Delete' && draggedObject) {
-        objects = objects.filter(obj => obj !== draggedObject);
+        canvasItems = canvasItems.filter(obj => obj !== draggedObject);
         draggedObject = null;
         draw();
     } else if (e.key === 'Escape') {
-        cancelselectedOperator();
+        cancelSelectedOperator();
     }else if(e.key === 'd'){
         panX-=panScale;
         draw();
