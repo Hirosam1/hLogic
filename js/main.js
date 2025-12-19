@@ -62,10 +62,18 @@ function mouseDownOperatorEdt(pos, e){
         canvas.style.cursor = 'grabbing';
         updateInfo();
     }
+    //Panning
+    if(!draggedObject){
+        isPanning = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        canvas.classList.add('panning');
+    }
 }
 
 function mouseDownNodeEdt(pos, e){
-
+    nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
+    updateInfo();
 }
 
 // Canvas mouse events ========
@@ -74,13 +82,7 @@ canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
     if(editorState == editorStates.operatorEditor){
         mouseDownOperatorEdt(pos, e);
-        if(!draggedObject){
-            isPanning = true;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-            canvas.classList.add('panning');
-        }
-    }else if(editorState == editorState.nodeEditor){
+    }else if(editorState == editorStates.nodeEditor){
         mouseDownNodeEdt(pos, e);
     }
 
@@ -89,19 +91,26 @@ canvas.addEventListener('mousedown', (e) => {
 //Mouse move
 canvas.addEventListener('mousemove', (e) => {
     let shouldDraw = false;
-    if (draggedObject) {
-        const pos = screenToCanvas(e.clientX, e.clientY);
-        draggedObject.x = snapToGrid(pos.x - dragOffsetX);
-        draggedObject.y = snapToGrid(pos.y - dragOffsetY);
-        shouldDraw = true;
-    } else if (isPanning && !selectedOperator) {
-        panX += e.clientX - lastMouseX;
-        panY += e.clientY - lastMouseY;
-        shouldDraw = true;
+    if(editorState == editorStates.operatorEditor){
+        if (draggedObject) {
+            const pos = screenToCanvas(e.clientX, e.clientY);
+            draggedObject.x = snapToGrid(pos.x - dragOffsetX);
+            draggedObject.y = snapToGrid(pos.y - dragOffsetY);
+            shouldDraw = true;
+        } else if (isPanning && !selectedOperator) {
+            panX += e.clientX - lastMouseX;
+            panY += e.clientY - lastMouseY;
+            shouldDraw = true;
+        }
+    }if(editorState == editorStates.nodeEditor){
+        //Live draw when in nodeEditor!
+        shouldDraw=true;
     }
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
-    if(shouldDraw){draw();}
+    if(shouldDraw){
+        draw();
+    }
     updateInfo();
 });
 

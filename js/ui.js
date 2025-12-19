@@ -4,11 +4,11 @@ const container = document.getElementById('canvasContainer');
 const GLOBAL_RATIO = {x: 4, y: 3};
 const SQUARE_RATIO = {x: 4, y: 4};
 const H_SQUARE_RATIO = {x: 2, y: 2};
+const gridSize = 20;
 
 //Canvas settings and view state.
 let canvasWidth = 1000;
 let canvasHeight = 900;
-let gridSize = 20;
 let zoom = 1;
 let panX = 0;
 let panY = 0;
@@ -29,6 +29,7 @@ let isPanning = false;
 let draggedObject = null;
 let selectedOperator = null;
 let placingMode = false;
+let nodeStartPos = null;
 //Resources?
 let operators = []
 
@@ -37,21 +38,28 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 function screenToCanvas(screenX, screenY) {
     const rect = canvas.getBoundingClientRect();
-    const x = (screenX - rect.left - panX) / zoom;
-    const y = (screenY - rect.top - panY) / zoom;
-    return { x, y };
+    const x = clamp(((screenX - rect.left - panX) / zoom),0, canvasWidth);
+    const y = clamp(((screenY - rect.top - panY) / zoom),0, canvasHeight);
+    return {x, y};
 }
 
 function updateInfo(){
 //Update Mode field.
-   if(draggedObject){
-        document.getElementById('modeInfo').textContent = 'Mode: Dragging (' + draggedObject.name + ') operator';
-   }else if(placingMode){
-        document.getElementById('modeInfo').textContent = 'Mode: Place (' + selectedOperator.name + ') operator';
-   }
-   else{
-        document.getElementById('modeInfo').textContent = editorState == editorStates.operatorEditor ? 'Mode: Pan (Click & Drag)' : 'Mode: Connect (Node mode)';
-   }
+    if (editorState == editorStates.operatorEditor){
+        if(draggedObject){
+            document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.name + ') operator';
+        }else if(placingMode){
+            document.getElementById('modeInfo').textContent = 'EditMode: Place (' + selectedOperator.name + ') operator';
+        }else{
+            document.getElementById('modeInfo').textContent ='Edit Mode: Pan (Click & Drag)';
+        }
+    }else if(editorState == editorStates.nodeEditor){
+        if(nodeStartPos){
+            document.getElementById('modeInfo').textContent ='Node mode: Connect from: x:' + nodeStartPos.x + ' y:' + nodeStartPos.y;
+        }else{
+            document.getElementById('modeInfo').textContent ='Node mode: Start connection';
+        }
+    }
    //Mue position
    let pos = screenToCanvas(lastMouseX, lastMouseY);
    document.getElementById('mousePositionX').textContent = clamp(Math.floor(pos.x), 0, canvasWidth);
@@ -122,8 +130,8 @@ function preloadPalletMenu(){
 function cancelSelectedOperator(){
     if(editorState == editorStates.nodeEditor){
         editorState = editorStates.operatorEditor;
-        console.log("Editor mode activated");
     }
+    nodeStartPos=null;
     placingMode = false;
     selectedOperator = null;
     canvas.classList.remove('placing');
@@ -132,6 +140,7 @@ function cancelSelectedOperator(){
     nodeEditor = document.getElementById("nodeEditor");
     nodeEditor.classList.remove('active');
     updateInfo();
+    draw();
 }
 
 function addNodeMode(img, imgSrc){
@@ -147,7 +156,6 @@ function addNodeMode(img, imgSrc){
         selectedOperator = null;
         if(editorState == editorStates.operatorEditor){
             cancelSelectedOperator();
-            console.log("Node mode activated");
             editorState = editorStates.nodeEditor;
             item.classList.add('active');
             canvas.classList.add('placing');
@@ -196,6 +204,33 @@ function draw() {
             ctx.drawImage(obj.icon.img, obj.x, obj.y, obj.width, obj.height);
         }
     });
+    ctx.closePath();
+    let canvasPos = screenToCanvas(lastMouseX,lastMouseY);
+    if(editorState == editorStates.nodeEditor && !nodeStartPos){
+        let radius = 4;
+        ctx.fillStyle = '#100ae5'
+        ctx.arc(snapToGrid(canvasPos.x), snapToGrid(canvasPos.y), radius, 0, 2 * Math.PI, false);
+        ctx.closePath();
+        ctx.fill();
+    }
+    //Draw connections
+    if(nodeStartPos){
+        let radius = 4;
+        ctx.fillStyle = '#e60a41';
+        // Parameters: centerX, centerY, radius, startAngle (radians), endAngle (radians), counterclockwise (boolean)
+        ctx.arc(nodeStartPos.x, nodeStartPos.y, radius, 0, 2 * Math.PI, false);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#100ae5';
+        lineWidth = 3;
+        ctx.lineWidth = lineWidth / zoom;
+
+        ctx.beginPath();
+        ctx.moveTo(nodeStartPos.x, nodeStartPos.y);
+        ctx.lineTo(snapToGrid(canvasPos.x), snapToGrid(canvasPos.y));
+        ctx.stroke();
+    }
 
     ctx.restore();
 
