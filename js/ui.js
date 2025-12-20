@@ -270,9 +270,10 @@ function getNodeAt(x, y){
             let mx = Math.min(node.nodeStartPos.x,node.nodeEndPos.x);
             let my = Math.min(node.nodeStartPos.y,node.nodeEndPos.y);
             let bbox = {x: mx, y : my,
-                         w: Math.abs(node.nodeStartPos.x - node.nodeEndPos.y), h: Math.abs(node.nodeStartPos.y - node.nodeEndPos.y)};
+                        w: Math.abs(node.nodeStartPos.x - node.nodeEndPos.x), 
+                        h: Math.abs(node.nodeStartPos.y - node.nodeEndPos.y)};
             if (x >= bbox.x && x <= bbox.x + bbox.w &&
-                y >= bbox.y &&  y <= bbox.y + bbox.h){
+                y >= bbox.y && y <= bbox.y + bbox.h){
                 return node;
             }
         }
