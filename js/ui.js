@@ -21,6 +21,7 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+let dragTranslationLast = {x: 0, y: 0};
 //Editor states and settings
 const editorStates = {operatorEditor : 0, nodeEditor : 1};
 let editorState = editorStates.operatorEditor;
@@ -62,8 +63,8 @@ function updateInfo(){
     }
    //Mue position
    let pos = screenToCanvas(lastMouseX, lastMouseY);
-   document.getElementById('mousePositionX').textContent = clamp(Math.floor(pos.x), 0, canvasWidth);
-   document.getElementById('mousePositionY').textContent = clamp(Math.floor(pos.y), 0, canvasHeight);
+   document.getElementById('mousePositionX').textContent = clamp(snapToGrid(pos.x) , 0, canvasWidth);
+   document.getElementById('mousePositionY').textContent = clamp(snapToGrid(pos.y) , 0, canvasHeight);
 
 }
 
@@ -172,9 +173,8 @@ function addNodeMode(img, imgSrc){
     paletteImages.push({ img, src: imgSrc });
 }
 
-function drawLine(startPos, endPos){
+function drawLine(startPos, endPos, lineWidth = 3){
     ctx.strokeStyle = '#100ae5';
-    lineWidth = 3;
     ctx.lineWidth = lineWidth / zoom;
 
     ctx.beginPath();
@@ -217,10 +217,9 @@ function draw() {
         ctx.stroke();
     }
 
-
     //Draw Nodes
     _nodes.forEach(node => {
-        drawLine(node.nodeStartPos, node.nodeEndPos);
+        drawLine(node.nodeStartPos, node.nodeEndPos, 5);
     })
 
     // Draw objects
@@ -234,12 +233,7 @@ function draw() {
     canvasPos.x = snapToGrid(canvasPos.x);
     canvasPos.y = snapToGrid(canvasPos.y);
     if(editorState == editorStates.nodeEditor && !nodeStartPos){
-        let radius = 4;
-        ctx.fillStyle = '#100ae5'
-        ctx.arc(canvasPos.x, canvasPos.y, radius, 0, 2 * Math.PI, false);
-        ctx.closePath();
-        ctx.fill();
-        drawPoint({x: canvasPos.x, y: canvasPos.y});
+        drawPoint({x: canvasPos.x, y: canvasPos.y}, 4, '#100ae5');
     }
     //Draw live creation
     if(nodeStartPos){
@@ -263,6 +257,23 @@ function getObjectAt(x, y) {
             if (x >= obj.x && x <= obj.x + obj.width &&
                 y >= obj.y && y <= obj.y + obj.height) {
                 return obj;
+            }
+        }
+    }
+    return null;
+}
+
+function getNodeAt(x, y){
+        for (let i = _nodes.length - 1; i >= 0; i--) {
+        const node = _nodes[i];
+        if (node.type === 'node') {
+            let mx = Math.min(node.nodeStartPos.x,node.nodeEndPos.x);
+            let my = Math.min(node.nodeStartPos.y,node.nodeEndPos.y);
+            let bbox = {x: mx, y : my,
+                         w: Math.abs(node.nodeStartPos.x - node.nodeEndPos.y), h: Math.abs(node.nodeStartPos.y - node.nodeEndPos.y)};
+            if (x >= bbox.x && x <= bbox.x + bbox.w &&
+                y >= bbox.y &&  y <= bbox.y + bbox.h){
+                return node;
             }
         }
     }

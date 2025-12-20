@@ -27,7 +27,6 @@ document.getElementById('clearCanvas').addEventListener('click', () => {
     }
 });
 
-
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedOperator) {
         // Place the selected object
@@ -47,13 +46,18 @@ function mouseDownOperatorEdt(pos, e){
     }
 
     const obj = getObjectAt(pos.x, pos.y);
-
     if (obj) {
         draggedObject = obj;
-        dragOffsetX = pos.x - obj.x;
-        dragOffsetY = pos.y - obj.y;
+        dragOffsetX = snapToGrid(pos.x - obj.x);
+        dragOffsetY = snapToGrid(pos.y - obj.y);
         canvas.style.cursor = 'grabbing';
         updateInfo();
+    }else{
+        let node = getNodeAt(snapToGrid(pos.x), snapToGrid(pos.y));
+        if(node){
+            draggedObject = node;
+            dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
+        }
     }
     //Panning
     if(!draggedObject){
@@ -71,7 +75,8 @@ function mouseDownNodeEdt(pos, e){
         let nodeEndPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
         _nodes.push({
             nodeStartPos : nodeStartPos,
-            nodeEndPos : nodeEndPos
+            nodeEndPos : nodeEndPos,
+            type : 'node'
             })
         nodeStartPos=null;
     }
@@ -97,15 +102,27 @@ canvas.addEventListener('mousemove', (e) => {
     if(editorState == editorStates.operatorEditor){
         if (draggedObject) {
             const pos = screenToCanvas(e.clientX, e.clientY);
-            draggedObject.x = snapToGrid(pos.x - dragOffsetX);
-            draggedObject.y = snapToGrid(pos.y - dragOffsetY);
+            if(draggedObject.type == 'canvasItem'){
+                draggedObject.x = snapToGrid(pos.x - dragOffsetX);
+                draggedObject.y = snapToGrid(pos.y - dragOffsetY);
+            }
+            else if(draggedObject.type == 'node'){
+                let deltaX = snapToGrid(pos.x) - dragTranslationLast.x;
+                let deltaY = snapToGrid(pos.y) - dragTranslationLast.y;
+                dragTranslationLast.x = snapToGrid(pos.x);
+                dragTranslationLast.y = snapToGrid(pos.y);
+                draggedObject.nodeStartPos.x += deltaX;
+                draggedObject.nodeStartPos.y += deltaY;
+                draggedObject.nodeEndPos.x += deltaX;
+                draggedObject.nodeEndPos.y += deltaY;
+            }
             shouldDraw = true;
         } else if (isPanning && !selectedOperator) {
             panX += e.clientX - lastMouseX;
             panY += e.clientY - lastMouseY;
             shouldDraw = true;
-        }
-    }if(editorState == editorStates.nodeEditor){
+        } 
+        }else if(editorState == editorStates.nodeEditor){
         //Live draw when in nodeEditor!
         shouldDraw=true;
     }
@@ -161,7 +178,11 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
         draw();
     } else if (e.key === 'Delete' && draggedObject) {
-        canvasItems = canvasItems.filter(obj => obj !== draggedObject);
+        if(draggedObject.type == 'canvasItem'){
+            canvasItems = canvasItems.filter(obj => obj !== draggedObject);
+        }else if(draggedObject.type == 'node'){
+            _nodes = _nodes.filter(obj => obj !== draggedObject);
+        }
         draggedObject = null;
         draw();
     } else if (e.key === 'Escape') {

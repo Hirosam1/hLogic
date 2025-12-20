@@ -22,6 +22,7 @@ class OperatorCanvasItem extends Operator{
         this.y = y;
         this.width = width;
         this.height = height;
+        this.type = 'canvasItem';
     }
 }
 
