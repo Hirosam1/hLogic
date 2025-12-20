@@ -7,6 +7,7 @@ class Node{
             this.nextNodes.push(undefined);
         }
     }
+    
 }
 
 class Edge{
