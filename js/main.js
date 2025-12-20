@@ -48,15 +48,15 @@ function mouseDownOperatorEdt(pos, e){
     const obj = getObjectAt(pos.x, pos.y);
     if (obj) {
         draggedObject = obj;
-        dragOffsetX = snapToGrid(pos.x - obj.x);
-        dragOffsetY = snapToGrid(pos.y - obj.y);
         canvas.style.cursor = 'grabbing';
+        dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
         updateInfo();
     }else{
         let node = getNodeAt(snapToGrid(pos.x), snapToGrid(pos.y));
         if(node){
             draggedObject = node;
             dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
+            updateInfo();
         }
     }
     //Panning
@@ -73,11 +73,8 @@ function mouseDownNodeEdt(pos, e){
         nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
     }else{
         let nodeEndPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
-        _nodes.push({
-            nodeStartPos : nodeStartPos,
-            nodeEndPos : nodeEndPos,
-            type : 'node'
-            })
+        _nodes.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
+                                              nodeEndPos.x, nodeEndPos.y));
         nodeStartPos=null;
     }
     updateInfo();
@@ -102,20 +99,22 @@ canvas.addEventListener('mousemove', (e) => {
     if(editorState == editorStates.operatorEditor){
         if (draggedObject) {
             const pos = screenToCanvas(e.clientX, e.clientY);
+            let deltaX = snapToGrid(pos.x) - dragTranslationLast.x;
+            let deltaY = snapToGrid(pos.y) - dragTranslationLast.y;
             if(draggedObject.type == 'canvasItem'){
-                draggedObject.x = snapToGrid(pos.x - dragOffsetX);
-                draggedObject.y = snapToGrid(pos.y - dragOffsetY);
+                draggedObject.x += deltaX;
+                draggedObject.y += deltaY;
             }
             else if(draggedObject.type == 'node'){
-                let deltaX = snapToGrid(pos.x) - dragTranslationLast.x;
-                let deltaY = snapToGrid(pos.y) - dragTranslationLast.y;
-                dragTranslationLast.x = snapToGrid(pos.x);
-                dragTranslationLast.y = snapToGrid(pos.y);
-                draggedObject.nodeStartPos.x += deltaX;
-                draggedObject.nodeStartPos.y += deltaY;
-                draggedObject.nodeEndPos.x += deltaX;
-                draggedObject.nodeEndPos.y += deltaY;
+                draggedObject.startPos.x += deltaX;
+                draggedObject.startPos.y += deltaY;
+                draggedObject.endPos.x += deltaX;
+                draggedObject.endPos.y += deltaY;
+                draggedObject.x += deltaX;
+                draggedObject.y += deltaY;
             }
+            dragTranslationLast.x = snapToGrid(pos.x);
+            dragTranslationLast.y = snapToGrid(pos.y);
             shouldDraw = true;
         } else if (isPanning && !selectedOperator) {
             panX += e.clientX - lastMouseX;

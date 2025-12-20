@@ -19,8 +19,6 @@ let paletteImages = [];
 //Input information
 let lastMouseX = 0;
 let lastMouseY = 0;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
 let dragTranslationLast = {x: 0, y: 0};
 //Editor states and settings
 const editorStates = {operatorEditor : 0, nodeEditor : 1};
@@ -48,7 +46,7 @@ function updateInfo(){
 //Update Mode field.
     if (editorState == editorStates.operatorEditor){
         if(draggedObject){
-            document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.name + ') operator';
+            document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.operator?.name + ') operator';
         }else if(placingMode){
             document.getElementById('modeInfo').textContent = 'EditMode: Place (' + selectedOperator.name + ') operator';
         }else{
@@ -74,9 +72,9 @@ function addOperatorToPalette(operator){
         const paletteDiv = document.getElementById('objectPalette');
         const item = document.createElement('div');
         item.className = 'palette-item';
-        
         const imgElement = document.createElement('img');
         imgElement.src = operator.icon.imgSrc;
+        imgElement.setAttribute('draggable', false);
         item.appendChild(imgElement);
         //Load img data to operator icon field
         operator.icon.img = img;
@@ -150,6 +148,7 @@ function addNodeMode(img, imgSrc){
     item.className = 'palette-item';
     
     const imgElement = document.createElement('img');
+    imgElement.setAttribute('draggable', false);
     imgElement.src = imgSrc;
     item.id = "nodeEditor";
     item.appendChild(imgElement);
@@ -219,13 +218,13 @@ function draw() {
 
     //Draw Nodes
     _nodes.forEach(node => {
-        drawLine(node.nodeStartPos, node.nodeEndPos, 5);
+        drawLine(node.startPos, node.endPos, 5);
     })
 
     // Draw objects
     canvasItems.forEach(obj => {
-        if (obj.icon.type === 'image' && obj.icon.img.complete) {
-            ctx.drawImage(obj.icon.img, obj.x, obj.y, obj.width, obj.height);
+        if (obj.operator.icon.type === 'image' && obj.operator.icon.img.complete) {
+            ctx.drawImage(obj.operator.icon.img, obj.x, obj.y, obj.width, obj.height);
         }
     });
     ctx.closePath();
@@ -253,7 +252,7 @@ function snapToGrid(value) {
 function getObjectAt(x, y) {
     for (let i = canvasItems.length - 1; i >= 0; i--) {
         const obj = canvasItems[i];
-        if (obj.icon.type === 'image') {
+        if (obj.operator.icon.type === 'image') {
             if (x >= obj.x && x <= obj.x + obj.width &&
                 y >= obj.y && y <= obj.y + obj.height) {
                 return obj;
@@ -267,13 +266,8 @@ function getNodeAt(x, y){
         for (let i = _nodes.length - 1; i >= 0; i--) {
         const node = _nodes[i];
         if (node.type === 'node') {
-            let mx = Math.min(node.nodeStartPos.x,node.nodeEndPos.x);
-            let my = Math.min(node.nodeStartPos.y,node.nodeEndPos.y);
-            let bbox = {x: mx, y : my,
-                        w: Math.abs(node.nodeStartPos.x - node.nodeEndPos.x), 
-                        h: Math.abs(node.nodeStartPos.y - node.nodeEndPos.y)};
-            if (x >= bbox.x && x <= bbox.x + bbox.w &&
-                y >= bbox.y && y <= bbox.y + bbox.h){
+            if (x >= node.x && x <= node.x + node.width &&
+                y >= node.y && y <= node.y + node.height){
                 return node;
             }
         }

@@ -7,17 +7,8 @@ class Icon{
     }
 }
 
-class Operator{
-    constructor(name, logic, icon=null){
-        this.name = name;
-        this.logic = logic;
-        this.icon = icon;
-    }
-};
-
-class OperatorCanvasItem extends Operator{
-    constructor(operator, x, y, width, height,){
-        super(operator.name, operator.logic, operator.icon);
+class CanvasItem{
+    constructor(x, y, width, height){
         this.x = x;
         this.y = y;
         this.width = width;
@@ -26,13 +17,27 @@ class OperatorCanvasItem extends Operator{
     }
 }
 
-class Node{
-    constructor(value=0, edgesN=1, type=undefined){
-        this.value = value;
-        this.edgesN=edgesN;
-        this.nextNodes=[];
-        for(i=0; i < edgesN; i++){
-            this.nextNodes.push(undefined);
-        }
+class Operator{
+    constructor(name, logic, icon=null){
+        this.name = name;
+        this.logic = logic;
+        this.icon = icon;
+    }
+};
+
+class OperatorCanvasItem extends CanvasItem{
+    constructor(operator, x, y, width, height){
+        super(x, y, width, height);
+        this.operator = operator;
+    }
+}
+
+class LineSegmentCanvasItem extends CanvasItem{
+    constructor(startX, startY, endX, endY){
+        super(Math.min(startX, endX), Math.min(startY, endY), 
+              Math.abs(startX - endX), Math.abs(startY - endY));
+        this.startPos = {x: startX, y: startY};
+        this.endPos = {x: endX, y: endY};
+        this.type = 'node';
     }
 }
