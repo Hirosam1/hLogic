@@ -125,12 +125,13 @@ body {
     flex: 1;
     position: relative;
     overflow: hidden;
-    background: #0a0a0a;
+    background: #110c14;
 }
 
 canvas {
     position: absolute;
     cursor: grab;
+    margin: 0;
 }
 
 canvas.panning {

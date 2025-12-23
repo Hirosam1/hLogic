@@ -29,6 +29,7 @@ class OperatorCanvasItem extends CanvasItem{
     constructor(operator, x, y, width, height){
         super(x, y, width, height);
         this.operator = operator;
+        this.type='operator';
     }
 }
 

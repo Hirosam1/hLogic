@@ -52,7 +52,7 @@ class UIEditor{
                 if(draggedObject.operator){
                     document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.operator.name + ') operator';
                 }else{
-                    document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (line segment) operator';
+                    document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging operator';
                 }
             }else if(placingMode){
                 document.getElementById('modeInfo').textContent = 'EditMode: Place (' + selectedOperator.name + ') operator';
@@ -229,10 +229,10 @@ class UIEditor{
         document.getElementById('objectCount').textContent = this._canvasOperators.length + this._canvasNodes.length;
     }
 
-    getObjectAt(x, y) {
+    getOperatorAt(x, y) {
         for (let i = this._canvasOperators.length - 1; i >= 0; i--) {
             const obj = this._canvasOperators[i];
-            if (obj.operator.icon.type === 'image') {
+            if (obj.operator) {
                 if (x >= obj.x && x <= obj.x + obj.width &&
                     y >= obj.y && y <= obj.y + obj.height) {
                     return obj;
@@ -253,6 +253,60 @@ class UIEditor{
             }
         }
         return null;
+    }
+
+    mouseDownOperatorEdt(pos, e){
+        if (placingMode && selectedOperator) {
+            // Place the selected object
+            if (pos.x >= 0 && pos.x <= canvasWidth &&
+                pos.y >= 0 && pos.y <= canvasHeight) {
+                if (selectedOperator.icon.type == 'image') {
+                    let imgSize = [gridSize*selectedOperator.icon.ratio.x, gridSize*selectedOperator.icon.ratio.y];
+                    this._canvasOperators.push(new OperatorCanvasItem(selectedOperator,
+                                        this.snapToGrid(pos.x - imgSize[0]/2),
+                                        this.snapToGrid(pos.y - imgSize[1]/2),
+                                        imgSize[0],
+                                        imgSize[1]));
+                }
+                this.draw();
+            }
+            return;
+        }
+
+        const obj = this.getOperatorAt(pos.x, pos.y);
+        if (obj) {
+            draggedObject = obj;
+            canvas.style.cursor = 'grabbing';
+            dragTranslationLast = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
+            this.updateInfo();
+        }else{
+            let node = this.getNodeAt(this.snapToGrid(pos.x), this.snapToGrid(pos.y));
+            if(node){
+                draggedObject = node;
+                dragTranslationLast = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
+                this.updateInfo();
+            }
+        }
+        //Panning
+        if(!draggedObject){
+            isPanning = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            canvas.classList.add('panning');
+        }
+    }
+
+    mouseDownNodeEdt(pos, e){
+        if(!nodeStartPos){
+            nodeStartPos = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
+        }else{
+            let nodeEndPos = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
+            this._canvasNodes.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
+                                                nodeEndPos.x, nodeEndPos.y));
+            nodeStartPos=null;
+        }
+        this.updateInfo();
+        this.draw();
     }
 
     // ##### Input actions and Canvas creation logic ######
@@ -285,7 +339,6 @@ class UIEditor{
                 this.draw();
             }
         });
-
         // Canvas mouse events ========
         //Mouse down
         canvas.addEventListener('mousedown', (e) => {
@@ -306,7 +359,7 @@ class UIEditor{
                     const pos = this.screenToCanvas(e.clientX, e.clientY);
                     let deltaX = this.snapToGrid(pos.x) - dragTranslationLast.x;
                     let deltaY = this.snapToGrid(pos.y) - dragTranslationLast.y;
-                    if(draggedObject.type == 'canvasItem'){
+                    if(draggedObject.type == 'operator'){
                         draggedObject.x += deltaX;
                         draggedObject.y += deltaY;
                     }
@@ -354,11 +407,14 @@ class UIEditor{
             }
         });
 
-        // Mouse wheel zoom
+        // Mouse wheel
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
             zoom = clamp(zoom*delta, minZoom, maxZoom);
+            const zoomDspl = (1.0-delta);
+            panX+=zoomDspl*panX;
+            panY+=zoomDspl*panY;
             zoomLevel.textContent = Math.round(zoom * 100);
             this.draw();
         });
@@ -382,7 +438,7 @@ class UIEditor{
                 zoomLevel.textContent = Math.round(zoom * 100);
                 this.draw();
             } else if (e.key === 'Delete' && draggedObject) {
-                if(draggedObject.type == 'canvasItem'){
+                if(draggedObject.type == 'operator'){
                     this._canvasOperators = this._canvasOperators.filter(obj => obj !== draggedObject);
                 }else if(draggedObject.type == 'node'){
                     this._canvasNodes = this._canvasNodes.filter(obj => obj !== draggedObject);
@@ -413,59 +469,5 @@ class UIEditor{
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         this.draw();   
-    }
-
-    mouseDownOperatorEdt(pos, e){
-        if (placingMode && selectedOperator) {
-            // Place the selected object
-            if (pos.x >= 0 && pos.x <= canvasWidth &&
-                pos.y >= 0 && pos.y <= canvasHeight) {
-                if (selectedOperator.icon.type == 'image') {
-                    let imgSize = [gridSize*selectedOperator.icon.ratio.x, gridSize*selectedOperator.icon.ratio.y];
-                    this._canvasOperators.push(new OperatorCanvasItem(selectedOperator,
-                                        this.snapToGrid(pos.x - imgSize[0]/2),
-                                        this.snapToGrid(pos.y - imgSize[1]/2),
-                                        imgSize[0],
-                                        imgSize[1]));
-                }
-                this.draw();
-            }
-            return;
-        }
-
-        const obj = this.getObjectAt(pos.x, pos.y);
-        if (obj) {
-            draggedObject = obj;
-            canvas.style.cursor = 'grabbing';
-            dragTranslationLast = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
-            this.updateInfo();
-        }else{
-            let node = this.getNodeAt(this.snapToGrid(pos.x), this.snapToGrid(pos.y));
-            if(node){
-                draggedObject = node;
-                dragTranslationLast = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
-                this.updateInfo();
-            }
-        }
-        //Panning
-        if(!draggedObject){
-            isPanning = true;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-            canvas.classList.add('panning');
-        }
-    }
-
-    mouseDownNodeEdt(pos, e){
-        if(!nodeStartPos){
-            nodeStartPos = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
-        }else{
-            let nodeEndPos = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
-            this._canvasNodes.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
-                                                nodeEndPos.x, nodeEndPos.y));
-            nodeStartPos=null;
-        }
-        this.updateInfo();
-        this.draw();
     }
 }
