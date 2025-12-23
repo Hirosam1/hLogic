@@ -1,3 +1,10 @@
+class Vec2{
+    constructor(x,y){
+        this.x = x;
+        this.y = y;
+    }
+}
+
 class Node{
     constructor(value=0, edgesN=1, type=undefined){
         this.value = value;
@@ -7,7 +14,7 @@ class Node{
             this.nextNodes.push(undefined);
         }
     }
-    
+
 }
 
 class Edge{

@@ -1,13 +1,3 @@
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const container = document.getElementById('canvasContainer');
-const widthSlider = document.getElementById('widthSlider');
-const heightSlider = document.getElementById('heightSlider');
-const resetView = document.getElementById('resetView');
-const zoomLevel = document.getElementById('zoomLevel');
-const clearCanvas = document.getElementById('clearCanvas');
-
-
 const globalRatio = {x: 4, y: 3};
 const squareRatio = {x: 4, y: 4};
 const hSquareRatio = {x: 2, y: 2};
@@ -36,12 +26,12 @@ let selectedOperator = null;
 let placingMode = false;
 let nodeStartPos = null;
 
-class Canvas{
+class UIEditor{
     constructor(){
-        //Resources
+        //Resources====
         this._operators = [];
-        this._nodes = [];
-        this._canvasItems = [];
+        this._canvasNodes = [];
+        this._canvasOperators = [];
     }
 
     screenToCanvas(screenX, screenY) {
@@ -59,7 +49,11 @@ class Canvas{
     //Update Mode field.
         if (editorState == editorStates.operatorEditor){
             if(draggedObject){
-                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.operator?.name + ') operator';
+                if(draggedObject.operator){
+                    document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.operator.name + ') operator';
+                }else{
+                    document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (line segment) operator';
+                }
             }else if(placingMode){
                 document.getElementById('modeInfo').textContent = 'EditMode: Place (' + selectedOperator.name + ') operator';
             }else{
@@ -74,7 +68,7 @@ class Canvas{
         }
         //Mouse position
         let pos = this.screenToCanvas(lastMouseX, lastMouseY);
-        document.getElementById('mousePositionX').textContent = clamp(this.snapToGrid(pos.x) , 0, 'canvasWidth');
+        document.getElementById('mousePositionX').textContent = clamp(this.snapToGrid(pos.x) , 0, canvasWidth);
         document.getElementById('mousePositionY').textContent = clamp(this.snapToGrid(pos.y) , 0, canvasHeight);
     }
 
@@ -112,67 +106,7 @@ class Canvas{
         img.src = operator.icon.imgSrc;
     }
 
-    preloadPalletMenu(){
-        this._operators = [
-        new Operator('circleDebug', 'none', new Icon('imgs/circle_white.svg', squareRatio)),
-            new Operator('squareDebug', 'none', new Icon('imgs/square_white.svg', squareRatio)),
-            new Operator('switch', 'switch', new Icon('imgs/switch_2x2.svg', hSquareRatio)),
-            new Operator('output', 'output', new Icon('imgs/output_2x2.svg', hSquareRatio)),
-            new Operator('not', 'not', new Icon('imgs/not_2x2.svg', hSquareRatio)),
-            new Operator('and', 'and', new Icon('imgs/and_4x3.svg', globalRatio)),
-            new Operator('or', 'or', new Icon('imgs/or_4x3.svg', globalRatio)),
-            new Operator('xor', 'xor', new Icon('imgs/xor_4x3.svg', globalRatio)),
-        ];
-        this._operators.forEach(operator =>{    
-        this.addOperatorToPalette(operator);
-        });
-        //Node Tool menu
-        const node_mode_imgSrc = "imgs/nodes_icon.svg";
-        const node_mode_img = new Image();
-        node_mode_img.onload = () => {
-            this.addNodeMode(node_mode_img, node_mode_imgSrc);
-        };
-        node_mode_img.onerror = () => {
-            console.error(`Failed to load node mode image`);
-        };
-        node_mode_img.src = node_mode_imgSrc;
-    }
-
-    cancelSelectedOperator(){
-        if(editorState == editorStates.nodeEditor){
-            editorState = editorStates.operatorEditor;
-        }
-        nodeStartPos=null;
-        placingMode = false;
-        selectedOperator = null;
-        canvas.classList.remove('placing');
-        canvas.style.cursor = 'grab';
-        document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
-        nodeEditor = document.getElementById("nodeEditor");
-        nodeEditor.classList.remove('active');
-        this.updateInfo();
-        this.draw();
-    }
-
-        drawLine(startPos, endPos, lineWidth = 3){
-        ctx.strokeStyle = '#100ae5';
-        ctx.lineWidth = lineWidth / zoom;
-
-        ctx.beginPath();
-        ctx.moveTo(startPos.x, startPos.y);
-        ctx.lineTo(endPos.x, endPos.y);
-        ctx.stroke();
-    }
-
-    drawPoint(pos, radius, fillStyle='#e60a41'){
-        ctx.fillStyle = fillStyle;
-        // Parameters: centerX, centerY, radius, startAngle (radians), endAngle (radians), counterclockwise (boolean)
-        ctx.arc(pos.x, pos.y, radius, 0, 2 * Math.PI, false);
-        ctx.fill();
-        ctx.closePath();
-    }
-
-    addNodeMode(img, imgSrc){
+    addNodeModeToPalette(img, imgSrc){
         const paletteDiv = document.getElementById('toolsPalette');
         const item = document.createElement('div');
         item.className = 'palette-item';
@@ -202,64 +136,102 @@ class Canvas{
         paletteImages.push({ img, src: imgSrc });
     }
 
-    draw(){
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.save();
-        ctx.translate(panX, panY);
-        ctx.scale(zoom, zoom);
+    preloadPalletMenu(){
+        this._operators = [
+        new Operator('circleDebug', 'none', new Icon('imgs/circle_white.svg', squareRatio)),
+            new Operator('squareDebug', 'none', new Icon('imgs/square_white.svg', squareRatio)),
+            new Operator('switch', 'switch', new Icon('imgs/switch_2x2.svg', hSquareRatio)),
+            new Operator('output', 'output', new Icon('imgs/output_2x2.svg', hSquareRatio)),
+            new Operator('not', 'not', new Icon('imgs/not_2x2.svg', hSquareRatio)),
+            new Operator('and', 'and', new Icon('imgs/and_4x3.svg', globalRatio)),
+            new Operator('or', 'or', new Icon('imgs/or_4x3.svg', globalRatio)),
+            new Operator('xor', 'xor', new Icon('imgs/xor_4x3.svg', globalRatio)),
+        ];
+        this._operators.forEach(operator =>{    
+        this.addOperatorToPalette(operator);
+        });
+        //Node Tool menu
+        const node_mode_imgSrc = "imgs/nodes_icon.svg";
+        const node_mode_img = new Image();
+        node_mode_img.onload = () => {
+            this.addNodeModeToPalette(node_mode_img, node_mode_imgSrc);
+        };
+        node_mode_img.onerror = () => {
+            console.error(`Failed to load node mode image`);
+        };
+        node_mode_img.src = node_mode_imgSrc;
+    }
 
-        // Draw grid
-        ctx.strokeStyle = '#333';
-        let lineWidth = 2;
-        ctx.lineWidth = lineWidth / zoom;
+    cancelSelectedOperator(){
+        if(editorState == editorStates.nodeEditor){
+            editorState = editorStates.operatorEditor;
+        }
+        nodeStartPos=null;
+        placingMode = false;
+        selectedOperator = null;
+        canvas.classList.remove('placing');
+        canvas.style.cursor = 'grab';
+        document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+        let nodeEditor = document.getElementById("nodeEditor");
+        nodeEditor.classList.remove('active');
+        this.updateInfo();
+        this.draw();
+    }
 
+    drawGrid(){
+        let lineWidth = 0.75;
+        let lineWidthZ = lineWidth / zoom;
         for (let x = 0; x <= canvasWidth; x += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvasHeight);
-            ctx.stroke();
+            drawLine(new Vec2(x,0), new Vec2(x,canvasHeight),lineWidthZ,'#555');
         }
 
         for (let y = 0; y <= canvasHeight; y += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvasWidth, y);
-            ctx.stroke();
+            drawLine(new Vec2(0,y), new Vec2(canvasWidth,y),lineWidthZ,'#555');
         }
+    }
 
+    drawResources(){
         //Draw Nodes
-        this._nodes.forEach(node => {
-            this.drawLine(node.startPos, node.endPos, 5);
+        this._canvasNodes.forEach(node => {
+            drawLine(node.startPos, node.endPos, 5);
         })
-
+        ctx.closePath();
         // Draw objects
-        this._canvasItems.forEach(obj => {
+        this._canvasOperators.forEach(obj => {
             if (obj.operator.icon.type === 'image' && obj.operator.icon.img.complete) {
                 ctx.drawImage(obj.operator.icon.img, obj.x, obj.y, obj.width, obj.height);
             }
         });
-        ctx.closePath();
+    }
+
+    draw(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(panX, panY);
+        ctx.scale(zoom, zoom);
+        
+        this.drawGrid();
+        this.drawResources();
+
         let canvasPos = this.screenToCanvas(lastMouseX,lastMouseY);
         canvasPos.x = this.snapToGrid(canvasPos.x);
         canvasPos.y = this.snapToGrid(canvasPos.y);
         if(editorState == editorStates.nodeEditor && !nodeStartPos){
-            this.drawPoint({x: canvasPos.x, y: canvasPos.y}, 4, '#100ae5');
+            drawPoint(canvasPos, 4);
         }
         //Draw live creation
         if(nodeStartPos){
-            this.drawLine(nodeStartPos, canvasPos);
-            this.drawPoint({x: nodeStartPos.x, x : nodeStartPos.y});
+            drawLine(nodeStartPos, canvasPos);
+            drawPoint(nodeStartPos);
         }
 
         ctx.restore();
-
-        document.getElementById('objectCount').textContent = this._canvasItems.length + this._nodes.length;
+        document.getElementById('objectCount').textContent = this._canvasOperators.length + this._canvasNodes.length;
     }
 
     getObjectAt(x, y) {
-        for (let i = this._canvasItems.length - 1; i >= 0; i--) {
-            const obj = this._canvasItems[i];
+        for (let i = this._canvasOperators.length - 1; i >= 0; i--) {
+            const obj = this._canvasOperators[i];
             if (obj.operator.icon.type === 'image') {
                 if (x >= obj.x && x <= obj.x + obj.width &&
                     y >= obj.y && y <= obj.y + obj.height) {
@@ -271,8 +243,8 @@ class Canvas{
     }
 
     getNodeAt(x, y){
-            for (let i = this._nodes.length - 1; i >= 0; i--) {
-            const node = this._nodes[i];
+            for (let i = this._canvasNodes.length - 1; i >= 0; i--) {
+            const node = this._canvasNodes[i];
             if (node.type === 'node') {
                 if (x >= node.x && x <= node.x + node.width &&
                     y >= node.y && y <= node.y + node.height){
@@ -308,8 +280,8 @@ class Canvas{
 
         clearCanvas.addEventListener('click', () => {
             if (confirm('Clear all canvas Items?')) {
-                this._canvasItems = [];
-                this._nodes = [];
+                this._canvasOperators = [];
+                this._canvasNodes = [];
                 this.draw();
             }
         });
@@ -411,9 +383,9 @@ class Canvas{
                 this.draw();
             } else if (e.key === 'Delete' && draggedObject) {
                 if(draggedObject.type == 'canvasItem'){
-                    this._canvasItems = this._canvasItems.filter(obj => obj !== draggedObject);
+                    this._canvasOperators = this._canvasOperators.filter(obj => obj !== draggedObject);
                 }else if(draggedObject.type == 'node'){
-                    this._nodes = this._nodes.filter(obj => obj !== draggedObject);
+                    this._canvasNodes = this._canvasNodes.filter(obj => obj !== draggedObject);
                 }
                 draggedObject = null;
                 this.draw();
@@ -450,7 +422,7 @@ class Canvas{
                 pos.y >= 0 && pos.y <= canvasHeight) {
                 if (selectedOperator.icon.type == 'image') {
                     let imgSize = [gridSize*selectedOperator.icon.ratio.x, gridSize*selectedOperator.icon.ratio.y];
-                    this._canvasItems.push(new OperatorCanvasItem(selectedOperator,
+                    this._canvasOperators.push(new OperatorCanvasItem(selectedOperator,
                                         this.snapToGrid(pos.x - imgSize[0]/2),
                                         this.snapToGrid(pos.y - imgSize[1]/2),
                                         imgSize[0],
@@ -489,7 +461,7 @@ class Canvas{
             nodeStartPos = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
         }else{
             let nodeEndPos = {x: this.snapToGrid(pos.x), y: this.snapToGrid(pos.y)};
-            this._nodes.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
+            this._canvasNodes.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
                                                 nodeEndPos.x, nodeEndPos.y));
             nodeStartPos=null;
         }
