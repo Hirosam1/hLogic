@@ -5,30 +5,34 @@ mainCanvas.initCanvas();
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
 let isSimulating = false;
-//#2a2a2af2
+
 startSimulation.addEventListener('click', () => {
     isSimulating = !isSimulating;
     const simTxt = isSimulating ? 'Stop Simulation ⏹️' : 'Start Simulation ▶️';
     startSimulation.innerHTML=simTxt;
     mainCanvas.cancelSelectedOperator();
     if(isSimulating){
-        canvasControls.style.background = '#9c5432f2';
+        //Load edges
+        canvasControls.style.background = '#a34f28f2';
         editorState = editorStates.simulating;
         clearVertices();
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
             lineSeg.graphItem.createVertices();
         });
+        //Load operators
         let switches = [];
-        mainCanvas._canvasOperators.forEach(op => { 
-            op.graphItem.createVertices();
-            if(op.operator.name=='switch'){
+        mainCanvas._canvasObjects.forEach(op => {
+            if(op.type === 'operator'){
+                op.graphItem.createVertices();
+            }
+            if(op.object.name ==='switch'){
                 switches.push(op);
             }
         });
         console.log("vertices: "  + verticesPosList.length + " matches: " + __verticesMatch + " switches: " + switches.length);
     }else{
         canvasControls.style.background = '#2a2a2af2';
-        editorState = editorStates.operatorEditor;
+        editorState = editorStates.objectEditor;
     }
     mainCanvas.draw();
 });
@@ -44,25 +48,34 @@ document.getElementById('loadScene').addEventListener('click', ()=>{
 
 //===== Set up Canvas controls ========
 function mouseDownOperatorEdt(pos, e){
-    if (placingMode && selectedOperator) {
+    if (placingMode && selectedObject) {
         // Place the selected object
         if (pos.x >= 0 && pos.x <= canvasWidth &&
             pos.y >= 0 && pos.y <= canvasHeight) {
-            if (selectedOperator.icon.type == 'image') {
-                let imgSize = [gridSize*selectedOperator.icon.ratio.x, gridSize*selectedOperator.icon.ratio.y];
-                let opr = new OperatorCanvasItem(selectedOperator,
-                                    snapToGrid(pos.x - imgSize[0]/2),
-                                    snapToGrid(pos.y - imgSize[1]/2),
-                                    imgSize[0],
-                                    imgSize[1]);
-                mainCanvas._canvasOperators.push(opr);
+            if (selectedObject.icon.type == 'image') {
+                let imgSize = [gridSize*selectedObject.icon.ratio.x, gridSize*selectedObject.icon.ratio.y];
+                let opr = null;
+                if(selectedObject.type == 'operatorObject'){
+                    opr = new OperatorCanvasItem(selectedObject,
+                                        snapToGrid(pos.x - imgSize[0]/2),
+                                        snapToGrid(pos.y - imgSize[1]/2),
+                                        imgSize[0],
+                                        imgSize[1]);
+                }else{
+                    opr = new ObjectCanvasItem(selectedObject,  
+                        snapToGrid(pos.x - imgSize[0]/2),
+                        snapToGrid(pos.y - imgSize[1]/2),
+                        imgSize[0],
+                        imgSize[1]);
+                }
+                mainCanvas._canvasObjects.push(opr);
             }
             mainCanvas.draw();
         }
         return;
     }
 
-    const obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+    const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj) {
         draggedObject = obj;
         canvas.style.cursor = 'grabbing';
@@ -84,8 +97,9 @@ function mouseDownNodeEdt(pos, e){
         nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
     }else{
         let nodeEndPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
-        mainCanvas._canvasLineSegments.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
-                                            nodeEndPos.x, nodeEndPos.y));
+        mainCanvas._canvasLineSegments.push(
+            new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
+                                    nodeEndPos.x, nodeEndPos.y));
         nodeStartPos=null;
     }
     updateInfo();
@@ -93,33 +107,33 @@ function mouseDownNodeEdt(pos, e){
 }
 
 function mouseDownSimulatingEdt(pos, e){
-    const obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+    const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj){
-        canvas.style.cursor = 'grabbing';
-        console.log(obj.operator.name);
-        updateInfo();
-        if(obj.operator.name == 'switch'){
+        selectedObject = obj;
+        updateInfo(obj);
+        if(obj.object.name === 'switch'){
             const maxIt = 0;
             let i = 0;
             //as example 2
             let o = obj.logic.process();
             let ov = obj.graphItem.outputVertex;
+            console.log('input: ' + o);
             while(ov){
                 if(i >= maxIt){
                     break;
                 }
                 if(ov.type == 'input'){
-                    console.log('input');
+                    console.log('input found!');
                 }else if(ov.type == 'vertex'){
                     
                 }
                 i++;
             }
-            console.log(o);
+
         }
-        return false;
+        return obj;
     }
-    return true;
+    return null;
 }
 
 widthSlider.addEventListener('input', (e) => {
@@ -156,14 +170,14 @@ clearCanvas.addEventListener('click', () => {
 canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
     let shouldPan = false;
-    if(editorState == editorStates.operatorEditor){
+    if(editorState == editorStates.objectEditor){
         mouseDownOperatorEdt(pos, e);
     }else if(editorState == editorStates.nodeEditor){
         mouseDownNodeEdt(pos, e);
     }else if(editorState == editorStates.simulating){
-        shouldPan = mouseDownSimulatingEdt(pos, e);
+        actObj = mouseDownSimulatingEdt(pos, e);
     }
-    if(editorState == editorStates.operatorEditor || shouldPan){
+    if(editorState == editorStates.objectEditor || !actObj){
         //Panning
         if(!draggedObject){
             isPanning = true;
@@ -180,7 +194,7 @@ canvas.addEventListener('mousemove', (e) => {
     let shouldDraw = false;
     const pos = screenToCanvas(e.clientX, e.clientY);
     const gridPos = {x :snapToGrid(pos.x), y: snapToGrid(pos.y)};
-    if(editorState == editorStates.operatorEditor){
+    if(editorState == editorStates.objectEditor){
         if (draggedObject) {
             const deltaX = gridPos.x - dragTranslationLast.x;
             const deltaY = gridPos.y - dragTranslationLast.y;
@@ -193,10 +207,10 @@ canvas.addEventListener('mousemove', (e) => {
             dragTranslationLast.x = gridPos.x;
             dragTranslationLast.y = gridPos.y;
             shouldDraw = true;
-        }else if(selectedOperator){
+        }else if(selectedObject){
             canvas.style.cursor = 'alias';
         }else if(!isPanning){
-            let obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+            let obj = mainCanvas.getObjectAt(pos.x, pos.y);
             let lin = mainCanvas.getLineSegmentAt(gridPos.x, gridPos.y);
             if(obj || lin){
                 canvas.style.cursor = 'pointer';
@@ -208,7 +222,7 @@ canvas.addEventListener('mousemove', (e) => {
         //Live draw when in nodeEditor!
         shouldDraw=true;
     }else if(editorState == editorStates.simulating){
-        let obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+        let obj = mainCanvas.getObjectAt(pos.x, pos.y);
         if(obj){
             canvas.style.cursor = 'pointer';
         }else{
@@ -216,7 +230,7 @@ canvas.addEventListener('mousemove', (e) => {
         }
     }
 
-    if (isPanning && !selectedOperator) {
+    if (isPanning && !selectedObject) {
         panX -= e.clientX - lastMouseX;
         panY -= e.clientY - lastMouseY;
         shouldDraw = true;
@@ -233,7 +247,7 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseup', () => {
     draggedObject = null;
     isPanning = false;
-    if(editorState == editorStates.operatorEditor){
+    if(editorState == editorStates.objectEditor){
         if (!placingMode) {
                     draggedObject=null;
             canvas.style.cursor = 'grab';
@@ -242,6 +256,9 @@ canvas.addEventListener('mouseup', () => {
         canvas.classList.remove('panning');
     }else if(editorState == editorStates.nodeEditor){
 
+    }else if(editorState == editorStates.simulating){
+        selectedObject = null;
+        updateInfo();
     }
 });
 
@@ -278,7 +295,7 @@ document.addEventListener('keydown', (e) => {
         mainCanvas.draw();
     } else if (e.key === 'Delete' && draggedObject) {
         if(draggedObject.type == 'operator'){
-            mainCanvas._canvasOperators = mainCanvas._canvasOperators.filter(obj => obj !== draggedObject);
+            mainCanvas._canvasObjects = mainCanvas._canvasObjects.filter(obj => obj !== draggedObject);
         }else if(draggedObject.type == 'lineSegment'){
             mainCanvas._canvasLineSegments = mainCanvas._canvasLineSegments.filter(obj => obj !== draggedObject);
         }

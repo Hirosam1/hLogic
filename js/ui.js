@@ -47,15 +47,15 @@ function snapToGrid(value) {
 
 function updateInfo(){
 //Update Mode field.
-    if (editorState == editorStates.operatorEditor){
+    if (editorState == editorStates.objectEditor){
         if(draggedObject){
-            if(draggedObject.operator){
-                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.operator.name + ') operator';
+            if(draggedObject.object){
+                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.object.name + ') operator';
             }else{
                 document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging ' + (draggedObject.isStraight ? 'straight' : 'diagonal') + ' line segment';
             }
         }else if(placingMode){
-            document.getElementById('modeInfo').textContent = 'EditMode: Place (' + selectedOperator.name + ') operator';
+            document.getElementById('modeInfo').textContent = 'Edit Mode: Place (' + selectedObject.name + ') operator';
         }else{
             document.getElementById('modeInfo').textContent ='Edit Mode: Pan (Click & Drag)';
         }
@@ -65,6 +65,8 @@ function updateInfo(){
         }else{
             document.getElementById('modeInfo').textContent ='Node mode: Start connection';
         }
+    }else if(editorState == editorStates.simulating){
+        document.getElementById('modeInfo').textContent = 'Simulating Mode: (' + selectedObject?.object.name + ') operator';
     }
     //Mouse position
     let pos = this.screenToCanvas(lastMouseX, lastMouseY);

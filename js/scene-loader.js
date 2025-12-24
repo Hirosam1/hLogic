@@ -8,8 +8,8 @@ function saveScene() {
         zoom: zoom,
         panX: Math.round(panX),
         panY: Math.round(panY),
-        canvasOperators: mainCanvas._canvasOperators.map(obj => ({
-            operatorName: obj.operator.name,
+        canvasOperators: mainCanvas._canvasObjects.map(obj => ({
+            operatorName: obj.object.name,
             x: obj.x,
             y: obj.y,
             width: obj.width,
@@ -68,9 +68,10 @@ function loadScene() {
                 
                 // Clear existing objects and palette
                 mainCanvas.clearCanvas();
+                //!!! UPDATE SAVE FILE !!!
                 sceneData.canvasOperators.forEach((canvasOp,i) =>{
                     let operator = null;
-                    mainCanvas._operators.forEach((op,i)=>{
+                    mainCanvas._objects.forEach((op,i)=>{
                         if(op.name == canvasOp.operatorName){
                             operator = op;
                         }
@@ -78,7 +79,9 @@ function loadScene() {
                     if(operator){
                         let opr = new OperatorCanvasItem(operator, canvasOp.x, canvasOp.y, 
                                                         canvasOp.width, canvasOp.height);
-                        mainCanvas._canvasOperators.push(opr);
+                        mainCanvas._canvasObjects.push(opr);
+                    }else{
+                        console.error("Couldn't load object: " + canvasOp.name);
                     }
                 });
                 sceneData.canvasLineSegments.forEach((node, i) =>{

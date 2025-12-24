@@ -19,22 +19,22 @@ let lastMouseY = 0;
 let dragTranslationLast = {x: 0, y: 0};
 //Editor states and settings
 const editorStates = {operatorEditor : 0, nodeEditor : 1, simulating: 2};
-let editorState = editorStates.operatorEditor;
+let editorState = editorStates.objectEditor;
 let isPanning = false;
 let draggedObject = null;
-let selectedOperator = null;
+let selectedObject = null;
 let placingMode = false;
 let nodeStartPos = null;
 
 class UIEditor{
     constructor(){
         //Resources====
-        this._operators = [];
+        this._objects = [];
         this._canvasLineSegments = [];
-        this._canvasOperators = [];
+        this._canvasObjects = [];
     }
 
-    addOperatorToPalette(operator){
+    addObjectToPalette(operator){
         const img = new Image();
         img.onload = () => {
             const paletteDiv = document.getElementById('objectPalette');
@@ -47,10 +47,10 @@ class UIEditor{
             //Load img data to operator icon field
             operator.icon.img = img;
             item.onclick = () => {
-                if(editorState == editorStates.operatorEditor){
+                if(editorState == editorStates.objectEditor){
                     document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
                     item.classList.add('selected');
-                    selectedOperator = operator;
+                    selectedObject = operator;
                     placingMode = true;
                     canvas.classList.add('placing');
                     canvas.style.cursor = 'crosshair';
@@ -63,7 +63,7 @@ class UIEditor{
 
         };
         img.onerror = () => {
-        console.error(`Failed to load image: ${operator.icon.imgSrc}`);
+            console.error(`Failed to load image: ${operator.icon.imgSrc}`);
         };
         img.src = operator.icon.imgSrc;
     }
@@ -79,8 +79,8 @@ class UIEditor{
         item.id = id;
         item.appendChild(imgElement);
         item.onclick = () => {
-            selectedOperator = null;
-            if(editorState == editorStates.operatorEditor){
+            selectedObject = null;
+            if(editorState == editorStates.objectEditor){
                 this.cancelSelectedOperator();
                 editorState = editorStates.nodeEditor;
                 item.classList.add('active');
@@ -99,18 +99,18 @@ class UIEditor{
     }
 
     preloadPalletMenu(){
-        this._operators = [
-        new Operator('circleDebug', new Icon('imgs/circle_white.svg', squareRatio)),
-            new Operator('squareDebug', new Icon('imgs/square_white.svg', squareRatio)),
-            new Operator('switch', new Icon('imgs/switch_2x2.svg', hSquareRatio)),
-            new Operator('output', new Icon('imgs/output_2x2.svg', hSquareRatio)),
-            new Operator('not', new Icon('imgs/not_2x2.svg', hSquareRatio)),
-            new Operator('and', new Icon('imgs/and_4x3.svg', globalRatio)),
-            new Operator('or', new Icon('imgs/or_4x3.svg', globalRatio)),
-            new Operator('xor'  , new Icon('imgs/xor_4x3.svg', globalRatio)),
+        this._objects = [
+            new AbsObject('circleDebug', new Icon('imgs/circle_white.svg', squareRatio)),
+            new AbsObject('squareDebug', new Icon('imgs/square_white.svg', squareRatio)),
+            new AbsObject('switch', new Icon('imgs/switch_2x2.svg', hSquareRatio), 'operatorObject'),
+            new AbsObject('output', new Icon('imgs/output_2x2.svg', hSquareRatio), 'operatorObject'),
+            new AbsObject('not', new Icon('imgs/not_2x2.svg', hSquareRatio), 'operatorObject'),
+            new AbsObject('and', new Icon('imgs/and_4x3.svg', globalRatio), 'operatorObject'),
+            new AbsObject('or', new Icon('imgs/or_4x3.svg', globalRatio), 'operatorObject'),
+            new AbsObject('xor'  , new Icon('imgs/xor_4x3.svg', globalRatio), 'operatorObject'),
         ];
-        this._operators.forEach(operator =>{    
-            this.addOperatorToPalette(operator);
+        this._objects.forEach(operator =>{
+            this.addObjectToPalette(operator);
         });
         //Node Tool menu
         const node_mode_imgSrc = "imgs/nodes_icon.svg";
@@ -126,11 +126,11 @@ class UIEditor{
 
     cancelSelectedOperator(){
         if(editorState == editorStates.nodeEditor){
-            editorState = editorStates.operatorEditor;
+            editorState = editorStates.objectEditor;
         }
         nodeStartPos=null;
         placingMode = false;
-        selectedOperator = null;
+        selectedObject = null;
         canvas.classList.remove('placing');
         canvas.style.cursor = 'grab';
         document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
@@ -162,9 +162,9 @@ class UIEditor{
         ctx.closePath();
 
         // Draw objects
-        this._canvasOperators.forEach(obj => {
-            if (obj.operator.icon.type === 'image' && obj.operator.icon.img.complete) {
-                ctx.drawImage(obj.operator.icon.img, obj.x, obj.y, obj.width, obj.height);
+        this._canvasObjects.forEach(obj => {
+            if (obj.object.icon.type === 'image' && obj.object.icon.img.complete) {
+                ctx.drawImage(obj.object.icon.img, obj.x, obj.y, obj.width, obj.height);
             }
         });
         if(editorState == editorStates.simulating){
@@ -204,19 +204,19 @@ class UIEditor{
         }
 
         ctx.restore();
-        document.getElementById('objectCount').textContent = this._canvasOperators.length + this._canvasLineSegments.length;
+        document.getElementById('objectCount').textContent = this._canvasObjects.length + this._canvasLineSegments.length;
     }
 
     clearCanvas(){
-        this._canvasOperators = [];
+        this._canvasObjects = [];
         this._canvasLineSegments = [];
         this.draw();
     }
 
-    getOperatorAt(x, y) {
-        for (let i = this._canvasOperators.length - 1; i >= 0; i--) {
-            const obj = this._canvasOperators[i];
-            if (obj.operator) {
+    getObjectAt(x, y) {
+        for (let i = this._canvasObjects.length - 1; i >= 0; i--) {
+            const obj = this._canvasObjects[i];
+            if (obj.object) {
                 if (x >= obj.x && x <= obj.x + obj.width &&
                     y >= obj.y && y <= obj.y + obj.height) {
                     return obj;
@@ -227,7 +227,7 @@ class UIEditor{
     }
 
     getLineSegmentAt(x, y){
-            for (let i = this._canvasLineSegments.length - 1; i >= 0; i--) {
+        for (let i = this._canvasLineSegments.length - 1; i >= 0; i--) {
             const node = this._canvasLineSegments[i];
             if (node.type === 'lineSegment') {
                 if (x >= node.x && x <= node.x + node.width &&
