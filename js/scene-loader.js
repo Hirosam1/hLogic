@@ -76,8 +76,17 @@ function loadScene() {
                         }
                     });
                     if(operator){
-                        mainCanvas._canvasOperators.push(new OperatorCanvasItem(operator, canvasOp.x, canvasOp.y, 
-                                                                                canvasOp.width, canvasOp.height));
+                        let opr = new OperatorCanvasItem(operator, canvasOp.x, canvasOp.y, 
+                                                        canvasOp.width, canvasOp.height);
+                        mainCanvas._canvasOperators.push(opr);
+                        //!!! BAD!! MOVE THIS !!!
+                        if(operator.name == 'switch'){
+                            opr.graphItem.outputYPos=1/2;
+                            opr.graphItem.inputsYPos= [];
+                        }else if(operator.name == 'output'){
+                            opr.graphItem.outputYPos=0;
+                            opr.graphItem.inputsYPos= [1/2];
+                        }
                     }
                 });
                 sceneData.canvasLineSegments.forEach((node, i) =>{

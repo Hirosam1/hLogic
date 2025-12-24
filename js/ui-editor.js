@@ -110,7 +110,7 @@ class UIEditor{
             new Operator('xor', 'xor', new Icon('imgs/xor_4x3.svg', globalRatio)),
         ];
         this._operators.forEach(operator =>{    
-        this.addOperatorToPalette(operator);
+            this.addOperatorToPalette(operator);
         });
         //Node Tool menu
         const node_mode_imgSrc = "imgs/nodes_icon.svg";
@@ -172,6 +172,11 @@ class UIEditor{
             let fillStyle = '#11c08cff';
             drawPoint(node.startPos, 2, fillStyle);
             drawPoint(node.endPos, 2, fillStyle);
+        });
+        
+        verticesPosList.forEach(vertPos => {
+            let fillStyle = '#9d11c0ff';
+            drawPoint(vertPos.pos, 2, fillStyle);
         });
     }
 

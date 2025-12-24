@@ -11,6 +11,9 @@ startSimulation.addEventListener('click', () => {
     startSimulation.innerHTML=simTxt;
     if(isSimulating){
         clearVertices();
+        mainCanvas._canvasOperators.forEach(op => { 
+            op.graphItem.createVertices();
+        });
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
             lineSeg.createVertices();
         });
@@ -37,11 +40,20 @@ function mouseDownOperatorEdt(pos, e){
             pos.y >= 0 && pos.y <= canvasHeight) {
             if (selectedOperator.icon.type == 'image') {
                 let imgSize = [gridSize*selectedOperator.icon.ratio.x, gridSize*selectedOperator.icon.ratio.y];
-                mainCanvas._canvasOperators.push(new OperatorCanvasItem(selectedOperator,
+                let opr = new OperatorCanvasItem(selectedOperator,
                                     snapToGrid(pos.x - imgSize[0]/2),
                                     snapToGrid(pos.y - imgSize[1]/2),
                                     imgSize[0],
-                                    imgSize[1]));
+                                    imgSize[1]);
+                mainCanvas._canvasOperators.push(opr);
+                //!!! BAD!! MOVE THIS !!!
+                if(selectedOperator.name == 'switch'){
+                    opr.graphItem.outputYPos=1/2;
+                    opr.graphItem.inputsYPos= [];
+                }else if(selectedOperator.name == 'output'){
+                    opr.graphItem.outputYPos=0;
+                    opr.graphItem.inputsYPos= [1/2];
+                }
             }
             mainCanvas.draw();
         }
@@ -107,6 +119,10 @@ resetView.addEventListener('click', () => {
 clearCanvas.addEventListener('click', () => {
     if (confirm('Clear all canvas Items?')) {
         mainCanvas.clearCanvas();
+        clearVertices();
+        isSimulating = false;
+        startSimulation.innerHTML = 'Start Simulation ▶️';
+        mainCanvas.draw();
     }
 });
 // Canvas mouse events ========
@@ -130,8 +146,7 @@ canvas.addEventListener('mousemove', (e) => {
             let deltaX = snapToGrid(pos.x) - dragTranslationLast.x;
             let deltaY = snapToGrid(pos.y) - dragTranslationLast.y;
             if(draggedObject.type == 'operator'){
-                draggedObject.x += deltaX;
-                draggedObject.y += deltaY;
+                draggedObject.updatePos(draggedObject.x + deltaX, draggedObject.y + deltaY);
             }
             else if(draggedObject.type == 'lineSegment'){
                 draggedObject.startPos.x += deltaX;

@@ -7,6 +7,41 @@ class Icon{
     }
 }
 
+class CanvasGraphItem{
+    constructor(x, y, width, height){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        //Graph logic.
+        this.inputsYPos=[1/3.0,2/3.0]
+        this.outputYPos=1/3.0;
+        this.inputsVertices=[];
+        this.outputVertex=undefined;
+    }
+
+    checkAndAddVertex(x, y){
+        let v = checkPosVertex(x, y);
+        if(!v){
+            v =  new Vertex();
+            addVertex(v, {x, y});
+        }else{
+            __verticesMatch++;
+        }
+        return v;
+    }
+
+    createVertices(){
+        this.inputsVertices=[];
+        this.inputsYPos.forEach(yPos => {
+            this.inputsVertices.push(this.checkAndAddVertex(this.x, Math.round(yPos*this.height)+this.y));
+        });
+        if(this.outputYPos > 0){
+            this.outputVertex = this.checkAndAddVertex(this.x+this.width,Math.round(this.outputYPos*this.height)+this.y)
+        }
+    }
+}
+
 class CanvasItem{
     constructor(x, y, width, height){
         this.x = x;
@@ -23,15 +58,21 @@ class Operator{
         this.logic = logic;
         this.icon = icon;
     }
-};
+}
 
 class OperatorCanvasItem extends CanvasItem{
     constructor(operator, x, y, width, height){
         super(x, y, width, height);
         this.operator = operator;
         this.type='operator';
-        this.inputsYPos = [0.25,0.75];
-        this.outputYPos = 0.25;
+        this.graphItem = new CanvasGraphItem(x, y, width, height);
+    }
+
+    updatePos(x, y){
+        this.x = x;
+        this.y = y;
+        this.graphItem.x = x;
+        this.graphItem.y = y;
     }
 }
 
