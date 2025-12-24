@@ -6,9 +6,10 @@ class Vec2{
 }
 
 class Vertex{
-    constructor(value=0, edgesN=0, type=undefined){
+    constructor(value=0, edgesN=0, type='vertex'){
         this.value = value;
         this.edgesN=edgesN;
+        this.type = type;
         this.nextVertices=[];
         if(!value){
             this.value = crypto.randomUUID();

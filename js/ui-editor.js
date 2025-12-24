@@ -167,17 +167,19 @@ class UIEditor{
                 ctx.drawImage(obj.operator.icon.img, obj.x, obj.y, obj.width, obj.height);
             }
         });
-        //Draw nodes
-        this._canvasLineSegments.forEach(node => {
-            let fillStyle = '#11c08cff';
-            drawPoint(node.startPos, 2, fillStyle);
-            drawPoint(node.endPos, 2, fillStyle);
-        });
-        
-        verticesPosList.forEach(vertPos => {
-            let fillStyle = '#9d11c0ff';
-            drawPoint(vertPos.pos, 2, fillStyle);
-        });
+        if(editorState == editorStates.simulating){
+            verticesPosList.forEach(vertPos => {
+                let fillStyle = '#11c08cff';
+                drawPoint(vertPos.pos, 2, fillStyle);
+            });
+        }else{
+            //Draw nodes
+            this._canvasLineSegments.forEach(node => {
+                let fillStyle = '#bc1bd1ff';
+                drawPoint(node.startPos, 2, fillStyle);
+                drawPoint(node.endPos, 2, fillStyle);
+            });
+        }
     }
 
     draw(){

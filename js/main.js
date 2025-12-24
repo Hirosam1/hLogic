@@ -13,17 +13,21 @@ startSimulation.addEventListener('click', () => {
     if(isSimulating){
         editorState = editorStates.simulating;
         clearVertices();
-        mainCanvas._canvasOperators.forEach(op => { 
-            op.graphItem.createVertices();
-        });
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
             lineSeg.createVertices();
         });
-        console.log("vertices: "  + verticesPosList.length + " matches: " + __verticesMatch);
-        mainCanvas.draw();
+        let switches = [];
+        mainCanvas._canvasOperators.forEach(op => { 
+            op.graphItem.createVertices();
+            if(op.operator.name=='switch'){
+                switches.push(op);
+            }
+        });
+        console.log("vertices: "  + verticesPosList.length + " matches: " + __verticesMatch + " switches: " + switches.length);
     }else{
         editorState = editorStates.operatorEditor;
     }
+    mainCanvas.draw();
 });
 
 // Add save handlers
@@ -49,14 +53,6 @@ function mouseDownOperatorEdt(pos, e){
                                     imgSize[0],
                                     imgSize[1]);
                 mainCanvas._canvasOperators.push(opr);
-                //!!! BAD!! MOVE THIS !!!
-                if(selectedOperator.name == 'switch'){
-                    opr.graphItem.outputYPos=1/2;
-                    opr.graphItem.inputsYPos= [];
-                }else if(selectedOperator.name == 'output'){
-                    opr.graphItem.outputYPos=0;
-                    opr.graphItem.inputsYPos= [1/2];
-                }
             }
             mainCanvas.draw();
         }

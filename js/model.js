@@ -20,10 +20,10 @@ class CanvasGraphItem{
         this.outputVertex=undefined;
     }
 
-    checkAndAddVertex(x, y){
+    checkAndAddVertex(x, y, type){
         let v = checkPosVertex(x, y);
         if(!v){
-            v =  new Vertex();
+            v =  new Vertex(type=type);
             addVertex(v, {x, y});
         }else{
             __verticesMatch++;
@@ -34,10 +34,12 @@ class CanvasGraphItem{
     createVertices(){
         this.inputsVertices=[];
         this.inputsYPos.forEach(yPos => {
-            this.inputsVertices.push(this.checkAndAddVertex(this.x, Math.round(yPos*this.height)+this.y));
+            this.inputsVertices.push(this.checkAndAddVertex(this.x, 
+                Math.round(yPos*this.height)+this.y, 'input'));
         });
         if(this.outputYPos > 0){
-            this.outputVertex = this.checkAndAddVertex(this.x+this.width,Math.round(this.outputYPos*this.height)+this.y)
+            this.outputVertex = this.checkAndAddVertex(this.x+this.width,
+                Math.round(this.outputYPos*this.height)+this.y, 'output')
         }
     }
 }
@@ -66,6 +68,14 @@ class OperatorCanvasItem extends CanvasItem{
         this.operator = operator;
         this.type='operator';
         this.graphItem = new CanvasGraphItem(x, y, width, height);
+        //!!! BAD!! MOVE THIS !!!
+        if(this.operator.name == 'switch'){
+            this.graphItem.outputYPos=1/2;
+            this.graphItem.inputsYPos= [];
+        }else if(this.operator.name == 'output'){
+            this.graphItem.outputYPos=0;
+            this.graphItem.inputsYPos= [1/2];
+        }
     }
 
     updatePos(x, y){
