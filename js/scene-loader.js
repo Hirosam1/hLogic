@@ -97,7 +97,3 @@ function loadScene() {
     
     input.click();
 }
-
-// Add event listeners
-document.getElementById('saveScene').addEventListener('click', saveScene);
-document.getElementById('loadScene').addEventListener('click', loadScene);
