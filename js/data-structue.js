@@ -5,21 +5,53 @@ class Vec2{
     }
 }
 
-class Node{
-    constructor(value=0, edgesN=1, type=undefined){
+class Vertex{
+    constructor(value=0, edgesN=0, type=undefined){
         this.value = value;
         this.edgesN=edgesN;
-        this.nextNodes=[];
-        for(i=0; i < edgesN; i++){
-            this.nextNodes.push(undefined);
+        this.nextVertices=[];
+        if(!value){
+            this.value = crypto.randomUUID();
         }
     }
 
+    addNextVertex(vertex){
+        this.nextVertices.push(vertex);
+        this.edgesN++;
+    }
 }
 
 class Edge{
-    constructor(nodeA, nodeB){
-        this.nodeA = nodeA;
-        this.nodeB = nodeB;
+    constructor(vertexA, vertexB){
+        this.vertexA = vertexA;
+        this.vertexB = vertexB;
     }
+}
+
+let __verticesMatch = 0;
+let __iterationsMade = 0;
+
+let verticesSaved = false;
+let verticesPosList = [];
+
+function addVertex(vertex, pos){
+    verticesPosList.push({pos, vertex});
+    verticesSaved = false;
+}
+
+function checkPosVertex(x, y){
+    let rtrn = undefined;
+    verticesPosList.forEach(v => {
+        if(v.pos.x == x && v.pos.y == y){
+            rtrn = v;
+        }
+    });
+    return rtrn;
+}
+
+function clearVertices(){
+    verticesPosList = [];
+    __verticesMatch = 0;
+    __iterationsMade = 0;
+    verticesSaved = false;
 }

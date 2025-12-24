@@ -154,8 +154,9 @@ class UIEditor{
 
     drawResources(){
         //Draw Lines
-        this._canvasLineSegments.forEach(node => {
-            drawLine(node.startPos, node.endPos, 5);
+        this._canvasLineSegments.forEach(line => {
+            let strokeStroke = line.isStraight ? '#100ae5' : '#738eb8ff';
+            drawLine(line.startPos, line.endPos, 5, strokeStroke);
     
         });
         ctx.closePath();

@@ -43,5 +43,28 @@ class LineSegmentCanvasItem extends CanvasItem{
         this.endPos = {x: endX, y: endY};
         this.type = 'lineSegment';
         this.isStraight = startX == endX || startY == endY;
+        this.edge = new Edge(undefined, undefined);
+    }
+
+    checkVertices(){
+        __iterationsMade++; 
+        //Connect vertices orthogonally to itself.
+        let endX = this.x+this.width;
+        let endY = this.y+this.height;
+        this.edge.vertexA = checkPosVertex(this.x, this.y);
+        //Check for the end points connections,
+        if(!this.edge.vertexA){
+            this.edge.vertexB = new Vertex();
+            addVertex(this.edge.vertexB , {x : this.x, y: this.y});
+        }else{
+                __verticesMatch++;
+        }
+        this.edge.vertexB = checkPosVertex(endX, endY);
+        if(!this.edge.vertexB){
+            this.edge.vertexB = new Vertex();
+            addVertex(this.edge.vertexB , {x : endX, y: endY});
+        }else{
+                __verticesMatch++;
+        }
     }
 }
