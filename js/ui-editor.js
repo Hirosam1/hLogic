@@ -18,7 +18,7 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 let dragTranslationLast = {x: 0, y: 0};
 //Editor states and settings
-const editorStates = {operatorEditor : 0, nodeEditor : 1};
+const editorStates = {operatorEditor : 0, nodeEditor : 1, simulating: 2};
 let editorState = editorStates.operatorEditor;
 let isPanning = false;
 let draggedObject = null;
@@ -68,7 +68,7 @@ class UIEditor{
         img.src = operator.icon.imgSrc;
     }
 
-    addNodeModeToPalette(img, imgSrc){
+    addToolToPalette(img, imgSrc, id){
         const paletteDiv = document.getElementById('toolsPalette');
         const item = document.createElement('div');
         item.className = 'palette-item';
@@ -76,7 +76,7 @@ class UIEditor{
         const imgElement = document.createElement('img');
         imgElement.setAttribute('draggable', false);
         imgElement.src = imgSrc;
-        item.id = "nodeEditor";
+        item.id = id;
         item.appendChild(imgElement);
         item.onclick = () => {
             selectedOperator = null;
@@ -116,7 +116,7 @@ class UIEditor{
         const node_mode_imgSrc = "imgs/nodes_icon.svg";
         const node_mode_img = new Image();
         node_mode_img.onload = () => {
-            this.addNodeModeToPalette(node_mode_img, node_mode_imgSrc);
+            this.addToolToPalette(node_mode_img, node_mode_imgSrc, "nodeEditor");
         };
         node_mode_img.onerror = () => {
             console.error(`Failed to load node mode image`);

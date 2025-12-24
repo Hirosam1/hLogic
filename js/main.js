@@ -9,7 +9,9 @@ startSimulation.addEventListener('click', () => {
     isSimulating = !isSimulating;
     const simTxt = isSimulating ? 'Stop Simulation ⏹️' : 'Start Simulation ▶️';
     startSimulation.innerHTML=simTxt;
+    mainCanvas.cancelSelectedOperator();
     if(isSimulating){
+        editorState = editorStates.simulating;
         clearVertices();
         mainCanvas._canvasOperators.forEach(op => { 
             op.graphItem.createVertices();
@@ -18,8 +20,9 @@ startSimulation.addEventListener('click', () => {
             lineSeg.createVertices();
         });
         console.log("vertices: "  + verticesPosList.length + " matches: " + __verticesMatch);
+        mainCanvas.draw();
     }else{
-
+        editorState = editorStates.operatorEditor;
     }
 });
 
@@ -74,13 +77,6 @@ function mouseDownOperatorEdt(pos, e){
             updateInfo();
         }
     }
-    //Panning
-    if(!draggedObject){
-        isPanning = true;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-        canvas.classList.add('panning');
-    }
 }
 
 function mouseDownNodeEdt(pos, e){
@@ -94,6 +90,17 @@ function mouseDownNodeEdt(pos, e){
     }
     updateInfo();
     mainCanvas.draw();
+}
+
+function mouseDownSimulatingEdt(pos, e){
+    const obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+    if (obj){
+        canvas.style.cursor = 'grabbing';
+        console.log(obj.operator.name);
+        updateInfo();
+        return false;
+    }
+    return true;
 }
 
 widthSlider.addEventListener('input', (e) => {
@@ -129,12 +136,23 @@ clearCanvas.addEventListener('click', () => {
 //Mouse down
 canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
+    let shouldPan = false;
     if(editorState == editorStates.operatorEditor){
         mouseDownOperatorEdt(pos, e);
     }else if(editorState == editorStates.nodeEditor){
         mouseDownNodeEdt(pos, e);
+    }else if(editorState == editorStates.simulating){
+        shouldPan = this.mouseDownSimulatingEdt(pos, e);
     }
-
+    if(editorState == editorStates.operatorEditor || shouldPan){
+        //Panning
+        if(!draggedObject){
+            isPanning = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            canvas.classList.add('panning');
+        }
+    }
 });
 
 //Mouse move
@@ -159,15 +177,16 @@ canvas.addEventListener('mousemove', (e) => {
             dragTranslationLast.x = snapToGrid(pos.x);
             dragTranslationLast.y = snapToGrid(pos.y);
             shouldDraw = true;
-        } else if (isPanning && !selectedOperator) {
-            panX -= e.clientX - lastMouseX;
-            panY -= e.clientY - lastMouseY;
-            shouldDraw = true;
-        } 
-        }else if(editorState == editorStates.nodeEditor){
-        //Live draw when in nodeEditor!
-        shouldDraw=true;
+        }
+    }else if(editorState == editorStates.nodeEditor){
+            //Live draw when in nodeEditor!
+            shouldDraw=true;
     }
+    if (isPanning && !selectedOperator) {
+        panX -= e.clientX - lastMouseX;
+        panY -= e.clientY - lastMouseY;
+        shouldDraw = true;
+    } 
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
     if(shouldDraw){
