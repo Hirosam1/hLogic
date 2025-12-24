@@ -55,9 +55,8 @@ class CanvasItem{
 }
 
 class Operator{
-    constructor(name, logic, icon=null){
+    constructor(name, icon=null){
         this.name = name;
-        this.logic = logic;
         this.icon = icon;
     }
 }
@@ -68,6 +67,10 @@ class OperatorCanvasItem extends CanvasItem{
         this.operator = operator;
         this.type='operator';
         this.graphItem = new CanvasGraphItem(x, y, width, height);
+        this.logic = null;
+        if(logicFactory[this.operator.name]){
+            this.logic = logicFactory[this.operator.name]();
+        }
         //!!! BAD!! MOVE THIS !!!
         if(this.operator.name == 'switch'){
             this.graphItem.outputYPos=1/2;
@@ -94,30 +97,28 @@ class LineSegmentCanvasItem extends CanvasItem{
         this.endPos = {x: endX, y: endY};
         this.type = 'lineSegment';
         this.isStraight = startX == endX || startY == endY;
-        this.edge = new Edge(undefined, undefined);
+        this.graphItem = new CanvasGraphItem(this.x, this.y, 
+            this.width, this.height);
+        //this.edge = new Edge(undefined, undefined);
+        this.graphItem.inputsYPos = [0];
+        this.graphItem.outputYPos = 1;
+    }
+
+    updatePos(x, y){
+        let deltaX = x - this.x;
+        let deltaY = y - this.y;
+        this.startPos.x += deltaX;
+        this.startPos.y += deltaY;
+        this.endPos.x += deltaX;
+        this.endPos.y += deltaY;
+        this.x = x;
+        this.y = y;
+        this.graphItem.x = x;
+        this.graphItem.y = y;
     }
 
     createVertices(){
-        if(this.isStraight){
-            __iterationsMade++;
-            //Connect vertices orthogonally to itself.
-            let endX = this.x+this.width;
-            let endY = this.y+this.height;
-            this.edge.vertexA = checkPosVertex(this.x, this.y);
-            //Check for the end points connections,
-            if(!this.edge.vertexA){
-                this.edge.vertexB = new Vertex();
-                addVertex(this.edge.vertexB , {x : this.x, y: this.y});
-            }else{
-                    __verticesMatch++;
-            }
-            this.edge.vertexB = checkPosVertex(endX, endY);
-            if(!this.edge.vertexB){
-                this.edge.vertexB = new Vertex();
-                addVertex(this.edge.vertexB , {x : endX, y: endY});
-            }else{
-                    __verticesMatch++;
-            }
-        }
+        super.createVertices();
+        this.inputsVertices[0].addNextVertex(this.outputVertex);
     }
 }

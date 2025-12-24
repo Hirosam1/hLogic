@@ -4,8 +4,8 @@ let runIterations = 0;
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 class Logic{
-    constructor(inputN=2){
-        this.inputN = inputN;
+    constructor(type){
+        this.type = type;
     }
 
     process(inputs){
@@ -14,7 +14,7 @@ class Logic{
 }
 
 class Actuators {
-    constructor(type="output"){
+    constructor(type='output'){
         this.type = type;
     }
     process(data){
@@ -24,7 +24,7 @@ class Actuators {
 
 class Switch extends Actuators{
     constructor(){
-        super();
+        super('output');
         this.enabled = false;
     }
     process(data){
@@ -34,12 +34,12 @@ class Switch extends Actuators{
 }
 
 class And extends Logic{
-    constructor(inputN=2){
-        super(inputN);
+    constructor(){
+        super('and');
     }
 
     process(inputs){
-        for(let i = 0; i < inputN; i++){
+        for(let i = 0; i < inputs.length; i++){
             if(inputs[i] === false){
                 return false;
             }
@@ -49,16 +49,23 @@ class And extends Logic{
 }
 
 class Or extends Logic{
-    constructor(inputN=2){
-        super(inputN);
+    constructor(){
+        super('or');
     }
     
     process(inputs){
-        for(let i = 0; i < inputN; i++){
+        for(let i = 0; i < inputs.length; i++){
             if(inputs[i] === true){
                 return true;
             }
         }
         return false;
     }
+}
+
+const logicFactory = {
+    'switch' : ()=>{return new Switch();},
+    'output': undefined,
+    'or' : ()=>{return new Or();},
+    'and' : ()=>{return new And();}
 }

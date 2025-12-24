@@ -100,14 +100,14 @@ class UIEditor{
 
     preloadPalletMenu(){
         this._operators = [
-        new Operator('circleDebug', 'none', new Icon('imgs/circle_white.svg', squareRatio)),
-            new Operator('squareDebug', 'none', new Icon('imgs/square_white.svg', squareRatio)),
-            new Operator('switch', 'switch', new Icon('imgs/switch_2x2.svg', hSquareRatio)),
-            new Operator('output', 'output', new Icon('imgs/output_2x2.svg', hSquareRatio)),
-            new Operator('not', 'not', new Icon('imgs/not_2x2.svg', hSquareRatio)),
-            new Operator('and', 'and', new Icon('imgs/and_4x3.svg', globalRatio)),
-            new Operator('or', 'or', new Icon('imgs/or_4x3.svg', globalRatio)),
-            new Operator('xor', 'xor', new Icon('imgs/xor_4x3.svg', globalRatio)),
+        new Operator('circleDebug', new Icon('imgs/circle_white.svg', squareRatio)),
+            new Operator('squareDebug', new Icon('imgs/square_white.svg', squareRatio)),
+            new Operator('switch', new Icon('imgs/switch_2x2.svg', hSquareRatio)),
+            new Operator('output', new Icon('imgs/output_2x2.svg', hSquareRatio)),
+            new Operator('not', new Icon('imgs/not_2x2.svg', hSquareRatio)),
+            new Operator('and', new Icon('imgs/and_4x3.svg', globalRatio)),
+            new Operator('or', new Icon('imgs/or_4x3.svg', globalRatio)),
+            new Operator('xor'  , new Icon('imgs/xor_4x3.svg', globalRatio)),
         ];
         this._operators.forEach(operator =>{    
             this.addOperatorToPalette(operator);

@@ -14,7 +14,7 @@ startSimulation.addEventListener('click', () => {
         editorState = editorStates.simulating;
         clearVertices();
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
-            lineSeg.createVertices();
+            lineSeg.graphItem.createVertices();
         });
         let switches = [];
         mainCanvas._canvasOperators.forEach(op => { 
@@ -94,6 +94,25 @@ function mouseDownSimulatingEdt(pos, e){
         canvas.style.cursor = 'grabbing';
         console.log(obj.operator.name);
         updateInfo();
+        if(obj.operator.name == 'switch'){
+            const maxIt = 0;
+            let i = 0;
+            //as example 2
+            let o = obj.logic.process();
+            let ov = obj.graphItem.outputVertex;
+            while(ov){
+                if(i >= maxIt){
+                    break;
+                }
+                if(ov.type == 'input'){
+                    console.log('input');
+                }else if(ov.type == 'vertex'){
+                    
+                }
+                i++;
+            }
+            console.log(o);
+        }
         return false;
     }
     return true;
@@ -138,7 +157,7 @@ canvas.addEventListener('mousedown', (e) => {
     }else if(editorState == editorStates.nodeEditor){
         mouseDownNodeEdt(pos, e);
     }else if(editorState == editorStates.simulating){
-        shouldPan = this.mouseDownSimulatingEdt(pos, e);
+        shouldPan = mouseDownSimulatingEdt(pos, e);
     }
     if(editorState == editorStates.operatorEditor || shouldPan){
         //Panning
@@ -147,6 +166,7 @@ canvas.addEventListener('mousedown', (e) => {
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
             canvas.classList.add('panning');
+            canvas.style.cursor = 'grabbing';
         }
     }
 });
@@ -154,30 +174,44 @@ canvas.addEventListener('mousedown', (e) => {
 //Mouse move
 canvas.addEventListener('mousemove', (e) => {
     let shouldDraw = false;
+    const pos = screenToCanvas(e.clientX, e.clientY);
+    const grigPos = {x :snapToGrid(pos.x), y: snapToGrid(pos.y)};
     if(editorState == editorStates.operatorEditor){
         if (draggedObject) {
-            const pos = screenToCanvas(e.clientX, e.clientY);
-            let deltaX = snapToGrid(pos.x) - dragTranslationLast.x;
-            let deltaY = snapToGrid(pos.y) - dragTranslationLast.y;
+            const deltaX = grigPos.x - dragTranslationLast.x;
+            const deltaY = gridPos.y - dragTranslationLast.y;
             if(draggedObject.type == 'operator'){
                 draggedObject.updatePos(draggedObject.x + deltaX, draggedObject.y + deltaY);
             }
             else if(draggedObject.type == 'lineSegment'){
-                draggedObject.startPos.x += deltaX;
-                draggedObject.startPos.y += deltaY;
-                draggedObject.endPos.x += deltaX;
-                draggedObject.endPos.y += deltaY;
-                draggedObject.x += deltaX;
-                draggedObject.y += deltaY;
+                draggedObject.updatePos(draggedObject.x + deltaX, draggedObject.y + deltaY);
             }
-            dragTranslationLast.x = snapToGrid(pos.x);
-            dragTranslationLast.y = snapToGrid(pos.y);
+            dragTranslationLast.x = grigPos.x;
+            dragTranslationLast.y = grigPos.y;
             shouldDraw = true;
+        }else if(selectedOperator){
+            canvas.style.cursor = 'alias';
+        }else{
+            let obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+            let lin = mainCanvas.getLineSegmentAt(grigPos.x, grigPos.y);
+            if(obj || lin){
+                canvas.style.cursor = 'pointer';
+            }else{
+                canvas.style.cursor = 'grab';
+            }
         }
     }else if(editorState == editorStates.nodeEditor){
-            //Live draw when in nodeEditor!
-            shouldDraw=true;
+        //Live draw when in nodeEditor!
+        shouldDraw=true;
+    }else if(editorState == editorStates.simulating){
+        let obj = mainCanvas.getOperatorAt(pos.x, pos.y);
+        if(obj){
+            canvas.style.cursor = 'pointer';
+        }else{
+            canvas.style.cursor = 'grab';
+        }
     }
+
     if (isPanning && !selectedOperator) {
         panX -= e.clientX - lastMouseX;
         panY -= e.clientY - lastMouseY;
