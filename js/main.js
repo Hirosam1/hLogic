@@ -117,7 +117,7 @@ function mouseDownSimulatingEdt(pos, e){
             //as example 2
             let o = obj.logic.process();
             let ov = obj.graphItem.outputVertex;
-            console.log('input: ' + o);
+            console.log('switch: ' + o);
             while(ov){
                 if(i >= maxIt){
                     break;

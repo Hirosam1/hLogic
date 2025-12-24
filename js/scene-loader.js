@@ -88,6 +88,8 @@ function loadScene() {
                     mainCanvas._canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
                                                                            node.endPos[0], node.endPos[1]));
                 });
+
+                console.log('Scene loaded!');
                 
             } catch (error) {
                 console.error('Error loading scene:', error);
