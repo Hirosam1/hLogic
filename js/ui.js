@@ -1,4 +1,5 @@
 const canvas = document.getElementById('canvas');
+const canvasControls = document.getElementById('canvasControls');
 const ctx = canvas.getContext('2d');
 const container = document.getElementById('canvasContainer');
 const widthSlider = document.getElementById('widthSlider');

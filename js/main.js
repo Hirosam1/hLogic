@@ -5,12 +5,14 @@ mainCanvas.initCanvas();
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
 let isSimulating = false;
+//#2a2a2af2
 startSimulation.addEventListener('click', () => {
     isSimulating = !isSimulating;
     const simTxt = isSimulating ? 'Stop Simulation ⏹️' : 'Start Simulation ▶️';
     startSimulation.innerHTML=simTxt;
     mainCanvas.cancelSelectedOperator();
     if(isSimulating){
+        canvasControls.style.background = '#9c5432f2';
         editorState = editorStates.simulating;
         clearVertices();
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
@@ -25,6 +27,7 @@ startSimulation.addEventListener('click', () => {
         });
         console.log("vertices: "  + verticesPosList.length + " matches: " + __verticesMatch + " switches: " + switches.length);
     }else{
+        canvasControls.style.background = '#2a2a2af2';
         editorState = editorStates.operatorEditor;
     }
     mainCanvas.draw();
@@ -69,6 +72,7 @@ function mouseDownOperatorEdt(pos, e){
         let node = mainCanvas.getLineSegmentAt(snapToGrid(pos.x), snapToGrid(pos.y));
         if(node){
             draggedObject = node;
+            canvas.style.cursor = 'grabbing';
             dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
             updateInfo();
         }
@@ -175,10 +179,10 @@ canvas.addEventListener('mousedown', (e) => {
 canvas.addEventListener('mousemove', (e) => {
     let shouldDraw = false;
     const pos = screenToCanvas(e.clientX, e.clientY);
-    const grigPos = {x :snapToGrid(pos.x), y: snapToGrid(pos.y)};
+    const gridPos = {x :snapToGrid(pos.x), y: snapToGrid(pos.y)};
     if(editorState == editorStates.operatorEditor){
         if (draggedObject) {
-            const deltaX = grigPos.x - dragTranslationLast.x;
+            const deltaX = gridPos.x - dragTranslationLast.x;
             const deltaY = gridPos.y - dragTranslationLast.y;
             if(draggedObject.type == 'operator'){
                 draggedObject.updatePos(draggedObject.x + deltaX, draggedObject.y + deltaY);
@@ -186,14 +190,14 @@ canvas.addEventListener('mousemove', (e) => {
             else if(draggedObject.type == 'lineSegment'){
                 draggedObject.updatePos(draggedObject.x + deltaX, draggedObject.y + deltaY);
             }
-            dragTranslationLast.x = grigPos.x;
-            dragTranslationLast.y = grigPos.y;
+            dragTranslationLast.x = gridPos.x;
+            dragTranslationLast.y = gridPos.y;
             shouldDraw = true;
         }else if(selectedOperator){
             canvas.style.cursor = 'alias';
-        }else{
+        }else if(!isPanning){
             let obj = mainCanvas.getOperatorAt(pos.x, pos.y);
-            let lin = mainCanvas.getLineSegmentAt(grigPos.x, grigPos.y);
+            let lin = mainCanvas.getLineSegmentAt(gridPos.x, gridPos.y);
             if(obj || lin){
                 canvas.style.cursor = 'pointer';
             }else{
