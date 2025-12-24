@@ -30,7 +30,7 @@ class UIEditor{
     constructor(){
         //Resources====
         this._operators = [];
-        this._canvasNodes = [];
+        this._canvasLineSegments = [];
         this._canvasOperators = [];
     }
 
@@ -153,16 +153,24 @@ class UIEditor{
     }
 
     drawResources(){
-        //Draw Nodes
-        this._canvasNodes.forEach(node => {
+        //Draw Lines
+        this._canvasLineSegments.forEach(node => {
             drawLine(node.startPos, node.endPos, 5);
-        })
+    
+        });
         ctx.closePath();
+
         // Draw objects
         this._canvasOperators.forEach(obj => {
             if (obj.operator.icon.type === 'image' && obj.operator.icon.img.complete) {
                 ctx.drawImage(obj.operator.icon.img, obj.x, obj.y, obj.width, obj.height);
             }
+        });
+        //Draw nodes
+        this._canvasLineSegments.forEach(node => {
+            let fillStyle = '#11c08cff';
+            drawPoint(node.startPos, 2, fillStyle);
+            drawPoint(node.endPos, 2, fillStyle);
         });
     }
 
@@ -188,12 +196,12 @@ class UIEditor{
         }
 
         ctx.restore();
-        document.getElementById('objectCount').textContent = this._canvasOperators.length + this._canvasNodes.length;
+        document.getElementById('objectCount').textContent = this._canvasOperators.length + this._canvasLineSegments.length;
     }
 
     clearCanvas(){
         this._canvasOperators = [];
-        this._canvasNodes = [];
+        this._canvasLineSegments = [];
         this.draw();
     }
 
@@ -211,10 +219,10 @@ class UIEditor{
         return null;
     }
 
-    getNodeAt(x, y){
-            for (let i = this._canvasNodes.length - 1; i >= 0; i--) {
-            const node = this._canvasNodes[i];
-            if (node.type === 'node') {
+    getLineSegmentAt(x, y){
+            for (let i = this._canvasLineSegments.length - 1; i >= 0; i--) {
+            const node = this._canvasLineSegments[i];
+            if (node.type === 'lineSegment') {
                 if (x >= node.x && x <= node.x + node.width &&
                     y >= node.y && y <= node.y + node.height){
                     return node;
@@ -249,7 +257,7 @@ class UIEditor{
             dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
             updateInfo();
         }else{
-            let node = this.getNodeAt(snapToGrid(pos.x), snapToGrid(pos.y));
+            let node = this.getLineSegmentAt(snapToGrid(pos.x), snapToGrid(pos.y));
             if(node){
                 draggedObject = node;
                 dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
@@ -270,7 +278,7 @@ class UIEditor{
             nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
         }else{
             let nodeEndPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
-            this._canvasNodes.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
+            this._canvasLineSegments.push(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
                                                 nodeEndPos.x, nodeEndPos.y));
             nodeStartPos=null;
         }
@@ -330,7 +338,7 @@ class UIEditor{
                         draggedObject.x += deltaX;
                         draggedObject.y += deltaY;
                     }
-                    else if(draggedObject.type == 'node'){
+                    else if(draggedObject.type == 'lineSegment'){
                         draggedObject.startPos.x += deltaX;
                         draggedObject.startPos.y += deltaY;
                         draggedObject.endPos.x += deltaX;
@@ -408,8 +416,8 @@ class UIEditor{
             } else if (e.key === 'Delete' && draggedObject) {
                 if(draggedObject.type == 'operator'){
                     this._canvasOperators = this._canvasOperators.filter(obj => obj !== draggedObject);
-                }else if(draggedObject.type == 'node'){
-                    this._canvasNodes = this._canvasNodes.filter(obj => obj !== draggedObject);
+                }else if(draggedObject.type == 'lineSegment'){
+                    this._canvasLineSegments = this._canvasLineSegments.filter(obj => obj !== draggedObject);
                 }
                 draggedObject = null;
                 this.draw();

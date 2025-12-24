@@ -30,6 +30,8 @@ class OperatorCanvasItem extends CanvasItem{
         super(x, y, width, height);
         this.operator = operator;
         this.type='operator';
+        this.inputsYPos = [0.25,0.75];
+        this.outputYPos = 0.25;
     }
 }
 
@@ -39,6 +41,7 @@ class LineSegmentCanvasItem extends CanvasItem{
               Math.abs(startX - endX), Math.abs(startY - endY));
         this.startPos = {x: startX, y: startY};
         this.endPos = {x: endX, y: endY};
-        this.type = 'node';
+        this.type = 'lineSegment';
+        this.isStraight = startX == endX || startY == endY;
     }
 }

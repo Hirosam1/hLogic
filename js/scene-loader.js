@@ -6,8 +6,8 @@ function saveScene() {
         canvasHeight: canvasHeight,
         gridSize: gridSize,
         zoom: zoom,
-        panX: panX,
-        panY: panY,
+        panX: Math.round(panX),
+        panY: Math.round(panY),
         canvasOperators: mainCanvas._canvasOperators.map(obj => ({
             operatorName: obj.operator.name,
             x: obj.x,
@@ -15,7 +15,7 @@ function saveScene() {
             width: obj.width,
             height: obj.height
         })),
-        canvasNodes: mainCanvas._canvasNodes.map(obj => ({
+        canvasLineSegments: mainCanvas._canvasLineSegments.map(obj => ({
             name: obj.type,
             startPos : [obj.startPos.x, obj.startPos.y],
             endPos : [obj.endPos.x, obj.endPos.y]
@@ -80,8 +80,8 @@ function loadScene() {
                                                                                 canvasOp.width, canvasOp.height));
                     }
                 });
-                sceneData.canvasNodes.forEach((node, i) =>{
-                    mainCanvas._canvasNodes.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
+                sceneData.canvasLineSegments.forEach((node, i) =>{
+                    mainCanvas._canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
                                                                            node.endPos[0], node.endPos[1]));
                 });
                 

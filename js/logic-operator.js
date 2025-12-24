@@ -6,14 +6,6 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 class Logic{
     constructor(inputN=2){
         this.inputN = inputN;
-        this.inputsYPos = [];
-        this.outputYPos = 0.0;
-        this.calcNodesYPos();
-    }
-
-    calcInputsYPos(){
-        this.calcInputsYPos[0.25,0.75];
-        this.outputYPos = 0.25;
     }
 
     process(inputs){
@@ -24,7 +16,6 @@ class Logic{
 class Actuators {
     constructor(type="output"){
         this.type = type;
-        this.actuatorXYPos = [1.0, 0.5];
     }
     process(data){
         throw new Error('Method "process()" must be implemented');
