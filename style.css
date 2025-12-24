@@ -111,14 +111,14 @@ body {
 
 .palette-item.selected {
     border-color: #0af;
-    background: rgba(0, 170, 255, 0.2);
-    box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+    background: #94d9fc33;
+    box-shadow: 0 0 10px #00aaff80;
 }
 
 .palette-item.active {
-    border-color: rgb(77, 224, 212);
-    background: rgba(47, 9, 214, 0.2);
-    box-shadow: 0 0 10px rgba(0, 60, 255, 0.5);
+    border-color: #4de0d4;
+    background: #241b4933;
+    box-shadow: 0 0 10px #0c0f1b80;
 }
 
 .canvas-container {

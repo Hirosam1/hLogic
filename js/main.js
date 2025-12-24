@@ -1,5 +1,3 @@
-let mainCanvas = undefined;
-
 mainCanvas = new UIEditor();
 mainCanvas.preloadPalletMenu();
 mainCanvas.setUpCanvasControls();

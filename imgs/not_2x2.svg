@@ -23,13 +23,13 @@
      inkscape:pagecheckerboard="1"
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
-     inkscape:zoom="0.18521778"
-     inkscape:cx="1284.9738"
-     inkscape:cy="601.99403"
+     inkscape:zoom="0.13096875"
+     inkscape:cx="603.19734"
+     inkscape:cy="492.4839"
      inkscape:window-width="1366"
-     inkscape:window-height="704"
+     inkscape:window-height="740"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="312"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
   <defs
@@ -49,8 +49,8 @@
        id="path6"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:30;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2;stroke-dasharray:none;stroke-opacity:1"
-       d="M 89.847673,14.998226 V 485.00177 L 328.31907,250.71425 Z"
+       style="fill:none;stroke:#ffffff;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2;stroke-dasharray:none;stroke-opacity:1"
+       d="M 89.847673,19.997238 V 480.00276 L 314.74828,250.69906 Z"
        id="path3"
        sodipodi:nodetypes="cccc" />
     <ellipse
