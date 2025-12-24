@@ -36,8 +36,15 @@ class UIEditor{
 
     screenToCanvas(screenX, screenY) {
         const rect = canvas.getBoundingClientRect();
-        const x = clamp(((screenX - rect.left - panX) / zoom),0, canvasWidth);
-        const y = clamp(((screenY - rect.top - panY) / zoom),0, canvasHeight);
+        const x = clamp(((screenX - rect.left + panX) / zoom),0, canvasWidth);
+        const y = clamp(((screenY - rect.top + panY) / zoom),0, canvasHeight);
+        return {x, y};
+    }
+
+    canvasToScreen(canvasX, canvasY) {
+        const rect = canvas.getBoundingClientRect();
+        const x = canvasX * zoom + panX + rect.left;
+        const y = canvasY * zoom + panY + rect.top;
         return {x, y};
     }
 
@@ -207,7 +214,7 @@ class UIEditor{
     draw(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.save();
-        ctx.translate(panX, panY);
+        ctx.translate(-panX, -panY);
         ctx.scale(zoom, zoom);
         
         this.drawGrid();
@@ -375,8 +382,8 @@ class UIEditor{
                     dragTranslationLast.y = this.snapToGrid(pos.y);
                     shouldDraw = true;
                 } else if (isPanning && !selectedOperator) {
-                    panX += e.clientX - lastMouseX;
-                    panY += e.clientY - lastMouseY;
+                    panX -= e.clientX - lastMouseX;
+                    panY -= e.clientY - lastMouseY;
                     shouldDraw = true;
                 } 
                 }else if(editorState == editorStates.nodeEditor){
@@ -411,10 +418,11 @@ class UIEditor{
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            zoom = clamp(zoom*delta, minZoom, maxZoom);
-            const zoomDspl = (1.0-delta);
-            panX+=zoomDspl*panX;
-            panY+=zoomDspl*panY;
+            zoom = clamp(zoom*delta, minZoom, maxZoom); 
+            const mousePosCanv = this.screenToCanvas(lastMouseX, lastMouseY);
+            let zoomDspl = -(1.0-delta);
+            panX+=(zoomDspl*(mousePosCanv.x));
+            panY+=(zoomDspl*(mousePosCanv.y));
             zoomLevel.textContent = Math.round(zoom * 100);
             this.draw();
         });
@@ -448,18 +456,18 @@ class UIEditor{
             } else if (e.key === 'Escape') {
                 this.cancelSelectedOperator();
             }else if(e.key === 'd'){
-                panX-=panScale;
-                this.draw();
-            }
-            else if(e.key === 'w'){
-                panY+=panScale;
-                this.draw();
-            }else if(e.key === 'a'){
                 panX+=panScale;
                 this.draw();
             }
-            else if(e.key === 's'){
+            else if(e.key === 'w'){
                 panY-=panScale;
+                this.draw();
+            }else if(e.key === 'a'){
+                panX-=panScale;
+                this.draw();
+            }
+            else if(e.key === 's'){
+                panY+=panScale;
                 this.draw();
             }
         });
