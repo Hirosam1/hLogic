@@ -155,7 +155,15 @@ class UIEditor{
     drawResources(){
         //Draw Lines
         this._canvasLineSegments.forEach(line => {
-            let strokeStroke = line.isStraight ? '#100ae5' : '#738eb8ff';
+            let strokeStroke = '#100ae5';
+            if(!line.isStraight){
+                strokeStroke = '#738eb8ff';
+            }
+            else if(editorState == editorStates.simulating){
+                let vA = line.edge.vertexA;
+                let vB = line.edge.vertexB;
+                if(vA.value && vB.value){strokeStroke='#c7bb17ff';}
+            }
             drawLine(line.startPos, line.endPos, 5, strokeStroke);
     
         });
@@ -169,13 +177,13 @@ class UIEditor{
         });
         if(editorState == editorStates.simulating){
             verticesPosList.forEach(vertPos => {
-                let fillStyle = '#11c08cff';
+                let fillStyle = vertPos.vertex.value ? '#11c08cff' : '#bc1bd1ff';
                 drawPoint(vertPos.pos, 2, fillStyle);
             });
         }else{
             //Draw nodes
             this._canvasLineSegments.forEach(node => {
-                let fillStyle = '#bc1bd1ff';
+                let fillStyle = '#11c08cff';
                 drawPoint(node.startPos, 2, fillStyle);
                 drawPoint(node.endPos, 2, fillStyle);
             });

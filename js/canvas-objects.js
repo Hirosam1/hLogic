@@ -29,6 +29,7 @@ class CanvasGraphItem{
             addVertex(v, {x, y});
         }else{
             v = v.vertex;
+            v.type = type;
             __verticesMatch++;
         }
         return v;
@@ -44,7 +45,6 @@ class CanvasGraphItem{
             }else{
                 console.error('Could not create vertex!');
             }
-            
         });
         let nodeType = this.type == 'source' ? verticesTypes.source : verticesTypes.output;
         if(this.outputYPos > 0){
@@ -56,10 +56,16 @@ class CanvasGraphItem{
             }
         }
     }
+    
+    process(){
+        this.outputVertex.value = 1;
+        return this.outputVertex;
+    }
 
-    wakeUp(){
-        //If I am a switch, propagate a signal
-        return 0;
+    checkInputsReady(){
+        let isReady = true; 
+        this.inputsVertices.forEach(vert =>{if(!vert) isReady = false;});
+        return isReady;
     }
 }
 
@@ -155,6 +161,8 @@ class LineSegmentCanvasItem extends CanvasItem{
         let vB = this.graphItem.outputVertex;
         if(this.isStraight){
             if(vA && vB){
+                vA.type = verticesTypes.node;
+                vB.type = verticesTypes.node;
                 this.edge = new Edge(vA, vB);
                 edgesList.push(this.edge);
             }else{
@@ -162,4 +170,4 @@ class LineSegmentCanvasItem extends CanvasItem{
             }
          }
         }
-}
+}       

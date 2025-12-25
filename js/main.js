@@ -7,48 +7,6 @@ const startSimulation = document.getElementById('startSimulation');
 let isSimulating = false;
 let switchesVertices = [];
 
-startSimulation.addEventListener('click', () => {
-    isSimulating = !isSimulating;
-    const simTxt = isSimulating ? 'Stop Simulation ⏹️' : 'Start Simulation ▶️';
-    startSimulation.innerHTML=simTxt;
-    mainCanvas.cancelSelectedOperator();
-    if(isSimulating){
-        canvasControls.style.background = '#a34f28f2';
-        editorState = editorStates.simulating;
-        clearVertices();
-        //Load operators and vertices
-        mainCanvas._canvasObjects.forEach(op => {
-            if(op.type === 'operator'){
-                op.graphItem.createVertices();
-            }
-            if(op.object.name ==='switch'){
-                switchesVertices.push(op);
-            }
-        });
-        //Load line segments and edges
-        mainCanvas._canvasLineSegments.forEach(lineSeg => { 
-            lineSeg.graphItem.createVertices();
-            lineSeg.createEdge();
-        });
-        console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
-        console.log("matches: " + __verticesMatch + " switches: " + switchesVertices.length);
-    }else{
-        canvasControls.style.background = '#2a2a2af2';
-        editorState = editorStates.objectEditor;
-    }
-    mainCanvas.draw();
-});
-
-// Add save handlers
-document.getElementById('saveScene').addEventListener('click', ()=>{saveScene();});
-document.getElementById('loadScene').addEventListener('click', ()=>{
-    loadScene(); 
-    clearVertices();
-    isSimulating = false;
-    startSimulation.innerHTML = 'Start Simulation ▶️';
-});
-
-//===== Set up Canvas controls ========
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedObject) {
         // Place the selected object
@@ -108,36 +66,80 @@ function mouseDownNodeEdt(pos, e){
     mainCanvas.draw();
 }
 
+function propagateSwitches(){
+    let endVertices = [];
+    switchesVertices.forEach(swVert => {
+        let lastVert = propagateUtilNull(swVert);
+        if(lastVert){
+            console.log('lastVert: ' + lastVert.type);
+            endVertices.push(lastVert);
+        }
+    });
+    return endVertices;
+}
+
 function mouseDownSimulatingEdt(pos, e){
     const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj){
         selectedObject = obj;
         updateInfo(obj);
+        //Start propagating signal when a switch is flip
         if(obj.object.name === 'switch'){
-            const maxIt = 0;
-            let i = 0;
-            //as example 2
             let o = obj.logic.process();
-            let ov = obj.graphItem.outputVertex;
+            obj.graphItem.outputVertex.value = o;
             console.log('switch: ' + o);
-            while(ov){
-                if(i >= maxIt){
-                    break;
-                }
-                if(ov.type == 'input'){
-                    console.log('input found!');
-                }else if(ov.type == 'vertex'){
-                    
-                }
-                i++;
-            }
-
+            propagateSwitches();
+            mainCanvas.draw();
         }
         return obj;
     }
     return null;
 }
 
+startSimulation.addEventListener('click', () => {
+    isSimulating = !isSimulating;
+    const simTxt = isSimulating ? 'Stop Simulation ⏹️' : 'Start Simulation ▶️';
+    startSimulation.innerHTML=simTxt;
+    mainCanvas.cancelSelectedOperator();
+    if(isSimulating){
+        canvasControls.style.background = '#a34f28f2';
+        editorState = editorStates.simulating;
+        clearVertices();
+        switchesVertices = [];
+        //Load line segments and edges
+        mainCanvas._canvasLineSegments.forEach(lineSeg => { 
+            lineSeg.graphItem.createVertices(); 
+            lineSeg.createEdge();
+        });
+        //Load operators and vertices
+        mainCanvas._canvasObjects.forEach(obj => {
+            if(obj.type === 'operator'){
+                obj.graphItem.createVertices();
+            }
+            if(obj.object.name ==='switch'){
+                obj.logic.enabled = false;
+                switchesVertices.push(obj.graphItem.outputVertex);
+            }   
+        });
+        console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
+        console.log("matches: " + __verticesMatch + " switches: " + switchesVertices.length);
+    }else{
+        canvasControls.style.background = '#2a2a2af2';
+        editorState = editorStates.objectEditor;
+    }
+    mainCanvas.draw();
+});
+
+// Add save handlers
+document.getElementById('saveScene').addEventListener('click', ()=>{saveScene();});
+document.getElementById('loadScene').addEventListener('click', ()=>{
+    loadScene();
+    clearVertices();
+    isSimulating = false;
+    startSimulation.innerHTML = 'Start Simulation ▶️';
+});
+
+//===== Set up Canvas controls ========
 widthSlider.addEventListener('input', (e) => {
     canvasWidth = parseInt(e.target.value);
     document.getElementById('widthValue').textContent = canvasWidth;

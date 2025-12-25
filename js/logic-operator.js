@@ -1,6 +1,3 @@
-const MAX_ITERATIONS=1000;
-let runIterations = 0;
-
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 class Logic{
