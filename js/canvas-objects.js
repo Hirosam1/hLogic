@@ -8,7 +8,7 @@ class Icon{
 }
 
 class CanvasGraphItem{
-    constructor(x, y, width, height){
+    constructor(x, y, width, height, type='function'){
         this.x = x;
         this.y = y;
         this.width = width;
@@ -17,7 +17,7 @@ class CanvasGraphItem{
         this.inputsYPos=[1/3.0,2/3.0]
         this.outputYPos=1/3.0;
         this.inputsVertices=[];
-        this.type = 'function';
+        this.type = type;
         this.outputVertex=undefined;
     }
 
@@ -35,17 +35,37 @@ class CanvasGraphItem{
     createVertices(){
         this.inputsVertices=[];
         this.inputsYPos.forEach(yPos => {
-            this.inputsVertices.push(this.checkAndAddVertex(this.x, 
-                Math.round(yPos*this.height)+this.y, 'input'));
+            let nodeType = this.type == 'sink' ? verticesTypes.sink : verticesTypes.input;
+            let newVertex = this.checkAndAddVertex(this.x, Math.round(yPos*this.height)+this.y, nodeType);
+            if(newVertex){
+                this.inputsVertices.push(newVertex);
+            }else{
+                console.error('Could not create vertex!');
+            }
+            
         });
+        let nodeType = this.type == 'source' ? verticesTypes.source : verticesTypes.output;
         if(this.outputYPos > 0){
-            this.outputVertex = this.checkAndAddVertex(this.x+this.width,
-                Math.round(this.outputYPos*this.height)+this.y, 'output')
+            let newVertex = this.checkAndAddVertex(this.x+this.width, Math.round(this.outputYPos*this.height)+this.y, nodeType);
+            if(newVertex){
+                this.outputVertex = newVertex;
+            }else{
+                console.error('Could not create vertex!');
+            }
         }
     }
 
     wakeUp(){
         //If I am a switch, propagate a signal
+        return 0;
+    }
+}
+
+class AbsObject{
+    constructor(name, icon=null, type='absObject'){
+        this.name = name;
+        this.icon = icon;
+        this.type = type;
     }
 }
 
@@ -62,14 +82,6 @@ class CanvasItem{
     updatePos(x, y){
         this.x = x;
         this.y = y;
-    }
-}
-
-class AbsObject{
-    constructor(name, icon=null, type='absObject'){
-        this.name = name;
-        this.icon = icon;
-        this.type = type;
     }
 }
 
@@ -116,8 +128,7 @@ class LineSegmentCanvasItem extends CanvasItem{
         this.endPos = {x: endX, y: endY};
         this.type = 'lineSegment';
         this.isStraight = startX == endX || startY == endY;
-        this.graphItem = new CanvasGraphItem(this.x, this.y, 
-        this.width, this.height);
+        this.graphItem = new CanvasGraphItem(this.x, this.y, this.width, this.height);
         this.edge = null;
         this.graphItem.inputsYPos = [0];
         this.graphItem.outputYPos = 1;
@@ -140,8 +151,6 @@ class LineSegmentCanvasItem extends CanvasItem{
     createEdge(){
         if(this.isStraight){
             this.edge = new Edge(this.graphItem.inputsVertices[0], this.graphItem.outputVertex);
-            this.graphItem.inputsVertices[0].type = 'node';
-            this.graphItem.outputVertex.type = 'node';
             edgesList.push(this.edge);
         }
     }

@@ -5,10 +5,13 @@ class Vec2{
     }
 }
 
+const verticesTypes = {node : 'node', input: 'input', output: 'output',
+                       source : 'source', sink : 'sink'}
+
 class Vertex{
-    constructor(value=0, edgesN=0, type='vertex'){
+    //Vertex information
+    constructor(value=0, type=verticesTypes.node){
         this.value = value;
-        this.edgesN=edgesN;
         this.type = type;
         this.nextVertices=[];
         if(!value){
@@ -18,16 +21,26 @@ class Vertex{
 
     addNextVertex(vertex){
         this.nextVertices.push(vertex);
-        this.edgesN++;
     }
 }
 
 class Edge{
-    constructor(vertexA, vertexB){
+    //Create connection between vertices
+    constructor(vertexA, vertexB, twoWay=true){
+        vertexA.addNextVertex(vertexB);
+        if(twoWay){
+            vertexB.addNextVertex(vertexA);
+        }
         this.vertexA = vertexA;
         this.vertexB = vertexB;
     }
 }
+
+
+/*Graph rules:
+* One output can link to one and multiple input.
+* One input can link to one and only one.
+*/
 
 let __verticesMatch = 0;
 let __iterationsMade = 0;
@@ -58,7 +71,3 @@ function clearVertices(){
     verticesSaved = false;
     edgesList = [];
 }
-
-//graph rules:
-//One output can link to one and multiple input
-//One input can link to one and only one 

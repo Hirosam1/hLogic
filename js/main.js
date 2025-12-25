@@ -5,6 +5,7 @@ mainCanvas.initCanvas();
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
 let isSimulating = false;
+let switchesVertices = [];
 
 startSimulation.addEventListener('click', () => {
     isSimulating = !isSimulating;
@@ -21,17 +22,16 @@ startSimulation.addEventListener('click', () => {
             lineSeg.createEdge();
         });
         //Load operators
-        let switches = [];
         mainCanvas._canvasObjects.forEach(op => {
             if(op.type === 'operator'){
                 op.graphItem.createVertices();
             }
             if(op.object.name ==='switch'){
-                switches.push(op);
+                switchesVertices.push(op);
             }
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
-        console.log("matches: " + __verticesMatch + " switches: " + switches.length);
+        console.log("matches: " + __verticesMatch + " switches: " + switchesVertices.length);
     }else{
         canvasControls.style.background = '#2a2a2af2';
         editorState = editorStates.objectEditor;

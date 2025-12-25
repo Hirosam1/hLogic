@@ -13,23 +13,25 @@ class Logic{
     }
 }
 
-class Actuators {
-    constructor(type='output'){
-        this.type = type;
-    }
-    process(data){
-        throw new Error('Method "process()" must be implemented');
-    }
-}
-
-class Switch extends Actuators{
+class Switch extends Logic{
     constructor(){
-        super('output');
+        super(verticesTypes.source);
         this.enabled = false;
     }
     process(data){
         this.enabled = !this.enabled;
         return this.enabled;
+    }
+}
+
+
+class OutputLed extends Logic{
+    constructor(type){
+        this.type = type;
+    }
+
+    process(inputs){
+        return inputs;
     }
 }
 
