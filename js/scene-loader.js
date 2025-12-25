@@ -1,15 +1,18 @@
+const fileSaveVersion = '0.1';
+
 // Save scene to JSON
 function saveScene() {
     const sceneData = {
-        version: '1.0',
+        fileSaveVersion: fileSaveVersion,
         canvasWidth: canvasWidth,
         canvasHeight: canvasHeight,
         gridSize: gridSize,
         zoom: zoom,
         panX: Math.round(panX),
         panY: Math.round(panY),
-        canvasOperators: mainCanvas._canvasObjects.map(obj => ({
-            operatorName: obj.object.name,
+        canvasObjects: mainCanvas._canvasObjects.map(obj => ({
+            objectName: obj.object.name,
+            objectType: obj.object.type,
             x: obj.x,
             y: obj.y,
             width: obj.width,
@@ -23,7 +26,6 @@ function saveScene() {
     };
     
     const jsonString = JSON.stringify(sceneData, null, 0);
-    
     // Download as file
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -69,21 +71,28 @@ function loadScene() {
                 // Clear existing objects and palette
                 mainCanvas.clearCanvas();
                 //!!! UPDATE SAVE FILE !!!
-                sceneData.canvasOperators.forEach((canvasOp,i) =>{
-                    let operator = null;
-                    mainCanvas._objects.forEach((op,i)=>{
-                        if(op.name == canvasOp.operatorName){
-                            operator = op;
+                sceneData.canvasObjects.forEach((canvasOp,i) =>{
+                    let object = null;
+                    mainCanvas._objects.forEach((obj,i)=>{
+                        if(obj.name == canvasOp.objectName){
+                            object = obj;
                         }
                     });
-                    if(operator){
-                        let opr = new OperatorCanvasItem(operator, canvasOp.x, canvasOp.y, 
+                    if(object){
+                        let opr = null;
+                        if(object.type == 'operatorObject'){
+                            opr = new OperatorCanvasItem(object, canvasOp.x, canvasOp.y, 
                                                         canvasOp.width, canvasOp.height);
+                        }else{
+                            opr = new ObjectCanvasItem(object, canvasOp.x, canvasOp.y, 
+                                                        canvasOp.width, canvasOp.height);   
+                        }
                         mainCanvas._canvasObjects.push(opr);
                     }else{
-                        console.error("Couldn't load object: " + canvasOp.name);
+                        console.error("Couldn't load object: " + canvasOp.operatorName);
                     }
                 });
+                
                 sceneData.canvasLineSegments.forEach((node, i) =>{
                     mainCanvas._canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
                                                                            node.endPos[0], node.endPos[1]));
@@ -95,7 +104,6 @@ function loadScene() {
                 console.error('Error loading scene:', error);
                 alert('Error loading scene file. Please check the file format.');
             }
-
             mainCanvas.draw();
         };
         reader.readAsText(file);

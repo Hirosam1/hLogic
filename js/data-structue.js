@@ -34,6 +34,7 @@ let __iterationsMade = 0;
 
 let verticesSaved = false;
 let verticesPosList = [];
+let edgesList = [];
 
 function addVertex(vertex, pos){
     verticesPosList.push({pos, vertex});
@@ -55,4 +56,5 @@ function clearVertices(){
     __verticesMatch = 0;
     __iterationsMade = 0;
     verticesSaved = false;
+    edgesList = [];
 }

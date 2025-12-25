@@ -43,6 +43,10 @@ class CanvasGraphItem{
                 Math.round(this.outputYPos*this.height)+this.y, 'output')
         }
     }
+
+    wakeUp(){
+        //If I am a switch, propagate a signal
+    }
 }
 
 class CanvasItem{
@@ -53,6 +57,11 @@ class CanvasItem{
         this.width = width;
         this.height = height;
         this.type = type;
+    }
+
+    updatePos(x, y){
+        this.x = x;
+        this.y = y;
     }
 }
 
@@ -65,7 +74,7 @@ class AbsObject{
 }
 
 class ObjectCanvasItem extends CanvasItem{
-    constructor(object, x, y, width, height, type ='operatorObject'){
+    constructor(object, x, y, width, height, type ='object'){
         super(object, x, y, width, height, type);
     }
 }
@@ -83,15 +92,17 @@ class OperatorCanvasItem extends CanvasItem{
         if(this.object.name == 'switch'){
             this.graphItem.outputYPos=1/2;
             this.graphItem.inputsYPos= [];
-        }else if(this.object.name == 'output'){
+        }else if(this.object.name == 'outputLed'){
             this.graphItem.outputYPos=0;
+            this.graphItem.inputsYPos= [1/2];
+        }else if(this.object.name == 'not'){
+            this.graphItem.outputYPos=1/2;
             this.graphItem.inputsYPos= [1/2];
         }
     }
 
     updatePos(x, y){
-        this.x = x;
-        this.y = y;
+        super.updatePos(x,y);
         this.graphItem.x = x;
         this.graphItem.y = y;
     }
@@ -127,6 +138,11 @@ class LineSegmentCanvasItem extends CanvasItem{
     }
 
     createEdge(){
-        
+        if(this.isStraight){
+            this.edge = new Edge(this.graphItem.inputsVertices[0], this.graphItem.outputVertex);
+            this.graphItem.inputsVertices[0].type = 'node';
+            this.graphItem.outputVertex.type = 'node';
+            edgesList.push(this.edge);
+        }
     }
 }

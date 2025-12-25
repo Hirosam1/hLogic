@@ -103,7 +103,7 @@ class UIEditor{
             new AbsObject('circleDebug', new Icon('imgs/circle_white.svg', squareRatio)),
             new AbsObject('squareDebug', new Icon('imgs/square_white.svg', squareRatio)),
             new AbsObject('switch', new Icon('imgs/switch_2x2.svg', hSquareRatio), 'operatorObject'),
-            new AbsObject('output', new Icon('imgs/output_2x2.svg', hSquareRatio), 'operatorObject'),
+            new AbsObject('outputLed', new Icon('imgs/output_2x2.svg', hSquareRatio), 'operatorObject'),
             new AbsObject('not', new Icon('imgs/not_2x2.svg', hSquareRatio), 'operatorObject'),
             new AbsObject('and', new Icon('imgs/and_4x3.svg', globalRatio), 'operatorObject'),
             new AbsObject('or', new Icon('imgs/or_4x3.svg', globalRatio), 'operatorObject'),

@@ -18,6 +18,7 @@ startSimulation.addEventListener('click', () => {
         clearVertices();
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
             lineSeg.graphItem.createVertices();
+            lineSeg.createEdge();
         });
         //Load operators
         let switches = [];
@@ -29,7 +30,8 @@ startSimulation.addEventListener('click', () => {
                 switches.push(op);
             }
         });
-        console.log("vertices: "  + verticesPosList.length + " matches: " + __verticesMatch + " switches: " + switches.length);
+        console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
+        console.log("matches: " + __verticesMatch + " switches: " + switches.length);
     }else{
         canvasControls.style.background = '#2a2a2af2';
         editorState = editorStates.objectEditor;
@@ -169,7 +171,7 @@ clearCanvas.addEventListener('click', () => {
 //Mouse down
 canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
-    let shouldPan = false;
+    let actObj = null;
     if(editorState == editorStates.objectEditor){
         mouseDownOperatorEdt(pos, e);
     }else if(editorState == editorStates.nodeEditor){
@@ -198,7 +200,7 @@ canvas.addEventListener('mousemove', (e) => {
         if (draggedObject) {
             const deltaX = gridPos.x - dragTranslationLast.x;
             const deltaY = gridPos.y - dragTranslationLast.y;
-            if(draggedObject.type == 'operator'){
+            if(draggedObject.type == 'operator' || draggedObject.type == 'object'){
                 draggedObject.updatePos(draggedObject.x + deltaX, draggedObject.y + deltaY);
             }
             else if(draggedObject.type == 'lineSegment'){
@@ -294,7 +296,7 @@ document.addEventListener('keydown', (e) => {
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.draw();
     } else if (e.key === 'Delete' && draggedObject) {
-        if(draggedObject.type == 'operator'){
+        if(draggedObject.type == 'operator' || dragTranslationLast.type == 'object'){
             mainCanvas._canvasObjects = mainCanvas._canvasObjects.filter(obj => obj !== draggedObject);
         }else if(draggedObject.type == 'lineSegment'){
             mainCanvas._canvasLineSegments = mainCanvas._canvasLineSegments.filter(obj => obj !== draggedObject);
