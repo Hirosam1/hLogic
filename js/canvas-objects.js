@@ -24,9 +24,11 @@ class CanvasGraphItem{
     checkAndAddVertex(x, y, type){
         let v = checkPosVertex(x, y);
         if(!v){
-            v =  new Vertex(type=type);
+            v =  new Vertex();
+            v.type = type;
             addVertex(v, {x, y});
         }else{
+            v = v.vertex;
             __verticesMatch++;
         }
         return v;
@@ -149,9 +151,15 @@ class LineSegmentCanvasItem extends CanvasItem{
     }
 
     createEdge(){
+        let vA = this.graphItem.inputsVertices[0];
+        let vB = this.graphItem.outputVertex;
         if(this.isStraight){
-            this.edge = new Edge(this.graphItem.inputsVertices[0], this.graphItem.outputVertex);
-            edgesList.push(this.edge);
+            if(vA && vB){
+                this.edge = new Edge(vA, vB);
+                edgesList.push(this.edge);
+            }else{
+                console.error('Error creating edge!');
+            }
+         }
         }
-    }
 }

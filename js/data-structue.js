@@ -10,24 +10,24 @@ const verticesTypes = {node : 'node', input: 'input', output: 'output',
 
 class Vertex{
     //Vertex information
-    constructor(value=0, type=verticesTypes.node){
+    constructor(value=undefined, type=verticesTypes.node){
         this.value = value;
         this.type = type;
         this.nextVertices=[];
-        if(!value){
+        if(value===undefined){
             this.value = crypto.randomUUID();
         }
     }
 
-    addNextVertex(vertex){
-        this.nextVertices.push(vertex);
+    addNextVertex(nextVertex){
+        this.nextVertices.push(nextVertex);
     }
 }
 
 class Edge{
     //Create connection between vertices
     constructor(vertexA, vertexB, twoWay=true){
-        vertexA.addNextVertex(vertexB);
+        vertexA.addNextVertex(vertexA);
         if(twoWay){
             vertexB.addNextVertex(vertexA);
         }

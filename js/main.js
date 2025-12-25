@@ -13,15 +13,10 @@ startSimulation.addEventListener('click', () => {
     startSimulation.innerHTML=simTxt;
     mainCanvas.cancelSelectedOperator();
     if(isSimulating){
-        //Load edges
         canvasControls.style.background = '#a34f28f2';
         editorState = editorStates.simulating;
         clearVertices();
-        mainCanvas._canvasLineSegments.forEach(lineSeg => { 
-            lineSeg.graphItem.createVertices();
-            lineSeg.createEdge();
-        });
-        //Load operators
+        //Load operators and vertices
         mainCanvas._canvasObjects.forEach(op => {
             if(op.type === 'operator'){
                 op.graphItem.createVertices();
@@ -29,6 +24,11 @@ startSimulation.addEventListener('click', () => {
             if(op.object.name ==='switch'){
                 switchesVertices.push(op);
             }
+        });
+        //Load line segments and edges
+        mainCanvas._canvasLineSegments.forEach(lineSeg => { 
+            lineSeg.graphItem.createVertices();
+            lineSeg.createEdge();
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
         console.log("matches: " + __verticesMatch + " switches: " + switchesVertices.length);
