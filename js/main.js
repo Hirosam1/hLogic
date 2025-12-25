@@ -159,13 +159,13 @@ resetView.addEventListener('click', () => {
 });
 
 clearCanvas.addEventListener('click', () => {
-    if (confirm('Clear all canvas Items?')) {
+    //if (confirm('Clear all canvas Items?')) {
         mainCanvas.clearCanvas();
         clearVertices();
         isSimulating = false;
         startSimulation.innerHTML = 'Start Simulation ▶️';
         mainCanvas.draw();
-    }
+    //}
 });
 // Canvas mouse events ========
 //Mouse down

@@ -1,3 +1,4 @@
+//Ui elements
 const canvas = document.getElementById('canvas');
 const canvasControls = document.getElementById('canvasControls');
 const ctx = canvas.getContext('2d');

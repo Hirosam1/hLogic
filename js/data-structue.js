@@ -58,3 +58,7 @@ function clearVertices(){
     verticesSaved = false;
     edgesList = [];
 }
+
+//graph rules:
+//One output can link to one and multiple input
+//One input can link to one and only one 
