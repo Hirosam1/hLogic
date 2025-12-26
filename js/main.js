@@ -85,7 +85,6 @@ function populateReadyOperators(){
             }
         }
     });
-    console.log(readyOperators.length);
 }
 
 function propagateSwitches(){
