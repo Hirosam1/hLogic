@@ -76,28 +76,44 @@ function propagateUtilNull(startVertex){
     console.log('Start propagation of value: ' + sVal);
     //Recursive operation
     while(nextVert && gIt < propMaxIterations){
-        if(nextVert.type == verticesTypes.output){
-            console.log('output found!');
-        }
-        if(nextVert.type == verticesTypes.input){
-            console.log('input found!');
-        }else if(nextVert.type == verticesTypes.node){
-            console.log('node found!');
-        }
         gIt++;
         nextVert.value = sVal;
-        if(lastVert){
-            let nextVerts = [];
-            nextVert.nextVertices.forEach(v => {
-                if(v != lastVert){
-                    nextVerts.push(v);
-                };
-            });
-            lastVert = nextVert;
-            //Broadcast to all edges?
-            nextVert = nextVerts[0];
-        }else{lastVert = nextVert; nextVert = nextVert.nextVertices[0];}
+        let nextVerts = [];
+        nextVert.nextVertices.forEach(v => {
+            if(v != lastVert){
+                nextVerts.push(v);
+            };
+        });
+        lastVert = nextVert;
+        //Broadcast to all edges ??
+        nextVert = nextVerts[0];
     }
     return lastVert;
 }
 
+const propagateMaxIterations = 25;
+let propagateIterations = 0;
+
+function propagateUtilNullR(value, nextVertices, lastVert=undefined){
+    if(propagateIterations >= propagateMaxIterations){
+        console.error('Max iterations reached!!');
+        return undefined;
+    }
+    if(nextVertices.length > 0){
+        let lastVerts = [];
+        nextVertices.forEach(nextVert =>{
+            //console.log(nextVert.type);
+            propagateIterations++;
+            nextVert.value = value;
+            //Remove lastVert use filter??
+            let nextVerts = [];
+            nextVert.nextVertices.forEach(v => {if(v != lastVert){nextVerts.push(v);}});
+            //Recursive operation
+            let newLasts = propagateUtilNullR(value, nextVerts, nextVert);
+            if(newLasts){lastVerts.push(newLasts);}else{
+                return undefined;
+            }
+        });
+        return lastVerts;
+    }else{return [lastVert];}
+}
