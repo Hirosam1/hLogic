@@ -21,14 +21,22 @@ class Switch extends Logic{
     }
 }
 
-
 class OutputLed extends Logic{
-    constructor(type){
-        this.type = type;
+    constructor(){
+        super('outputLed');
     }
 
     process(inputs){
         return inputs;
+    }
+}
+
+class Not extends Logic{
+    constructor(){
+        super('not');
+    }
+    process(inputs){
+        return !inputs[0];
     }
 }
 
@@ -64,7 +72,15 @@ class Or extends Logic{
 
 const logicFactory = {
     'switch' : ()=>{return new Switch();},
-    'output': undefined,
+    'not': ()=>{return new Not();},
     'or' : ()=>{return new Or();},
     'and' : ()=>{return new And();}
+}
+
+function createLogic(logicName){
+    if(logicFactory[logicName]){
+        return logicFactory[logicName]();
+    }else{
+        return undefined;
+    }
 }

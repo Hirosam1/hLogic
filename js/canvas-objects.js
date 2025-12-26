@@ -8,17 +8,19 @@ class Icon{
 }
 
 class CanvasGraphItem{
-    constructor(x, y, width, height, type='function'){
+    constructor(x, y, width, height, type='function', logic = undefined){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.type = type;
+        this.logic = logic;
         //Graph logic from the ui.
-        this.inputsYPos=[1/3.0,2/3.0]
+        this.inputsYPos=[1/3.0,2/3.0];
         this.outputYPos=1/3.0;
         this.inputsVertices=[];
-        this.type = type;
         this.outputVertex=undefined;
+        this.isReady=false;
     }
 
     checkAndAddVertex(x, y, type){
@@ -56,16 +58,22 @@ class CanvasGraphItem{
             }
         }
     }
-    
+
     process(){
-        this.outputVertex.value = 1;
-        return this.outputVertex;
+        let inputVec = [];
+        this.inputsVertices.forEach(i => inputVec.push(i.value))
+        let o = this.logic.process(inputVec);
+        if(this.outputVertex){
+            this.outputVertex.value = o;
+        }
+        return o;
     }
 
-    checkInputsReady(){
-        let isReady = true; 
-        this.inputsVertices.forEach(vert =>{if(!vert) isReady = false;});
-        return isReady;
+    checkProcess(){
+        this.isReady = true;
+        this.inputsVertices.forEach(vert =>{if(!vert) this.isReady = false;});
+        if(this.isReady && this.logic) this.process();
+        return this.isReady;
     }
 }
 
@@ -103,11 +111,7 @@ class OperatorCanvasItem extends CanvasItem{
     constructor(operatorObj, x, y, width, height, type ='operator'){
         super(operatorObj, x, y, width, height, type);
         this.object = operatorObj;
-        this.graphItem = new CanvasGraphItem(x, y, width, height);
-        this.logic = null;
-        if(logicFactory[this.object.name]){
-            this.logic = logicFactory[this.object.name]();
-        }
+        this.graphItem = new CanvasGraphItem(x, y, width, height, 'function', createLogic(this.object.name));
         //!!! BAD!! MOVE THIS !!!
         if(this.object.name == 'switch'){
             this.graphItem.outputYPos=1/2;
@@ -136,7 +140,7 @@ class LineSegmentCanvasItem extends CanvasItem{
         this.endPos = {x: endX, y: endY};
         this.type = 'lineSegment';
         this.isStraight = startX == endX || startY == endY;
-        this.graphItem = new CanvasGraphItem(this.x, this.y, this.width, this.height);
+        this.graphItem = new CanvasGraphItem(this.x, this.y, this.width, this.height, this.type);
         this.edge = null;
         this.graphItem.inputsYPos = [0];
         this.graphItem.outputYPos = 1;

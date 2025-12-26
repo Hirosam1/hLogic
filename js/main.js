@@ -5,13 +5,13 @@ mainCanvas.initCanvas();
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
 let isSimulating = false;
-let switchesVertices = [];
-let readyOutputs = []
+let switches = [];
+let readyOperators = [];
 
 function clearSimulation(){
     let isSimulating = false;
-    switchesVertices = [];
-    readyOutputs = []
+    switches = [];
+    readyOperators = []
     clearVertices();
     canvasControls.style.background = '#2a2a2af2';
     startSimulation.innerHTML = 'Start Simulation ▶️';
@@ -77,23 +77,37 @@ function mouseDownNodeEdt(pos, e){
     mainCanvas.draw();
 }
 
-function checkReadyOperators(){
-
+function populateReadyOperators(){
+    mainCanvas._canvasObjects.forEach(obj =>{
+        if(obj.type == 'operator' && !obj.graphItem.isReady){
+            if(obj.graphItem.checkProcess()){
+                readyOperators.push(obj);
+            }
+        }
+    });
 }
 
 function propagateSwitches(){
     let endVertices = [];
-    switchesVertices.forEach(swVert => {
+    switches.forEach(sw => {
         //let lastVerts = [propagateUtilNull(swVert)];
-        let lastVerts = propagateUtilNullR(swVert.value,[swVert]);
-        if(lastVerts){   
-            console.log('lastVert: ' + lastVerts.length + ' iterations: ' + propagateIterations);
+        let oV = sw.graphItem.outputVertex;
+        oV.value = sw.graphItem.logic.enabled;
+        let lastVerts = propagateUtilNullR(oV.value,[oV]);
+        sw.graphItem.isReady = true;
+        if(lastVerts){
             endVertices.push(lastVerts);
         }
-        //!! Move this propagate iterations clear
-        propagateIterations = 0;
     });
     return endVertices;
+}
+
+function unReadyOperators(){
+    mainCanvas._canvasObjects.forEach(obj =>{
+    if(obj.type == 'operator'){
+        obj.graphItem.isReady = false;
+    }
+    });
 }
 
 function mouseDownSimulatingEdt(pos, e){
@@ -103,10 +117,22 @@ function mouseDownSimulatingEdt(pos, e){
         updateInfo(obj);
         //Start propagating signal when a switch is flip
         if(obj.object.name === 'switch'){
-            let o = obj.logic.process();
-            obj.graphItem.outputVertex.value = o;
+            let o = obj.graphItem.process();
             console.log('switch: ' + o);
             let endVerts = propagateSwitches();
+            populateReadyOperators();
+            readyOperators.forEach(readyOp =>{
+                if(readyOp.object.name != 'outputLed'){
+                    let oV = readyOp.graphItem.outputVertex;
+                    //!! ov.value shouldn't be undefined !!
+                    propagateUtilNullR(oV.value ,[oV]);
+                }
+            }); 
+            //!! Move this propagate iterations clear
+            console.log('Iterations: ' + propagateIterations);
+            propagateIterations = 0;
+            readyOperators = [];
+            unReadyOperators();
             mainCanvas.draw();
         }
         return obj;
@@ -123,8 +149,8 @@ startSimulation.addEventListener('click', () => {
         clearSimulation();
         canvasControls.style.background = '#a34f28f2';
         editorState = editorStates.simulating;
-        switchesVertices = [];
-        readyOutputs = [];
+        switches = [];
+        readyOperators = [];
         //Load line segments and edges
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
             lineSeg.graphItem.createVertices(); 
@@ -136,12 +162,12 @@ startSimulation.addEventListener('click', () => {
                 obj.graphItem.createVertices();
             }
             if(obj.object.name ==='switch'){
-                obj.logic.enabled = false;
-                switchesVertices.push(obj.graphItem.outputVertex);
+                obj.graphItem.logic.enabled = false;
+                switches.push(obj);
             }   
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
-        console.log("matches: " + __verticesMatch + " switches: " + switchesVertices.length);
+        console.log("matches: " + __verticesMatch + " switches: " + switches.length);
     }else{
         clearSimulation();
         canvasControls.style.background = '#2a2a2af2';
