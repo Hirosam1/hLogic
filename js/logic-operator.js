@@ -27,7 +27,8 @@ class OutputLed extends Logic{
     }
 
     process(inputs){
-        return inputs;
+        this.value = inputs[0];
+        return inputs[0];
     }
 }
 
@@ -88,6 +89,7 @@ class Xor extends Logic{
 }
 
 const logicFactory = {
+    'output' : ()=>{return new OutputLed();},
     'switch' : ()=>{return new Switch();},
     'not': ()=>{return new Not();},
     'or' : ()=>{return new Or();},

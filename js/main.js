@@ -70,7 +70,7 @@ function mouseDownSimulatingEdt(pos, e){
         updateInfo(obj);
         //Start propagating signal when a switch is flip
         if(obj.object.name === 'switch'){
-            let o = obj.graphItem.process();
+            let o = obj.process();
             //console.log('switch: ' + o);
             simulate();
         }
@@ -211,11 +211,14 @@ canvas.addEventListener('mousemove', (e) => {
         //Live draw when in nodeEditor!
         shouldDraw=true;
     }else if(editorState == editorStates.simulating){
-        let obj = mainCanvas.getObjectAt(pos.x, pos.y);
-        if(obj){
-            canvas.style.cursor = 'pointer';
+        if(isPanning){
         }else{
-            canvas.style.cursor = 'grab';
+            let obj = mainCanvas.getObjectAt(pos.x, pos.y);
+            if(obj){
+                canvas.style.cursor = 'pointer';
+            }else{
+                canvas.style.cursor = 'grab';
+            }
         }
     }
 

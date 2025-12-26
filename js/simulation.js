@@ -1,5 +1,6 @@
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
+const maxBigIts = 20;
 let isSimulating = false;
 let switches = [];
 let readyOperators = [];
@@ -17,8 +18,8 @@ function clearSimulation(){
 
 function populateReadyOperators(){
     mainCanvas._canvasObjects.forEach(obj =>{
-        if(obj.type == 'operator' && !obj.graphItem.isReady && obj.object.name != 'outputLed'){
-            if(obj.graphItem.checkProcess()){
+        if(obj.type == 'operator' && !obj.graphItem.isReady){
+            if(obj.process()){
                 readyOperators.push(obj);
             }
         }
@@ -51,25 +52,26 @@ function unReadyOperators(){
     });
 }
 
+//Perform graph traversal (BFS) to find inputs,
+//once a function has enough inputs, it performs another traversal,
+//until there are no vertices to visit.
 function simulate(){
-    //First big iteration
     unReadyOperators();
+    //First big iteration
     let endVerts = propagateSwitches();
-    //Second big iteration and others
-    const maxBigIts = 10;
     let bigIts = 1;
     let done = false;
     while(!done && bigIts <= maxBigIts){
+        //Second big iteration and others
         populateReadyOperators();
         readyOperators.forEach(readyOp =>{
             let oV = readyOp.graphItem.outputVertex;
-            propagateUtilNullR(oV.value ,[oV]);
+            if(oV) propagateUtilNullR(oV.value ,[oV]);
         });
         if(readyOperators.length == 0){done = true;}
         readyOperators = [];
         bigIts++;
     }
-
     console.log('Big iterations: ' + bigIts + ' Total iterations: ' + propagateIterations + ' done: ' + done);
     propagateIterations = 0;
     bigIts = 0;

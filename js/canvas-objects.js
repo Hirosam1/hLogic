@@ -63,6 +63,7 @@ class CanvasGraphItem{
         let inputVec = [];
         this.inputsVertices.forEach(i => inputVec.push(i.value))
         let o = this.logic.process(inputVec);
+        //Propagate result value to output
         if(this.outputVertex){
             this.outputVertex.value = o;
         }
@@ -74,7 +75,7 @@ class CanvasGraphItem{
         this.isReady = true;
         this.inputsVertices.forEach(vert =>{if(vert.value === undefined) this.isReady = false;});
         if(this.isReady && this.logic) o = this.process();
-        return this.isReady && o !==undefined;
+        return this.isReady;
     }
 }
 
@@ -118,12 +119,27 @@ class OperatorCanvasItem extends CanvasItem{
             this.graphItem.outputYPos=1/2;
             this.graphItem.inputsYPos= [];
         }else if(this.object.name == 'outputLed'){
+            this.graphItem.logic = createLogic('output');
             this.graphItem.outputYPos=0;
             this.graphItem.inputsYPos= [1/2];
+            this.process = ()=>{
+                    let o = this.graphItem.checkProcess();
+                    if(this.graphItem.logic.value===true){console.log('sink activated!');}
+                    return o !== undefined;
+                };
         }else if(this.object.name == 'not'){
-            this.graphItem.outputYPos=1/2;
+            this.graphItem.outputYPos=1/2;  
             this.graphItem.inputsYPos= [1/2];
+        }else if(this.object.name == 'outputDisplay'){
+            this.graphItem.logic = createLogic('output');
+            this.graphItem.outputYPos=0;
+            this.graphItem.inputsYPos= [0,1/4,2/4,3/4,1];
+            this.process = ()=>{return true;};
         }
+    }
+
+    process(){
+        return this.graphItem.checkProcess();
     }
 
     updatePos(x, y){
