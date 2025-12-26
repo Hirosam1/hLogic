@@ -16,7 +16,7 @@ function clearSimulation(){
 
 function populateReadyOperators(){
     mainCanvas._canvasObjects.forEach(obj =>{
-        if(obj.type == 'operator' && !obj.graphItem.isReady){
+        if(obj.type == 'operator' && !obj.graphItem.isReady && obj.object.name != 'outputLed'){
             if(obj.graphItem.checkProcess()){
                 readyOperators.push(obj);
             }
@@ -40,6 +40,7 @@ function propagateSwitches(){
 }
 
 function unReadyOperators(){
+    readyOperators = [];
     mainCanvas._canvasObjects.forEach(obj =>{
         if(obj.type == 'operator'){
             obj.graphItem.isReady = false;
@@ -50,18 +51,26 @@ function unReadyOperators(){
 }
 
 function simulate(){
+    //First big iteration
     unReadyOperators();
     let endVerts = propagateSwitches();
-    populateReadyOperators();
-    readyOperators.forEach(readyOp =>{
-        if(readyOp.object.name != 'outputLed'){
+    //Second big iteration and others
+    const maxBigIts = 10;
+    let bigIts = 1;
+    let done = false;
+    while(!done && bigIts <= maxBigIts){
+        populateReadyOperators();
+        readyOperators.forEach(readyOp =>{
             let oV = readyOp.graphItem.outputVertex;
             propagateUtilNullR(oV.value ,[oV]);
-        }
-    });
-    //!! Move this propagate iterations clear
-    console.log('Iterations: ' + propagateIterations);
+        });
+        if(readyOperators.length == 0){done = true;}
+        readyOperators = [];
+        bigIts++;
+    }
+
+    console.log('Big iterations: ' + bigIts + ' Total iterations: ' + propagateIterations + ' done: ' + done);
     propagateIterations = 0;
-    readyOperators = [];
+    bigIts = 0;
     mainCanvas.draw();
 }

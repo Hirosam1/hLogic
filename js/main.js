@@ -71,7 +71,7 @@ function mouseDownSimulatingEdt(pos, e){
         //Start propagating signal when a switch is flip
         if(obj.object.name === 'switch'){
             let o = obj.graphItem.process();
-            console.log('switch: ' + o);
+            //console.log('switch: ' + o);
             simulate();
         }
         return obj;
