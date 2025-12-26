@@ -70,10 +70,28 @@ class Or extends Logic{
     }
 }
 
+class Xor extends Logic{
+    constructor(){
+        super('xor');
+    }
+
+    process(inputs){
+        let o = false;
+        for(let i = 0; i < inputs.length; i++){
+            if(inputs[i] === true){
+                if(o){return false};
+                o = true;
+            }
+        }
+        return o;
+    }
+}
+
 const logicFactory = {
     'switch' : ()=>{return new Switch();},
     'not': ()=>{return new Not();},
     'or' : ()=>{return new Or();},
+    'xor': ()=>{return new Xor();},
     'and' : ()=>{return new And();}
 }
 

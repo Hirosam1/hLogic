@@ -110,6 +110,24 @@ function unReadyOperators(){
     });
 }
 
+function simulate(){
+    let endVerts = propagateSwitches();
+    populateReadyOperators();
+    readyOperators.forEach(readyOp =>{
+        if(readyOp.object.name != 'outputLed'){
+            let oV = readyOp.graphItem.outputVertex;
+            //!! ov.value shouldn't be undefined !!
+            propagateUtilNullR(oV.value ,[oV]);
+        }
+    }); 
+    //!! Move this propagate iterations clear
+    console.log('Iterations: ' + propagateIterations);
+    propagateIterations = 0;
+    readyOperators = [];
+    unReadyOperators();
+    mainCanvas.draw();
+}
+
 function mouseDownSimulatingEdt(pos, e){
     const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj){
@@ -119,21 +137,7 @@ function mouseDownSimulatingEdt(pos, e){
         if(obj.object.name === 'switch'){
             let o = obj.graphItem.process();
             console.log('switch: ' + o);
-            let endVerts = propagateSwitches();
-            populateReadyOperators();
-            readyOperators.forEach(readyOp =>{
-                if(readyOp.object.name != 'outputLed'){
-                    let oV = readyOp.graphItem.outputVertex;
-                    //!! ov.value shouldn't be undefined !!
-                    propagateUtilNullR(oV.value ,[oV]);
-                }
-            }); 
-            //!! Move this propagate iterations clear
-            console.log('Iterations: ' + propagateIterations);
-            propagateIterations = 0;
-            readyOperators = [];
-            unReadyOperators();
-            mainCanvas.draw();
+            simulate();
         }
         return obj;
     }
@@ -142,12 +146,11 @@ function mouseDownSimulatingEdt(pos, e){
 
 startSimulation.addEventListener('click', () => {
     isSimulating = !isSimulating;
-    const simTxt = isSimulating ? 'Stop Simulation ⏹️' : 'Start Simulation ▶️';
-    startSimulation.innerHTML=simTxt;
     mainCanvas.cancelSelectedOperator();
     if(isSimulating){
         clearSimulation();
         canvasControls.style.background = '#a34f28f2';
+        startSimulation.innerHTML = 'Stop Simulation ⏹️';
         editorState = editorStates.simulating;
         switches = [];
         readyOperators = [];
@@ -168,6 +171,7 @@ startSimulation.addEventListener('click', () => {
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
         console.log("matches: " + __verticesMatch + " switches: " + switches.length);
+        simulate();
     }else{
         clearSimulation();
         canvasControls.style.background = '#2a2a2af2';
