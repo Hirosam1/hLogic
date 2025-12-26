@@ -75,14 +75,14 @@
      id="path1" />
   <g
      id="layer1"
-     transform="matrix(3.3373785,0,0,5.4165385,194.787,-193.73653)"
-     style="stroke-width:14.1119;stroke-dasharray:none">
+     transform="matrix(3.3373785,0,0,4.663711,194.787,-114.68963)"
+     style="stroke-width:15.2083;stroke-dasharray:none">
     <g
        id="g2"
        transform="matrix(0,1.7509594,-1.7509594,0,275.20311,-66.804181)"
-       style="stroke-width:8.05956;stroke-dasharray:none">
+       style="stroke-width:8.68574;stroke-dasharray:none">
       <path
-         style="fill:none;stroke:#ffffff;stroke-width:8.05957;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+         style="fill:none;stroke:#ffffff;stroke-width:8.68575;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
          d="m 133.67364,141.90776 c 0,0.80502 -0.55398,1.45311 -1.2421,1.45311 H 63.808504 c -0.68812,0 -1.242129,-0.64809 -1.242094,-1.45311 l 0.0024,-55.24114 C 62.893884,62.762001 78.893414,44.502717 98.413827,44.691438 117.93424,44.880156 133.67365,63.446289 133.67364,87.010324 Z"
          id="rect2"
          inkscape:connector-curvature="0"
