@@ -86,6 +86,7 @@ startSimulation.addEventListener('click', () => {
         clearSimulation();
         canvasControls.style.background = '#a34f28f2';
         startSimulation.innerHTML = 'Stop Simulation ⏹️';
+        container.classList.add('simulating');
         editorState = editorStates.simulating;
         switches = [];
         readyOperators = [];

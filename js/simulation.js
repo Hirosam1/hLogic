@@ -11,6 +11,7 @@ function clearSimulation(){
     clearVertices();
     canvasControls.style.background = '#2a2a2af2';
     startSimulation.innerHTML = 'Start Simulation ▶️';
+    container.classList.remove('simulating');
     editorState = editorStates.objectEditor;
 }
 

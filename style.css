@@ -128,6 +128,10 @@ body {
     background: #110c14;
 }
 
+.canvas-container.simulating {
+    background: #1d0e0b;
+}
+
 canvas {
     position: absolute;
     cursor: grab;
