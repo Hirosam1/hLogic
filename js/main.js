@@ -85,6 +85,7 @@ function populateReadyOperators(){
             }
         }
     });
+    console.log(readyOperators.length);
 }
 
 function propagateSwitches(){
@@ -104,27 +105,28 @@ function propagateSwitches(){
 
 function unReadyOperators(){
     mainCanvas._canvasObjects.forEach(obj =>{
-    if(obj.type == 'operator'){
-        obj.graphItem.isReady = false;
-    }
+        if(obj.type == 'operator'){
+            obj.graphItem.isReady = false;
+            obj.graphItem.inputsVertices.forEach(i =>{i.value = undefined;});
+            //obj.graphItem.outputVertex.value = undefined;
+        }
     });
 }
 
 function simulate(){
+    unReadyOperators();
     let endVerts = propagateSwitches();
     populateReadyOperators();
     readyOperators.forEach(readyOp =>{
         if(readyOp.object.name != 'outputLed'){
             let oV = readyOp.graphItem.outputVertex;
-            //!! ov.value shouldn't be undefined !!
             propagateUtilNullR(oV.value ,[oV]);
         }
-    }); 
+    });
     //!! Move this propagate iterations clear
     console.log('Iterations: ' + propagateIterations);
     propagateIterations = 0;
     readyOperators = [];
-    unReadyOperators();
     mainCanvas.draw();
 }
 

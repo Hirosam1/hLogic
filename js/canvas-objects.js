@@ -71,7 +71,7 @@ class CanvasGraphItem{
 
     checkProcess(){
         this.isReady = true;
-        this.inputsVertices.forEach(vert =>{if(!vert) this.isReady = false;});
+        this.inputsVertices.forEach(vert =>{if(vert.value === undefined) this.isReady = false;});
         if(this.isReady && this.logic) this.process();
         return this.isReady;
     }

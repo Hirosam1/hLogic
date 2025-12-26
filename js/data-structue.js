@@ -91,7 +91,7 @@ function propagateUtilNull(startVertex){
     return lastVert;
 }
 
-const propagateMaxIterations = 25;
+const propagateMaxIterations = 50;
 let propagateIterations = 0;
 
 function propagateUtilNullR(value, nextVertices, lastVert=undefined){
