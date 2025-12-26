@@ -1,6 +1,6 @@
 const globalRatio = {x: 4, y: 3};
 const squareRatio = {x: 4, y: 4};
-const rectRatio = {x: 4, y: 2};
+const rectRatio = {x: 2, y: 4};
 const hSquareRatio = {x: 2, y: 2};
 const gridSize = 30;
 const maxZoom = 7;
@@ -109,7 +109,7 @@ class UIEditor{
             new AbsObject('and', new Icon('imgs/and_4x3.svg', globalRatio), 'operatorObject'),
             new AbsObject('or', new Icon('imgs/or_4x3.svg', globalRatio), 'operatorObject'),
             new AbsObject('xor'  , new Icon('imgs/xor_4x3.svg', globalRatio), 'operatorObject'),
-            new AbsObject('outputDisplay', new Icon('imgs/bitsDisplayI_4x2.svg', rectRatio))
+            new AbsObject('outputDisplay', new Icon('imgs/bitsDisplayI_2x4.svg', rectRatio))
         ];
         this._objects.forEach(operator =>{
             this.addObjectToPalette(operator);
