@@ -33,7 +33,8 @@ class Edge{
 
 /*Graph rules:
 * One output can link to one and multiple input.
-* One input can link to one and only one.
+* One input can link to one and only one output.
+* There can't be any cycles.
 */
 const maxIt = 20;
 let __verticesMatch = 0;
@@ -91,7 +92,7 @@ function propagateUtilNull(startVertex){
     return lastVert;
 }
 
-const propagateMaxIterations = 200;
+const propagateMaxIterations = 500;
 let propagateIterations = 0;
 
 function propagateUtilNullR(value, nextVertices, lastVert=undefined){

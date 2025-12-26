@@ -53,7 +53,6 @@ function loadScene() {
         reader.onload = (event) => {
             try {
                 const sceneData = JSON.parse(event.target.result);
-                
                 // Restore canvas settings
                 canvasWidth = sceneData.canvasWidth;
                 canvasHeight = sceneData.canvasHeight;
@@ -67,10 +66,8 @@ function loadScene() {
                 heightSlider.value = canvasHeight;
                 document.getElementById('heightValue').textContent = canvasHeight;
                 document.getElementById('zoomLevel').textContent = Math.round(zoom * 100);
-                
                 // Clear existing objects and palette
                 mainCanvas.clearCanvas();
-                //!!! UPDATE SAVE FILE !!!
                 sceneData.canvasObjects.forEach((canvasOp,i) =>{
                     let object = null;
                     mainCanvas._objects.forEach((obj,i)=>{
@@ -99,7 +96,6 @@ function loadScene() {
                 });
 
                 console.log('Scene loaded!');
-                
             } catch (error) {
                 console.error('Error loading scene:', error);
                 alert('Error loading scene file. Please check the file format.');
@@ -108,6 +104,5 @@ function loadScene() {
         };
         reader.readAsText(file);
     };
-    
     input.click();
 }

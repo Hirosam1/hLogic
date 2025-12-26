@@ -125,14 +125,17 @@ document.getElementById('loadScene').addEventListener('click', ()=>{
 
 //===== Set up Canvas controls ========
 widthSlider.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
     canvasWidth = parseInt(e.target.value);
-    document.getElementById('widthValue').textContent = canvasWidth;
+    document.getElementById('widthValue').textContent = val;
+    canvasWidth = val;
     mainCanvas.initCanvas();
 });
 
 heightSlider.addEventListener('input', (e) => {
-    canvasHeight = parseInt(e.target.value);
-    document.getElementById('heightValue').textContent = canvasHeight;
+    const val = parseInt(e.target.value);
+    document.getElementById('heightValue').textContent = val;
+    canvasHeight=val;
     mainCanvas.initCanvas();
 });
 
@@ -169,7 +172,7 @@ canvas.addEventListener('mousedown', (e) => {
             isPanning = true;
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
-            canvas.classList.add('panning');
+            //canvas.classList.add('panning');
             canvas.style.cursor = 'grabbing';
         }
     }
@@ -280,7 +283,7 @@ document.addEventListener('keydown', (e) => {
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.draw();
     } else if (e.key === 'Delete' && draggedObject) {
-        if(draggedObject.type == 'operator' || dragTranslationLast.type == 'object'){
+        if(draggedObject.type == 'operator' || draggedObject.type == 'object'){
             mainCanvas._canvasObjects = mainCanvas._canvasObjects.filter(obj => obj !== draggedObject);
         }else if(draggedObject.type == 'lineSegment'){
             mainCanvas._canvasLineSegments = mainCanvas._canvasLineSegments.filter(obj => obj !== draggedObject);

@@ -70,10 +70,11 @@ class CanvasGraphItem{
     }
 
     checkProcess(){
+        let o = undefined;
         this.isReady = true;
         this.inputsVertices.forEach(vert =>{if(vert.value === undefined) this.isReady = false;});
-        if(this.isReady && this.logic) this.process();
-        return this.isReady;
+        if(this.isReady && this.logic) o = this.process();
+        return this.isReady && o !==undefined;
     }
 }
 
