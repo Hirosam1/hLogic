@@ -51,7 +51,7 @@ function updateInfo(){
     if (editorState == editorStates.objectEditor){
         if(draggedObject){
             if(draggedObject.object){
-                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.object.name + ') operator';
+                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.object.name + ') ' + draggedObject.object.type;
             }else{
                 document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging line segment';
             }
