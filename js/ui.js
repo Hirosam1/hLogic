@@ -53,7 +53,7 @@ function updateInfo(){
             if(draggedObject.object){
                 document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging (' + draggedObject.object.name + ') operator';
             }else{
-                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging ' + (draggedObject.isStraight ? 'straight' : 'diagonal') + ' line segment';
+                document.getElementById('modeInfo').textContent = 'Edit Mode: Dragging line segment';
             }
         }else if(placingMode){
             document.getElementById('modeInfo').textContent = 'Edit Mode: Place (' + selectedObject.name + ') operator';

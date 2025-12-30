@@ -24,7 +24,7 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      inkscape:zoom="0.15158419"
-     inkscape:cx="1537.0996"
+     inkscape:cx="1533.8011"
      inkscape:cy="36.283467"
      inkscape:window-width="1366"
      inkscape:window-height="740"
@@ -51,7 +51,7 @@
   <defs
      id="defs1" />
   <path
-     style="fill:none;stroke:#e60a41;stroke-width:60.0001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2;stroke-dasharray:none;stroke-opacity:1"
+     style="fill:none;stroke:#e60a41;stroke-width:60.00010058;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2;stroke-dasharray:none;stroke-opacity:1"
      d="M 31.139703,249.99998 H 105.9676"
      id="path5" />
   <rect
@@ -69,5 +69,5 @@
      cx="300.60309"
      cy="250.00005"
      r="86.720261"
-     inkscape:label="light" />
+     inkscape:label="led" />
 </svg>

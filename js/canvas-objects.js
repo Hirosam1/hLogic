@@ -116,25 +116,61 @@ class OperatorCanvasItem extends CanvasItem{
         this.graphItem = new CanvasGraphItem(x, y, width, height, 'function', createLogic(this.object.name));
         //!!! BAD!! MOVE THIS !!!
         if(this.object.name == 'switch'){
+            this.ledsPos = {high: new Vec2(0.55, 0.3), low : new Vec2(0.55, 0.7)};
             this.graphItem.outputYPos=1/2;
             this.graphItem.inputsYPos= [];
+            this.drawEffects = () =>{
+                let fillStyle = this.graphItem.isReady? this.graphItem.logic.enabled? '#c7bb17ff': '#e60a41' : '#74738bff';
+                drawPoint(new Vec2(this.x+this.ledsPos.high.x*this.width,
+                                this.y+this.ledsPos.high.y*this.height), 6, fillStyle);
+                fillStyle = this.graphItem.isReady?  this.graphItem.logic.enabled? '#e60a41' : '#100ae5': '#74738bff';
+                drawPoint(new Vec2(this.x+this.ledsPos.low.x*this.width,
+                                this.y+this.ledsPos.low.y*this.height), 6, fillStyle);
+            };
         }else if(this.object.name == 'outputLed'){
+            this.ledOutputPos = {x : 0.6 , y: 0.5}; 
             this.graphItem.logic = createLogic('output');
             this.graphItem.outputYPos=0;
             this.graphItem.inputsYPos= [1/2];
             this.process = ()=>{
                     let o = this.graphItem.checkProcess();
-                    if(this.graphItem.logic.value===true){console.log('sink activated!');}
                     return o !== undefined;
                 };
-        }else if(this.object.name == 'not'){
-            this.graphItem.outputYPos=1/2;  
-            this.graphItem.inputsYPos= [1/2];
+                this.drawEffects = ()=>{
+                    let fillStyle = this.graphItem.isReady? this.graphItem.logic.value? '#11c08cff' : '#e60a41' : '#100ae5';
+                    drawPoint(new Vec2(this.x+this.ledOutputPos.x*this.width,
+                                       this.y+this.ledOutputPos.y*this.height), 9.5, fillStyle);
+                };
         }else if(this.object.name == 'outputDisplay'){
-            this.graphItem.logic = createLogic('output');
+            this.graphItem.logic = createLogic('output');   
             this.graphItem.outputYPos=0;
             this.graphItem.inputsYPos= [0,1/4,2/4,3/4,1];
-            this.process = ()=>{return true;};
+            this.graphItem.isReady = true;
+            this.displayVal = 0;
+            this.outputDisplayPos = {x: 0.575   , y: 0.75};
+            this.process = ()=>{
+                let newVal = 0;
+                this.graphItem.checkProcess();
+                for(let i = 0; i < this.graphItem.inputsVertices.length; i++){
+                    if(this.graphItem.inputsVertices[i].value !== undefined){
+                        newVal |= (1 << i) * this.graphItem.inputsVertices[i].value;
+                        this.displayVal = newVal;
+                    }else{
+                        this.graphItem.isReady = false;
+                    }
+                }
+                return this.graphItem.isReady;
+            }
+            
+            this.drawEffects = ()=>{
+                ctx.font = '16px Monospace';
+                ctx.fillStyle = '#11c08cff';
+                ctx.fillText(`${this.displayVal}`, this.x+this.outputDisplayPos.x*this.width,
+                                    this.y+this.outputDisplayPos.y*this.height);
+            };
+        }else if(this.object.name == 'not'){
+            this.graphItem.outputYPos=1/2;
+            this.graphItem.inputsYPos= [1/2];
         }
     }
 
@@ -147,21 +183,27 @@ class OperatorCanvasItem extends CanvasItem{
         this.graphItem.x = x;
         this.graphItem.y = y;
     }
+
+    drawEffects(){}
 }
 
 class LineSegmentCanvasItem extends CanvasItem{
     constructor(startX, startY, endX, endY){
         super(new AbsObject(), Math.min(startX, endX), Math.min(startY, endY), 
               Math.abs(startX - endX), Math.abs(startY - endY));
-        this.startPos = {x: startX, y: startY};
-        this.endPos = {x: endX, y: endY};
+        this.startPos = {x: startX, y: startY, vertex: null};
+        this.endPos = {x: endX, y: endY, vertex: null};
         this.type = 'lineSegment';
-        this.isStraight = startX == endX || startY == endY;
         this.graphItem = new CanvasGraphItem(this.x, this.y, this.width, this.height, this.type);
         this.edge = null;
-        this.graphItem.inputsYPos = [0];
-        this.graphItem.outputYPos = 1;
-        this.graphItem.createVertices = this.isStraight ? this.graphItem.createVertices : ()=>{};
+        this.graphItem.createVertices = ()=>{this.createVertices();};
+    }
+
+    createVertices(){
+         let newVertex = this.graphItem.checkAndAddVertex(this.startPos.x, this.startPos.y, 'node');
+         this.startPos.vertex = newVertex;
+         newVertex = this.graphItem.checkAndAddVertex(this.endPos.x, this.endPos.y, 'node');
+         this.endPos.vertex = newVertex;
     }
 
     updatePos(x, y){
@@ -178,17 +220,15 @@ class LineSegmentCanvasItem extends CanvasItem{
     }
 
     createEdge(){
-        let vA = this.graphItem.inputsVertices[0];
-        let vB = this.graphItem.outputVertex;
-        if(this.isStraight){
-            if(vA && vB){
-                vA.type = verticesTypes.node;
-                vB.type = verticesTypes.node;
-                this.edge = new Edge(vA, vB);
-                edgesList.push(this.edge);
-            }else{
-                console.error('Error creating edge!');
-            }
-         }
+        let vA = this.startPos.vertex;
+        let vB = this.endPos.vertex;
+        if(vA && vB){
+            vA.type = verticesTypes.node;
+            vB.type = verticesTypes.node;
+            this.edge = new Edge(vA, vB);
+            edgesList.push(this.edge);
+        }else{
+            console.error('Error creating edge!');
         }
-}       
+        }
+}

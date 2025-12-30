@@ -173,7 +173,7 @@ canvas.addEventListener('mousedown', (e) => {
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
             //canvas.classList.add('panning');
-            canvas.style.cursor = 'grabbing';
+            if(editorState !== editorStates.nodeEditor) canvas.style.cursor = 'grabbing';
         }
     }
 });

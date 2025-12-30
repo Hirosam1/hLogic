@@ -1,6 +1,6 @@
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
-const maxBigIts = 20;
+const maxPIterations = 20;
 let isSimulating = false;
 let switches = [];
 let readyOperators = [];
@@ -59,9 +59,9 @@ function simulate(){
     unReadyOperators();
     //First big iteration
     let endVerts = propagateSwitches();
-    let bigIts = 1;
+    let pIterations = 1;
     let done = false;
-    while(!done && bigIts <= maxBigIts){
+    while(!done && pIterations <= maxPIterations){
         //Second big iteration and others
         populateReadyOperators();
         readyOperators.forEach(readyOp =>{
@@ -70,10 +70,10 @@ function simulate(){
         });
         if(readyOperators.length == 0){done = true;}
         readyOperators = [];
-        bigIts++;
+        pIterations++;
     }
-    console.log('Big iterations: ' + bigIts + ' Total iterations: ' + propagateIterations + ' done: ' + done);
+    console.log('Process iterations: ' + pIterations + ' Total iterations: ' + propagateIterations + ' done: ' + done);
     propagateIterations = 0;
-    bigIts = 0;
+    pIterations = 0;
     mainCanvas.draw();
 }

@@ -1,5 +1,6 @@
 const globalRatio = {x: 4, y: 3};
 const squareRatio = {x: 4, y: 4};
+const gridRatio = {x: 1, y:1};
 const rectRatio = {x: 2, y: 4};
 const hSquareRatio = {x: 2, y: 2};
 const gridSize = 30;
@@ -101,8 +102,9 @@ class UIEditor{
 
     preloadPalletMenu(){
         this._objects = [
-            new AbsObject('circleDebug', new Icon('imgs/circle_white.svg', squareRatio)),
-            new AbsObject('squareDebug', new Icon('imgs/square_white.svg', squareRatio)),
+            new AbsObject('debugA', new Icon('imgs/debugA_1x1.svg', gridRatio)),
+            new AbsObject('debugB', new Icon('imgs/debugB_1x1.svg', gridRatio)),
+            new AbsObject('debugB', new Icon('imgs/debugC_1x1.svg', gridRatio)),
             new AbsObject('switch', new Icon('imgs/switch_2x2.svg', hSquareRatio), 'operatorObject'),
             new AbsObject('outputLed', new Icon('imgs/output_2x2.svg', hSquareRatio), 'operatorObject'),
             new AbsObject('not', new Icon('imgs/not_2x2.svg', hSquareRatio), 'operatorObject'),
@@ -157,16 +159,14 @@ class UIEditor{
     drawResources(){
         //Draw Lines
         this._canvasLineSegments.forEach(line => {
-            let strokeStroke = '#100ae5';
-            if(!line.isStraight){
-                strokeStroke = '#738eb8ff';
-            }
-            else if(editorState == editorStates.simulating){
+            let strokeStyle = editorState === editorStates.simulating? '#74738bff' : '#100ae5';
+            if(editorState == editorStates.simulating){
                 let vA = line.edge.vertexA;
                 let vB = line.edge.vertexB;
-                if(vA.value && vB.value){strokeStroke='#c7bb17ff';}
+                if(vA.value && vB.value){strokeStyle='#c7bb17ff';}
+                else if(vA.value === false && vB.value === false){strokeStyle='#100ae5'}
             }
-            drawLine(line.startPos, line.endPos, 5, strokeStroke);
+            drawLine(line.startPos, line.endPos, 5, strokeStyle);
     
         });
         ctx.closePath();
@@ -175,6 +175,7 @@ class UIEditor{
         this._canvasObjects.forEach(obj => {
             if (obj.object.icon.type === 'image' && obj.object.icon.img.complete) {
                 ctx.drawImage(obj.object.icon.img, obj.x, obj.y, obj.width, obj.height);
+                if(obj.drawEffects) obj.drawEffects();
             }
         });
         if(editorState == editorStates.simulating){
