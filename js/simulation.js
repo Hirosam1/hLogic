@@ -1,6 +1,6 @@
 //===  Sinuation logic ====
 const startSimulation = document.getElementById('startSimulation');
-const maxPIterations = 20;
+const maxPIterations = 50;
 let isSimulating = false;
 let switches = [];
 let readyOperators = [];

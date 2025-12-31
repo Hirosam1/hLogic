@@ -114,7 +114,8 @@ class OperatorCanvasItem extends CanvasItem{
         super(operatorObj, x, y, width, height, type);
         this.object = operatorObj;
         this.graphItem = new CanvasGraphItem(x, y, width, height, 'function', createLogic(this.object.name));
-        //!!! BAD!! MOVE THIS !!!
+        //#TODO
+        //!!!! MOVE THIS ELSEWHERE !!!! ======
         if(this.object.name == 'switch'){
             this.ledsPos = {high: new Vec2(0.55, 0.3), low : new Vec2(0.55, 0.7)};
             this.graphItem.outputYPos=1/2;
@@ -141,13 +142,13 @@ class OperatorCanvasItem extends CanvasItem{
                     drawPoint(new Vec2(this.x+this.ledOutputPos.x*this.width,
                                        this.y+this.ledOutputPos.y*this.height), 9.5, fillStyle);
                 };
-        }else if(this.object.name == 'outputDisplay'){
+        }else if(this.object.name == '5bDisplay'){
             this.graphItem.logic = createLogic('output');   
             this.graphItem.outputYPos=0;
             this.graphItem.inputsYPos= [0,1/4,2/4,3/4,1];
             this.graphItem.isReady = true;
             this.displayVal = 0;
-            this.outputDisplayPos = {x: 0.575   , y: 0.75};
+            this.outputDisplayPos = {x: 0.37   , y: 0.82};
             this.process = ()=>{
                 let newVal = 0;
                 this.graphItem.checkProcess();
@@ -163,15 +164,17 @@ class OperatorCanvasItem extends CanvasItem{
             }
             
             this.drawEffects = ()=>{
-                ctx.font = '16px Monospace';
+                const fontSize = clamp(19/zoom, 19, 36);
+                ctx.font = `${fontSize}px Monospace`;
                 ctx.fillStyle = '#11c08cff';
                 ctx.fillText(`${this.displayVal}`, this.x+this.outputDisplayPos.x*this.width,
                                     this.y+this.outputDisplayPos.y*this.height);
             };
         }else if(this.object.name == 'not'){
-            this.graphItem.outputYPos=1/2;
+            this.graphItem.outputYPos=1/2;  
             this.graphItem.inputsYPos= [1/2];
         }
+        //=========
     }
 
     process(){

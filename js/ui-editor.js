@@ -111,7 +111,7 @@ class UIEditor{
             new AbsObject('and', new Icon('imgs/and_4x3.svg', globalRatio), 'operatorObject'),
             new AbsObject('or', new Icon('imgs/or_4x3.svg', globalRatio), 'operatorObject'),
             new AbsObject('xor'  , new Icon('imgs/xor_4x3.svg', globalRatio), 'operatorObject'),
-            new AbsObject('outputDisplay', new Icon('imgs/bitsDisplayI_2x4.svg', rectRatio), 'operatorObject')
+            new AbsObject('5bDisplay', new Icon('imgs/5bDisplayI_2x4.svg', rectRatio), 'operatorObject')
         ];
         this._objects.forEach(operator =>{
             this.addObjectToPalette(operator);
