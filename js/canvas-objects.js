@@ -167,6 +167,7 @@ class OperatorCanvasItem extends CanvasItem{
                 const fontSize = clamp(19/zoom, 19, 36);
                 ctx.font = `${fontSize}px Monospace`;
                 ctx.fillStyle = '#11c08cff';
+                const textWidth = ctx.measureText(this.displayVal).width;
                 ctx.fillText(`${this.displayVal}`, this.x+this.outputDisplayPos.x*this.width,
                                     this.y+this.outputDisplayPos.y*this.height);
             };

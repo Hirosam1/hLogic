@@ -49,14 +49,21 @@ class UIEditor{
             //Load img data to operator icon field
             operator.icon.img = img;
             item.onclick = () => {
-                if(editorState == editorStates.objectEditor){
-                    document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
-                    item.classList.add('selected');
-                    selectedObject = operator;
-                    placingMode = true;
-                    canvas.classList.add('placing');
-                    canvas.style.cursor = 'crosshair';
-                    updateInfo();
+                if(selectedObject !== operator){
+                    if(editorState != editorStates.simulating){
+                        if(editorState == editorStates.nodeEditor){
+                            this.cancelSelectedOperator();
+                        }
+                        document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+                        item.classList.add('selected');
+                        selectedObject = operator;
+                        placingMode = true;
+                        canvas.classList.add('placing');
+                        canvas.style.cursor = 'crosshair';
+                        updateInfo();
+                    }
+                }else{
+                    this.cancelSelectedOperator();
                 }
             };
 
@@ -251,8 +258,9 @@ class UIEditor{
     }
 
     initCanvas() {
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.right - rect.left;
+        canvas.height = rect.bottom - rect.top;
         this.draw();   
     }
 }

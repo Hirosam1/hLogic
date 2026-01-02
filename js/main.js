@@ -103,7 +103,7 @@ startSimulation.addEventListener('click', () => {
             if(obj.object.name ==='switch'){
                 obj.graphItem.logic.enabled = false;
                 switches.push(obj);
-            }   
+            }
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
         console.log("matches: " + __verticesMatch + " switches: " + switches.length);
@@ -166,7 +166,7 @@ canvas.addEventListener('mousedown', (e) => {
     }else if(editorState == editorStates.simulating){
         actObj = mouseDownSimulatingEdt(pos, e);
     }
-    if(editorState == editorStates.objectEditor || !actObj){
+    if(editorState == editorStates.objectEditor || (editorState == editorStates.simulating  && !actObj)){
         //Panning
         if(!draggedObject){
             isPanning = true;
