@@ -28,11 +28,11 @@ function populateReadyOperators(){
 
 function updateEndVerticesOutputs(endVertices, newValue){
     endVertices.forEach(v =>{
-        if(v.value != newValue){
+        if(v.type !== verticesTypes.output && v.value != newValue){
             v.value = newValue;
             let vertexPos = getVertexPos(v);
             let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
-            if(canvasObj && canvasObj.type == 'operator'){
+            if(canvasObj && canvasObj.type == 'operator') {
                 canvasObj.graphItem.isReady = false;
             }
         }
@@ -67,7 +67,6 @@ function unReadyOperators(){
 }
 
 //Perform graph traversal (BFS) to find inputs,
-//once a function has enough inputs, it performs another traversal,
 //until there are no vertices to visit.
 //Any input operator is not updated, the program will check if there is a difference 
 // between the new input value and the current, if they differ, update the 
