@@ -26,6 +26,19 @@ function populateReadyOperators(){
     });
 }
 
+function updateEndVerticesOutputs(endVertices, newValue){
+    endVertices.forEach(v =>{
+        if(v.value != newValue){
+            v.value = newValue;
+            let vertexPos = getVertexPos(v);
+            let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
+            if(canvasObj && canvasObj.type == 'operator'){
+                canvasObj.graphItem.isReady = false;
+            }
+        }
+    });
+}
+
 function propagateSwitches(){
     let endVertices = [];
     switches.forEach(sw => {
@@ -35,7 +48,8 @@ function propagateSwitches(){
         let lastVerts = propagateUtilNullR(oV.value,[oV]);
         sw.graphItem.isReady = true;
         if(lastVerts){
-            endVertices.push(lastVerts);
+            endVertices = endVertices.concat(lastVerts);
+            updateEndVerticesOutputs(lastVerts, oV.value);
         }
     });
     return endVertices;
@@ -55,8 +69,11 @@ function unReadyOperators(){
 //Perform graph traversal (BFS) to find inputs,
 //once a function has enough inputs, it performs another traversal,
 //until there are no vertices to visit.
+//Any input operator is not updated, the program will check if there is a difference 
+// between the new input value and the current, if they differ, update the 
+//input value, and reprocess the operator.
 function simulate(){
-    unReadyOperators();
+    //unReadyOperators();
     //First big iteration
     let endVerts = propagateSwitches();
     let pIterations = 1;
@@ -66,7 +83,10 @@ function simulate(){
         populateReadyOperators();
         readyOperators.forEach(readyOp =>{
             let oV = readyOp.graphItem.outputVertex;
-            if(oV) propagateUtilNullR(oV.value ,[oV]);
+            if(oV){
+                endVerts = propagateUtilNullR(oV.value ,[oV]);
+                updateEndVerticesOutputs(endVerts, oV.value);
+            }
         });
         if(readyOperators.length == 0){done = true;}
         readyOperators = [];

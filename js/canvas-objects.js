@@ -1,3 +1,5 @@
+const defaultValue = false;
+
 class Icon{
     constructor(imgSrc, ratio, img=null, type='image'){
         this.imgSrc = imgSrc;
@@ -61,7 +63,7 @@ class CanvasGraphItem{
 
     process(){
         let inputVec = [];
-        this.inputsVertices.forEach(i => inputVec.push(i.value))
+        this.inputsVertices.forEach(i => inputVec.push(i.value ? i.value : defaultValue));
         let o = this.logic.process(inputVec);
         //Propagate result value to output
         if(this.outputVertex){
@@ -72,8 +74,12 @@ class CanvasGraphItem{
 
     checkProcess(){
         let o = undefined;
-        this.isReady = true;
-        this.inputsVertices.forEach(vert =>{if(vert.value === undefined) this.isReady = false;});
+        //this.isReady = true;
+        this.inputsVertices.forEach(vert =>{
+            if(vert.value !== undefined){
+                this.isReady = true;
+            }
+        });
         if(this.isReady && this.logic) o = this.process();
         return this.isReady;
     }
@@ -129,7 +135,7 @@ class OperatorCanvasItem extends CanvasItem{
                                 this.y+this.ledsPos.low.y*this.height), 6, fillStyle);
             };
         }else if(this.object.name == 'outputLed'){
-            this.ledOutputPos = {x : 0.6 , y: 0.5}; 
+            this.ledOutputPos = {x : 0.6 , y: 0.5};
             this.graphItem.logic = createLogic('output');
             this.graphItem.outputYPos=0;
             this.graphItem.inputsYPos= [1/2];

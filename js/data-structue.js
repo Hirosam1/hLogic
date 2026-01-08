@@ -59,6 +59,15 @@ function checkPosVertex(x, y){
     return rtrn;
 }
 
+function getVertexPos(vertex){
+    for(let i = 0; i < verticesPosList.length; i++){
+        if(verticesPosList[i].vertex === vertex){
+            return verticesPosList[i].pos;
+        }
+    }
+    return undefined;
+}
+
 function clearVertices(){
     verticesPosList = [];
     __verticesMatch = 0;
@@ -101,20 +110,20 @@ function propagateUtilNullR(value, nextVertices, lastVert=undefined){
         return undefined;
     }
     if(nextVertices.length > 0){
-        let lastVerts = [];
+        let newLasts = [];
         nextVertices.forEach(nextVert =>{
             //console.log(nextVert.type);
             propagateIterations++;
-            nextVert.value = value;
+            if(nextVert.type === verticesTypes.node) nextVert.value = value;
             //Remove lastVert use filter??
             let nextVerts = [];
             nextVert.nextVertices.forEach(v => {if(v != lastVert){nextVerts.push(v);}});
             //Recursive operation
-            let newLasts = propagateUtilNullR(value, nextVerts, nextVert);
-            if(newLasts){lastVerts.push(newLasts);}else{
+            let lasts = propagateUtilNullR(value, nextVerts, nextVert);
+            if(lasts){newLasts = newLasts.concat(lasts);}else{
                 return undefined;
             }
         });
-        return lastVerts;
+        return newLasts;
     }else{return [lastVert];}
 }

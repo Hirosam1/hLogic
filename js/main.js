@@ -83,6 +83,7 @@ startSimulation.addEventListener('click', () => {
     isSimulating = !isSimulating;
     mainCanvas.cancelSelectedOperator();
     if(isSimulating){
+        unReadyOperators();
         clearSimulation();
         canvasControls.style.background = '#a34f28f2';
         startSimulation.innerHTML = 'Stop Simulation ⏹️';
