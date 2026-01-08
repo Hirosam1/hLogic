@@ -28,13 +28,17 @@ function populateReadyOperators(){
 
 function updateEndVerticesOutputs(endVertices, newValue){
     endVertices.forEach(v =>{
-        if(v.type === verticesTypes.input && v.value != newValue){
-            v.value = newValue;
-            let vertexPos = getVertexPos(v);
-            let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
-            if(canvasObj && canvasObj.type == 'operator') {
-                canvasObj.graphItem.isReady = false;
+        if(v.type !== verticesTypes.output){
+            if(v.value != newValue){
+                v.value = newValue;
+                let vertexPos = getVertexPos(v);
+                let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
+                if(canvasObj && canvasObj.type == 'operator') {
+                    canvasObj.graphItem.isReady = false;
+                }
             }
+        }else{
+            
         }
     });
 }
