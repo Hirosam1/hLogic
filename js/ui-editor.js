@@ -187,7 +187,7 @@ class UIEditor{
         });
         if(editorState == editorStates.simulating){
             verticesPosList.forEach(vertPos => {
-                let fillStyle = vertPos.vertex.value ? '#11c08cff' : '#bc1bd1ff';
+                let fillStyle = vertPos.vertex.value !== undefined ? vertPos.vertex.value ? '#11c08cff' : '#e60a41' :'#c252dfff';
                 drawPoint(vertPos.pos, 2, fillStyle);
             });
         }else{

@@ -28,7 +28,7 @@ function populateReadyOperators(){
 
 function updateEndVerticesOutputs(endVertices, newValue){
     endVertices.forEach(v =>{
-        if(v.type !== verticesTypes.output && v.value != newValue){
+        if(v.type === verticesTypes.input && v.value != newValue){
             v.value = newValue;
             let vertexPos = getVertexPos(v);
             let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
