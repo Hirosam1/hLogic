@@ -74,3 +74,32 @@ function updateInfo(){
     document.getElementById('mousePositionX').textContent = clamp(this.snapToGrid(pos.x) , 0, canvasWidth);
     document.getElementById('mousePositionY').textContent = clamp(this.snapToGrid(pos.y) , 0, canvasHeight);
 }
+
+const globalRatio = {x: 4, y: 3};
+const squareRatio = {x: 4, y: 4};
+const gridRatio = {x: 1, y:1};
+const rectRatio = {x: 2, y: 4};
+const hSquareRatio = {x: 2, y: 2};
+const gridSize = 30;
+const maxZoom = 7;
+const minZoom = 0.2;
+//Canvas settings and view state.
+let canvasWidth = 1000;
+let canvasHeight = 900;
+let zoom = 1;
+let panX = 0;
+let panY = 0;
+//Loaded items on Pallet Objects
+let paletteImages = [];
+//Input information
+let lastMouseX = 0;
+let lastMouseY = 0;
+let dragTranslationLast = {x: 0, y: 0};
+//Editor states and settings
+const editorStates = {operatorEditor : 0, nodeEditor : 1, simulating: 2};
+let editorState = editorStates.objectEditor;
+let isPanning = false;
+let draggedObject = null;
+let selectedObject = null;
+let placingMode = false;
+let nodeStartPos = null;
