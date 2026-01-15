@@ -112,6 +112,7 @@ class UIEditor{
             new AbsObject('debugA', new Icon('imgs/debugA_1x1.svg', gridRatio)),
             new AbsObject('debugB', new Icon('imgs/debugB_1x1.svg', gridRatio)),
             new AbsObject('debugB', new Icon('imgs/debugC_1x1.svg', gridRatio)),
+            new AbsObject('transistor', new Icon('imgs/transistor.svg', hSquareRatio)),
             new AbsObject('switch', new Icon('imgs/switch_2x2.svg', hSquareRatio), 'operatorObject'),
             new AbsObject('outputLed', new Icon('imgs/output_2x2.svg', hSquareRatio), 'operatorObject'),
             new AbsObject('not', new Icon('imgs/not_2x2.svg', hSquareRatio), 'operatorObject'),

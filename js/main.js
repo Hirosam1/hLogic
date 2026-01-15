@@ -71,8 +71,7 @@ function mouseDownSimulatingEdt(pos, e){
         //Start propagating signal when a switch is flip
         if(obj.object.name === 'switch'){
             let o = obj.process();
-            //console.log('switch: ' + o);
-            simulate();
+            simulateDFS();
         }
         return obj;
     }
@@ -108,7 +107,7 @@ startSimulation.addEventListener('click', () => {
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
         console.log("matches: " + __verticesMatch + " switches: " + switches.length);
-        simulate();
+        simulateDFS();
     }else{
         clearSimulation();
         canvasControls.style.background = '#2a2a2af2';
