@@ -28,21 +28,6 @@ function clearSimulation(){
     editorState = editorStates.objectEditor;
 }
 
-function getUpdatedEndVertsObjects(endVerts, newVal){
-    let objects = [];
-    endVerts.forEach(vert =>{
-        if(vert.type === verticesTypes.input && vert.value !== newVal){
-            vert.value = newVal;
-            let vertexPos = getVertexPos(vert);
-            let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
-            if(canvasObj){
-                objects.push(canvasObj);
-            }
-        }
-    });
-    return objects;
-}
-
 function updateObjectsVertices(vertices){
     let objects = [];
     vertices.forEach(vert =>{
