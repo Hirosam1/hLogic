@@ -104,7 +104,7 @@ function propagateUtilNull(startVertex){
 const propagateMaxIterations = 500;
 let propagateIterations = 0;
 
-function propagateUtilNullR(value, nextVertices, lastVert=undefined){
+function propagateDFS(value, nextVertices, lastVert=undefined){
     if(propagateIterations >= propagateMaxIterations){
         console.error('Max iterations reached!!');
         return undefined;
@@ -117,13 +117,34 @@ function propagateUtilNullR(value, nextVertices, lastVert=undefined){
             if(nextVert.type === verticesTypes.node) nextVert.value = value;
             //Remove lastVert use filter??
             let nextVerts = [];
-            nextVert.nextVertices.forEach(v => {if(v != lastVert){nextVerts.push(v);}});
+            nextVerts = nextVert.nextVertices.filter(v => v != lastVert);
             //Recursive operation
-            let lasts = propagateUtilNullR(value, nextVerts, nextVert);
-            if(lasts){newLasts = newLasts.concat(lasts);}else{
-                return undefined;
-            }
+            let lasts = propagateDFS(value, nextVerts, nextVert);
+            if(lasts){newLasts = newLasts.concat(lasts);}
+            else{return undefined;}
         });
         return newLasts;
     }else{return [lastVert];}
+}
+
+function propagateVertices(value, nextVertices){
+    let lastVertices = [];
+    let lastVert = undefined;
+    while(nextVertices.length > 0){
+        if(propagateIterations >= propagateMaxIterations){
+            console.error('Max iterations reached!!');
+            return undefined;
+        }
+        propagateIterations++;
+        let vert = nextVertices.pop();
+        let newVertices = vert.nextVertices.filter(v => v != lastVert);
+        if(newVertices.length == 0){
+            if(vert.value !== value) lastVertices.push(vert);
+        }else{
+            nextVertices = nextVertices.concat(newVertices);
+        }
+        vert.value = value;
+        lastVert = vert;
+    }
+    return lastVertices;
 }

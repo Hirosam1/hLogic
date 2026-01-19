@@ -124,19 +124,23 @@ document.getElementById('loadScene').addEventListener('click', ()=>{
 });
 
 //===== Set up Canvas controls ========
+window.addEventListener('resize', ()=>{
+    mainCanvas.initCanvas();
+});
+
 widthSlider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
     canvasWidth = parseInt(e.target.value);
     document.getElementById('widthValue').textContent = val;
     canvasWidth = val;
-    mainCanvas.initCanvas();
+    mainCanvas.draw();
 });
 
 heightSlider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
     document.getElementById('heightValue').textContent = val;
     canvasHeight=val;
-    mainCanvas.initCanvas();
+    mainCanvas.draw();
 });
 
 resetView.addEventListener('click', () => {
