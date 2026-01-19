@@ -76,75 +76,33 @@ function clearVertices(){
     edgesList = [];
 }
 
-const propMaxIterations = 25;
-
-function propagateUtilNull(startVertex){
-    let gIt = 0;
-    let nextVert = startVertex;
-    const sVal = startVertex.value;
-    let lastVert = undefined;
-    console.log('Start propagation of value: ' + sVal);
-    //Recursive operation
-    while(nextVert && gIt < propMaxIterations){
-        gIt++;
-        nextVert.value = sVal;
-        let nextVerts = [];
-        nextVert.nextVertices.forEach(v => {
-            if(v != lastVert){
-                nextVerts.push(v);
-            };
-        });
-        lastVert = nextVert;
-        //Broadcast to all edges ??
-        nextVert = nextVerts[0];
-    }
-    return lastVert;
-}
-
 const propagateMaxIterations = 500;
 let propagateIterations = 0;
 
-function propagateDFS(value, nextVertices, lastVert=undefined){
-    if(propagateIterations >= propagateMaxIterations){
-        console.error('Max iterations reached!!');
-        return undefined;
-    }
-    if(nextVertices.length > 0){
-        let newLasts = [];
-        nextVertices.forEach(nextVert =>{
-            //console.log(nextVert.type);
-            propagateIterations++;
-            if(nextVert.type === verticesTypes.node) nextVert.value = value;
-            //Remove lastVert use filter??
-            let nextVerts = [];
-            nextVerts = nextVert.nextVertices.filter(v => v != lastVert);
-            //Recursive operation
-            let lasts = propagateDFS(value, nextVerts, nextVert);
-            if(lasts){newLasts = newLasts.concat(lasts);}
-            else{return undefined;}
-        });
-        return newLasts;
-    }else{return [lastVert];}
-}
-
-function propagateVertices(value, nextVertices){
-    let lastVertices = [];
-    let lastVert = undefined;
-    while(nextVertices.length > 0){
+function propagateVertex(value, startVertex){
+    //Propagates a value across the graph. It returns the end vertices 
+    //(only the ones that were changed).
+    let endVertices = [];
+    let nextIterations = [{lastVertex: undefined, verts: [startVertex]}];
+    let nextIt = nextIterations[0];
+    while(nextIterations.length > 0){
+        propagateIterations++;
         if(propagateIterations >= propagateMaxIterations){
             console.error('Max iterations reached!!');
             return undefined;
         }
-        propagateIterations++;
-        let vert = nextVertices.pop();
-        let newVertices = vert.nextVertices.filter(v => v != lastVert);
+        let vert = nextIt.verts.pop();
+        let newVertices = vert.nextVertices.filter(v => v !== nextIt.lastVertex);
         if(newVertices.length == 0){
-            if(vert.value !== value) lastVertices.push(vert);
+            if(vert.value !== value) endVertices.push(vert);
         }else{
-            nextVertices = nextVertices.concat(newVertices);
+            nextIterations.push({lastVertex: vert, verts: newVertices});
         }
         vert.value = value;
-        lastVert = vert;
+        if(nextIt.verts.length === 0){
+             nextIterations.splice(0,1);
+             nextIt = nextIterations[0];
+        }
     }
-    return lastVertices;
+    return endVertices;
 }

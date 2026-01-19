@@ -62,55 +62,15 @@ function updateObjectsVertices(vertices){
 //Any input operator is not updated, the program will check if there is a difference 
 // between the new input value and the current, if they differ, update the 
 //input value, and reprocess the operator.
-function simulateDFSd(){
-    //Propagate switch signal across operators until it is not changing the input value, 
-    // or it cant search further.
-    let pIterations = 0;
-    for(let i = 0; i < switches.length; i++){
-        let swV = switches[i].graphItem.outputVertex;
-        swV.value = switches[i].graphItem.logic.enabled;
-        switches[i].graphItem.isReady = true;
-        let endVerts = propagateDFS(swV.value, [swV]);
-        pIterations += 1;
-        if(!endVerts) break;
-        let nextObjects = getUpdatedEndVertsObjects(endVerts, swV.value);
-        while(nextObjects.length !== 0 && pIterations <= maxPIterations){
-            let nextObj = nextObjects.pop();
-            if(nextObj.type === 'operator'){
-                nextObj.process();
-                oV = nextObj.graphItem.outputVertex;
-                if(oV){
-                    endVerts = propagateDFS(oV.value, [oV]);
-                    pIterations += 1;
-                    if(endVerts){
-                        nextObjects = nextObjects.concat(getUpdatedEndVertsObjects(endVerts, oV.value));
-                    }else{
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    if(pIterations > maxPIterations){
-        console.error("Reached maximum of process iterations!");
-    }
-    console.log('Process iterations: ' + pIterations + ' Total iterations: ' + propagateIterations);
-    propagateIterations = 0;
-    pIterations = 0;
-    mainCanvas.draw();
-}
-
-
+//Propagate switch signal across operators until it is not changing the input value, 
+// or it cant search further.
 function simulateDFS(){
-    //Propagate switch signal across operators until it is not changing the input value, 
-    // or it cant search further.
     let pIterations = 0;
     for(let i = 0; i < switches.length; i++){
         let swV = switches[i].graphItem.outputVertex;
         swV.value = switches[i].graphItem.logic.enabled;
         switches[i].graphItem.isReady = true;
-        let endVerts = propagateVertices(swV.value, [swV]);
-        console.log(endVerts.length);
+        let endVerts = propagateVertex(swV.value, swV);
         pIterations += 1;
         if(!endVerts) break;
         let nextObjects = updateObjectsVertices(endVerts);
@@ -120,7 +80,7 @@ function simulateDFS(){
                 nextObj.process();
                 oV = nextObj.graphItem.outputVertex;
                 if(oV){
-                    endVerts = propagateVertices(oV.value, [oV]);
+                    endVerts = propagateVertex(oV.value, oV);
                     pIterations += 1;
                     if(endVerts){
                         nextObjects = nextObjects.concat(updateObjectsVertices(endVerts));
