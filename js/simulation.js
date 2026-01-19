@@ -55,7 +55,7 @@ function simulateDFS(){
         let swV = switches[i].graphItem.outputVertex;
         swV.value = switches[i].graphItem.logic.enabled;
         switches[i].graphItem.isReady = true;
-        let endVerts = propagateVertex(swV.value, swV);
+        let endVerts = propagateVertex(swV);
         pIterations += 1;
         if(!endVerts) break;
         let nextObjects = updateObjectsVertices(endVerts);
@@ -65,7 +65,7 @@ function simulateDFS(){
                 nextObj.process();
                 oV = nextObj.graphItem.outputVertex;
                 if(oV){
-                    endVerts = propagateVertex(oV.value, oV);
+                    endVerts = propagateVertex(oV);
                     pIterations += 1;
                     if(endVerts){
                         nextObjects = nextObjects.concat(updateObjectsVertices(endVerts));

@@ -79,9 +79,10 @@ function clearVertices(){
 const propagateMaxIterations = 500;
 let propagateIterations = 0;
 
-function propagateVertex(value, startVertex){
+function propagateVertex(startVertex){
     //Propagates a value across the graph. It returns the end vertices 
     //(only the ones that were changed).
+    const value = startVertex.value;
     let endVertices = [];
     let nextIterations = [{lastVertex: undefined, verts: [startVertex]}];
     let nextIt = nextIterations[0];
