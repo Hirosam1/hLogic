@@ -12,11 +12,12 @@ function mouseDownOperatorEdt(pos, e){
                 let imgSize = [gridSize*selectedObject.icon.ratio.x, gridSize*selectedObject.icon.ratio.y];
                 let opr = null;
                 if(selectedObject.type == 'operatorObject'){
-                    opr = new OperatorCanvasItem(selectedObject,
+                    opr = operatorCanvasFactory(selectedObject,
                                         snapToGrid(pos.x - imgSize[0]/2),
                                         snapToGrid(pos.y - imgSize[1]/2),
                                         imgSize[0],
                                         imgSize[1]);
+                                        
                 }else{
                     opr = new ObjectCanvasItem(selectedObject,  
                         snapToGrid(pos.x - imgSize[0]/2),

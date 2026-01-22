@@ -78,7 +78,7 @@ function loadScene() {
                     if(object){
                         let opr = null;
                         if(object.type == 'operatorObject'){
-                            opr = new OperatorCanvasItem(object, canvasOp.x, canvasOp.y, 
+                            opr = new operatorCanvasFactory(object, canvasOp.x, canvasOp.y,
                                                         canvasOp.width, canvasOp.height);
                         }else{
                             opr = new ObjectCanvasItem(object, canvasOp.x, canvasOp.y, 

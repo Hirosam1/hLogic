@@ -120,68 +120,6 @@ class OperatorCanvasItem extends CanvasItem{
         super(operatorObj, x, y, width, height, type);
         this.object = operatorObj;
         this.graphItem = new CanvasGraphItem(x, y, width, height, 'function', createLogic(this.object.name));
-        //#TODO
-        //!!!! MOVE THIS ELSEWHERE !!!! ======
-        if(this.object.name == 'switch'){
-            this.ledsPos = {high: new Vec2(0.55, 0.3), low : new Vec2(0.55, 0.7)};
-            this.graphItem.outputYPos=1/2;
-            this.graphItem.inputsYPos= [];
-            this.drawEffects = () =>{
-                let fillStyle = this.graphItem.isReady? this.graphItem.logic.enabled? '#c7bb17ff': '#e60a41' : '#74738bff';
-                drawPoint(new Vec2(this.x+this.ledsPos.high.x*this.width,
-                                this.y+this.ledsPos.high.y*this.height), 6, fillStyle);
-                fillStyle = this.graphItem.isReady?  this.graphItem.logic.enabled? '#e60a41' : '#100ae5': '#74738bff';
-                drawPoint(new Vec2(this.x+this.ledsPos.low.x*this.width,
-                                this.y+this.ledsPos.low.y*this.height), 6, fillStyle);
-            };
-        }else if(this.object.name == 'outputLed'){
-            this.ledOutputPos = {x : 0.6 , y: 0.5};
-            this.graphItem.logic = createLogic('output');
-            this.graphItem.outputYPos=0;
-            this.graphItem.inputsYPos= [1/2];
-            this.process = ()=>{
-                    let o = this.graphItem.checkProcess();
-                    return o !== undefined;
-                };
-                this.drawEffects = ()=>{
-                    let fillStyle = this.graphItem.isReady? this.graphItem.logic.value? '#11c08cff' : '#e60a41' : '#100ae5';
-                    drawPoint(new Vec2(this.x+this.ledOutputPos.x*this.width,
-                                       this.y+this.ledOutputPos.y*this.height), 9.5, fillStyle);
-                };
-        }else if(this.object.name == '5bDisplay'){
-            this.graphItem.logic = createLogic('output');   
-            this.graphItem.outputYPos=0;
-            this.graphItem.inputsYPos= [0,1/4,2/4,3/4,1];
-            this.graphItem.isReady = true;
-            this.displayVal = 0;
-            this.outputDisplayPos = {x: 0.37   , y: 0.82};
-            this.process = ()=>{
-                let newVal = 0;
-                this.graphItem.checkProcess();
-                for(let i = 0; i < this.graphItem.inputsVertices.length; i++){
-                    if(this.graphItem.inputsVertices[i].value !== undefined){
-                        newVal |= (1 << i) * this.graphItem.inputsVertices[i].value;
-                        this.displayVal = newVal;
-                    }else{
-                        this.graphItem.isReady = false;
-                    }
-                }
-                return this.graphItem.isReady;
-            }
-            
-            this.drawEffects = ()=>{
-                const fontSize = clamp(19/zoom, 19, 36);
-                ctx.font = `${fontSize}px Monospace`;
-                ctx.fillStyle = '#11c08cff';
-                const textWidth = ctx.measureText(this.displayVal).width;
-                ctx.fillText(`${this.displayVal}`, this.x+this.outputDisplayPos.x*this.width,
-                                    this.y+this.outputDisplayPos.y*this.height);
-            };
-        }else if(this.object.name == 'not'){
-            this.graphItem.outputYPos=1/2;  
-            this.graphItem.inputsYPos= [1/2];
-        }
-        //=========
     }
 
     process(){
@@ -241,4 +179,67 @@ class LineSegmentCanvasItem extends CanvasItem{
             console.error('Error creating edge!');
         }
         }
+}
+
+function operatorCanvasFactory(operatorObj, x, y, width, height, type ='operator'){
+    let newOp = new OperatorCanvasItem(operatorObj, x, y, width,height, type);
+    if(operatorObj.name === 'switch'){
+        newOp.ledsPos = {high: new Vec2(0.55, 0.3), low : new Vec2(0.55, 0.7)};
+        newOp.graphItem.outputYPos=1/2;
+        newOp.graphItem.inputsYPos= [];
+        newOp.drawEffects = () =>{
+            let fillStyle = newOp.graphItem.isReady? newOp.graphItem.logic.enabled? '#c7bb17ff': '#e60a41' : '#74738bff';
+            drawPoint(new Vec2(newOp.x+newOp.ledsPos.high.x*newOp.width,
+                            newOp.y+newOp.ledsPos.high.y*newOp.height), 6, fillStyle);
+            fillStyle = newOp.graphItem.isReady?  newOp.graphItem.logic.enabled? '#e60a41' : '#100ae5': '#74738bff';
+            drawPoint(new Vec2(newOp.x+newOp.ledsPos.low.x*newOp.width,
+                            newOp.y+newOp.ledsPos.low.y*newOp.height), 6, fillStyle);
+        };
+    }else if(operatorObj.name == 'outputLed'){
+        newOp.ledOutputPos = {x : 0.6 , y: 0.5};
+        newOp.graphItem.logic = createLogic('output');
+        newOp.graphItem.outputYPos=0;
+        newOp.graphItem.inputsYPos= [1/2];
+        newOp.process = ()=>{
+                let o = newOp.graphItem.checkProcess();
+                return o !== undefined;
+            };
+            newOp.drawEffects = ()=>{
+                let fillStyle = newOp.graphItem.isReady? newOp.graphItem.logic.value? '#11c08cff' : '#e60a41' : '#100ae5';
+                drawPoint(new Vec2(newOp.x+newOp.ledOutputPos.x*newOp.width,
+                                    newOp.y+newOp.ledOutputPos.y*newOp.height), 9.5, fillStyle);
+            };
+    }else if(operatorObj.name == '5bDisplay'){
+        newOp.graphItem.logic = createLogic('output');   
+        newOp.graphItem.outputYPos=0;
+        newOp.graphItem.inputsYPos= [0,1/4,2/4,3/4,1];
+        newOp.graphItem.isReady = true;
+        newOp.displayVal = 0;
+        newOp.outputDisplayPos = {x: 0.37   , y: 0.82};
+        newOp.process = ()=>{
+            let newVal = 0;
+            newOp.graphItem.checkProcess();
+            for(let i = 0; i < newOp.graphItem.inputsVertices.length; i++){
+                if(newOp.graphItem.inputsVertices[i].value !== undefined){
+                    newVal |= (1 << i) * newOp.graphItem.inputsVertices[i].value;
+                    newOp.displayVal = newVal;
+                }else{
+                    newOp.graphItem.isReady = false;
+                }
+            }
+            return newOp.graphItem.isReady;
+        };
+        newOp.drawEffects = ()=>{
+            const fontSize = clamp(19/zoom, 19, 36);
+            ctx.font = `${fontSize}px Monospace`;
+            ctx.fillStyle = '#11c08cff';
+            const textWidth = ctx.measureText(newOp.displayVal).width;
+            ctx.fillText(`${newOp.displayVal}`, newOp.x+newOp.outputDisplayPos.x*newOp.width,
+                                newOp.y+newOp.outputDisplayPos.y*newOp.height);
+        };
+    }else if(operatorObj.name == 'not'){
+            newOp.graphItem.outputYPos=1/2;  
+            newOp.graphItem.inputsYPos= [1/2];
+    }
+    return newOp;
 }
