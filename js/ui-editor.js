@@ -121,7 +121,7 @@ class UIEditor{
         let nodeEditor = document.getElementById("nodeEditor");
         nodeEditor.classList.remove('active');
         updateInfo();
-        this.draw();
+        this.scheduleDraw();
     }
 
     drawGrid(){
@@ -201,7 +201,7 @@ class UIEditor{
     scheduleDraw(){
         if(!this._needsAnimUpdate){
             this._needsAnimUpdate = true;
-            TouchList._rafId = requestAnimationFrame(()=>{
+            this._rafId = window.requestAnimationFrame(()=>{
                 this.draw();
                 this._needsAnimUpdate = false;
             });
@@ -211,7 +211,7 @@ class UIEditor{
     clearCanvas(){
         this._canvasObjects = [];
         this._canvasLineSegments = [];
-        this.draw();
+        this.scheduleDraw();
     }
 
     getObjectAt(x, y) {
@@ -244,7 +244,7 @@ class UIEditor{
         const rect = container.getBoundingClientRect();
         canvas.width = rect.right - rect.left;
         canvas.height = rect.bottom - rect.top;
-        this.draw();   
+        this.scheduleDraw();   
     }
 }
 
