@@ -63,7 +63,6 @@ function mouseDownNodeEdt(pos, e){
     mainCanvas.draw();
 }
 
-
 function mouseDownSimulatingEdt(pos, e){
     const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj){
@@ -79,89 +78,9 @@ function mouseDownSimulatingEdt(pos, e){
     return null;
 }
 
-startSimulation.addEventListener('click', () => {
-    isSimulating = !isSimulating;
-    mainCanvas.cancelSelectedOperator();
-    if(isSimulating){
-        unReadyOperators();
-        clearSimulation();
-        canvasControls.style.background = '#a34f28f2';
-        startSimulation.innerHTML = 'Stop Simulation ⏹️';
-        container.classList.add('simulating');
-        editorState = editorStates.simulating;
-        switches = [];
-        readyOperators = [];
-        //Load line segments and edges
-        mainCanvas._canvasLineSegments.forEach(lineSeg => { 
-            lineSeg.graphItem.createVertices(); 
-            lineSeg.createEdge();
-        });
-        //Load operators and vertices
-        mainCanvas._canvasObjects.forEach(obj => {
-            if(obj.type === 'operator'){
-                obj.graphItem.createVertices();
-            }
-            if(obj.object.name ==='switch'){
-                obj.graphItem.logic.enabled = false;
-                switches.push(obj);
-            }
-        });
-        console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
-        console.log("matches: " + __verticesMatch + " switches: " + switches.length);
-        simulateDFS();
-    }else{
-        clearSimulation();
-        canvasControls.style.background = '#2a2a2af2';
-        editorState = editorStates.objectEditor;
-    }
-    mainCanvas.draw();
-});
-
-// Add save handlers
-document.getElementById('saveScene').addEventListener('click', ()=>{saveScene();});
-document.getElementById('loadScene').addEventListener('click', ()=>{
-    loadScene();
-    clearSimulation();
-});
-
-//===== Set up Canvas controls ========
-window.addEventListener('resize', ()=>{
-    mainCanvas.initCanvas();
-});
-
-widthSlider.addEventListener('input', (e) => {
-    const val = parseInt(e.target.value);
-    canvasWidth = parseInt(e.target.value);
-    document.getElementById('widthValue').textContent = val;
-    canvasWidth = val;
-    mainCanvas.draw();
-});
-
-heightSlider.addEventListener('input', (e) => {
-    const val = parseInt(e.target.value);
-    document.getElementById('heightValue').textContent = val;
-    canvasHeight=val;
-    mainCanvas.draw();
-});
-
-resetView.addEventListener('click', () => {
-    zoom = 1;
-    panX = 0;
-    panY = 0;
-    zoomLevel.textContent = 100;
-    mainCanvas.draw();
-});
-
-clearCanvas.addEventListener('click', () => {
-    //if (confirm('Clear all canvas Items?')) {
-        mainCanvas.clearCanvas();
-        clearSimulation();
-        mainCanvas.draw();
-    //}
-}); 
 // Canvas mouse events ========
 //Mouse down
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener('mousedown', (e) => {''
     const pos = screenToCanvas(e.clientX, e.clientY);
     let actObj = null;
     if(editorState == editorStates.objectEditor){

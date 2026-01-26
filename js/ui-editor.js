@@ -237,3 +237,39 @@ class UIEditor{
 }
 
 let mainCanvas = undefined;
+
+//===== Set up Canvas controls ========
+window.addEventListener('resize', ()=>{
+    mainCanvas.initCanvas();
+});
+
+widthSlider.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    canvasWidth = parseInt(e.target.value);
+    document.getElementById('widthValue').textContent = val;
+    canvasWidth = val;
+    mainCanvas.draw();
+});
+
+heightSlider.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    document.getElementById('heightValue').textContent = val;
+    canvasHeight=val;
+    mainCanvas.draw();
+});
+
+resetView.addEventListener('click', () => {
+    zoom = 1;
+    panX = 0;
+    panY = 0;
+    zoomLevel.textContent = 100;
+    mainCanvas.draw();
+});
+
+clearCanvas.addEventListener('click', () => {
+    //if (confirm('Clear all canvas Items?')) {
+        mainCanvas.clearCanvas();
+        clearSimulation();
+        mainCanvas.draw();
+    //}
+}); 

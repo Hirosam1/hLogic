@@ -106,3 +106,13 @@ function loadScene() {
     };
     input.click();
 }
+
+// Add save/load handlers
+document.getElementById('saveScene').addEventListener('click', ()=>{
+    
+    saveScene();
+});
+document.getElementById('loadScene').addEventListener('click', ()=>{
+    clearSimulation();
+    loadScene();
+});
