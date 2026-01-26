@@ -12,7 +12,6 @@ const clearCanvas = document.getElementById('clearCanvas');
 function drawLine(startPosVec, endPosVec, lineWidth = 3, strokeStyle='#100ae5'){
         ctx.strokeStyle = strokeStyle;
         ctx.lineWidth = lineWidth / zoom;
-
         ctx.beginPath();
         ctx.moveTo(startPosVec.x, startPosVec.y);
         ctx.lineTo(endPosVec.x, endPosVec.y);

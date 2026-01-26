@@ -5,7 +5,7 @@ class UIEditor{
         this._canvasLineSegments = [];
         this._canvasObjects = [];
         this._needsAnimUpdate = false;
-        this._rafId = 0;
+        //this._rafId = 0;
     }
 
     addObjectToPalette(operator){
@@ -125,8 +125,8 @@ class UIEditor{
     }
 
     drawGrid(){
-        let lineWidth = 0.75;
-        let lineWidthZ = lineWidth / zoom;
+        const lineWidth = 0.75;
+        const lineWidthZ = lineWidth / zoom;
         for (let x = 0; x <= canvasWidth; x += gridSize) {
             drawLine(new Vec2(x,0), new Vec2(x,canvasHeight),lineWidthZ,'#555');
         }
@@ -141,8 +141,8 @@ class UIEditor{
         this._canvasLineSegments.forEach(line => {
             let strokeStyle = editorState === editorStates.simulating? '#74738bff' : '#100ae5';
             if(editorState == editorStates.simulating){
-                let vA = line.edge.vertexA;
-                let vB = line.edge.vertexB;
+                const vA = line.edge.vertexA;
+                const vB = line.edge.vertexB;
                 if(vA.value && vB.value){strokeStyle='#c7bb17ff';}
                 else if(vA.value === false && vB.value === false){strokeStyle='#100ae5'}
             }
@@ -150,7 +150,6 @@ class UIEditor{
     
         });
         ctx.closePath();
-
         // Draw objects
         this._canvasObjects.forEach(obj => {
             if (obj.object.icon.type === 'image' && obj.object.icon.img.complete) {
@@ -160,13 +159,13 @@ class UIEditor{
         });
         if(editorState == editorStates.simulating){
             verticesPosList.forEach(vertPos => {
-                let fillStyle = vertPos.vertex.value !== undefined ? vertPos.vertex.value ? '#11c08cff' : '#e60a41' :'#c252dfff';
+                const fillStyle = vertPos.vertex.value !== undefined ? vertPos.vertex.value ? '#11c08cff' : '#e60a41' :'#c252dfff';
                 drawPoint(vertPos.pos, 2, fillStyle);
             });
         }else{
             //Draw nodes
             this._canvasLineSegments.forEach(node => {
-                let fillStyle = '#11c08cff';
+                const fillStyle = '#11c08cff';
                 drawPoint(node.startPos, 2, fillStyle);
                 drawPoint(node.endPos, 2, fillStyle);
             });
@@ -185,11 +184,12 @@ class UIEditor{
         let canvasPos = screenToCanvas(lastMouseX,lastMouseY);
         canvasPos.x = snapToGrid(canvasPos.x);
         canvasPos.y = snapToGrid(canvasPos.y);
+
         if(editorState == editorStates.nodeEditor && !nodeStartPos){
             drawPoint(canvasPos, 4);
         }
         //Draw live creation
-        if(nodeStartPos){
+        else if(nodeStartPos){
             drawLine(nodeStartPos, canvasPos);
             drawPoint(nodeStartPos);
         }
@@ -201,7 +201,7 @@ class UIEditor{
     scheduleDraw(){
         if(!this._needsAnimUpdate){
             this._needsAnimUpdate = true;
-            this._rafId = window.requestAnimationFrame(()=>{
+            window.requestAnimationFrame(()=>{
                 this.draw();
                 this._needsAnimUpdate = false;
             });

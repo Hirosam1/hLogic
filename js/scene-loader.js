@@ -59,7 +59,6 @@ function loadScene() {
                 zoom = sceneData.zoom || 1;
                 panX = sceneData.panX || 0;
                 panY = sceneData.panY || 0;
-                
                 // Update UI
                 widthSlider.value = canvasWidth;
                 document.getElementById('widthValue').textContent = canvasWidth;

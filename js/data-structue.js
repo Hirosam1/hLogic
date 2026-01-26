@@ -15,7 +15,6 @@ class Vertex{
         this.type = type;
         this.nextVertices=[];
     }
-
     addNextVertex(nextVertex){ this.nextVertices.push(nextVertex); }
 }
 

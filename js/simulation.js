@@ -11,7 +11,6 @@ function unReadyOperators(){
         if(obj.type == 'operator'){
             obj.graphItem.isReady = false;
             obj.graphItem.inputsVertices.forEach(i =>{i.value = undefined;});
-            //obj.graphItem.outputVertex.value = undefined;
         }
     });
 }
