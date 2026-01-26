@@ -92,7 +92,7 @@ function mouseDownSimulatingEdt(pos, e){
 
 // Canvas mouse events ========
 //Mouse down
-canvas.addEventListener('mousedown', (e) => {''
+canvas.addEventListener('mousedown', (e) => {
     const pos = screenToCanvas(e.clientX, e.clientY);
     let actObj = null;
     if(editorState == editorStates.objectEditor){
