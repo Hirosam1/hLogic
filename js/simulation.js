@@ -3,10 +3,8 @@ const startSimulation = document.getElementById('startSimulation');
 const maxPIterations = 50;
 let isSimulating = false;
 let switches = [];
-let readyOperators = [];
 
 function unReadyOperators(){
-    readyOperators = [];
     mainCanvas._canvasObjects.forEach(obj =>{
         if(obj.type == 'operator'){
             obj.graphItem.isReady = false;
@@ -18,7 +16,6 @@ function unReadyOperators(){
 function clearSimulation(){
     //let isSimulating = false;
     switches = [];
-    readyOperators = []
     clearVertices();
     unReadyOperators();
     canvasControls.style.background = '#2a2a2af2';

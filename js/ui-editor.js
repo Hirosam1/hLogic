@@ -284,4 +284,4 @@ clearCanvas.addEventListener('click', () => {
         clearSimulation();
         mainCanvas.scheduleDraw();
     //}
-}); 
+});
