@@ -82,7 +82,7 @@ function simulateDFS(){
     console.log('Process iterations: ' + pIterations + ' Total iterations: ' + propagateIterations);
     propagateIterations = 0;
     pIterations = 0;
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 }
 
 startSimulation.addEventListener('click', () => {
@@ -120,5 +120,5 @@ startSimulation.addEventListener('click', () => {
         canvasControls.style.background = '#2a2a2af2';
         editorState = editorStates.objectEditor;
     }
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 });

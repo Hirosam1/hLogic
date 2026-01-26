@@ -2,6 +2,18 @@ mainCanvas = new UIEditor();
 mainCanvas.preloadPalletMenu();
 mainCanvas.initCanvas();
 
+
+function throttle(func, limit){
+    let inThrottle;
+    return function(...args){
+        if(!inThrottle){
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(()=> inThrottle = false, limit);
+        }
+    }
+}
+
 //Input logic
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedObject) {
@@ -27,7 +39,7 @@ function mouseDownOperatorEdt(pos, e){
                 }
                 mainCanvas._canvasObjects.push(opr);
             }
-            mainCanvas.draw();
+            mainCanvas.scheduleDraw();
         }
         return;
     }
@@ -60,7 +72,7 @@ function mouseDownNodeEdt(pos, e){
         nodeStartPos=null;
     }
     updateInfo();
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 }
 
 function mouseDownSimulatingEdt(pos, e){
@@ -154,7 +166,7 @@ canvas.addEventListener('mousemove', (e) => {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
     if(shouldDraw){
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     }
     updateInfo();
 });
@@ -188,7 +200,7 @@ canvas.addEventListener('wheel', (e) => {
     panX+=(zoomDspl*(mousePosCanv.x));
     panY+=(zoomDspl*(mousePosCanv.y));
     zoomLevel.textContent = Math.round(zoom * 100);
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 });
 
 //Mouse leave
@@ -204,11 +216,11 @@ document.addEventListener('keydown', (e) => {
     if (e.key === '+' || e.key === '=') {
         zoom = Math.min(zoom * 1.2, maxZoom);
         zoomLeveltextContent = Math.round(zoom * 100);
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     } else if (e.key === '-') {
         zoom = Math.max(zoom / 1.2, minZoom);
         zoomLevel.textContent = Math.round(zoom * 100);
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     } else if (e.key === 'Delete' && draggedObject) {
         if(draggedObject.type == 'operator' || draggedObject.type == 'object'){
             mainCanvas._canvasObjects = mainCanvas._canvasObjects.filter(obj => obj !== draggedObject);
@@ -216,22 +228,22 @@ document.addEventListener('keydown', (e) => {
             mainCanvas._canvasLineSegments = mainCanvas._canvasLineSegments.filter(obj => obj !== draggedObject);
         }
         draggedObject = null;
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     } else if (e.key === 'Escape') {
         mainCanvas.cancelSelectedOperator();
     }else if(e.key === 'd'){
         panX+=panScale;
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     }
     else if(e.key === 'w'){
         panY-=panScale;
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     }else if(e.key === 'a'){
         panX-=panScale;
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     }
     else if(e.key === 's'){
         panY+=panScale;
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     }
 });

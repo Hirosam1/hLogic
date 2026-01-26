@@ -100,7 +100,7 @@ function loadScene() {
                 console.error('Error loading scene:', error);
                 alert('Error loading scene file. Please check the file format.');
             }
-            mainCanvas.draw();
+            mainCanvas.scheduleDraw();
         };
         reader.readAsText(file);
     };

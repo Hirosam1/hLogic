@@ -1,9 +1,11 @@
 class UIEditor{
     constructor(){
-        //Resources====
+        //States====
         this._objects = [];
         this._canvasLineSegments = [];
         this._canvasObjects = [];
+        this._needsAnimUpdate = false;
+        this._rafId = 0;
     }
 
     addObjectToPalette(operator){
@@ -196,6 +198,16 @@ class UIEditor{
         document.getElementById('objectCount').textContent = this._canvasObjects.length + this._canvasLineSegments.length;
     }
 
+    scheduleDraw(){
+        if(!this._needsAnimUpdate){
+            this._needsAnimUpdate = true;
+            TouchList._rafId = requestAnimationFrame(()=>{
+                this.draw();
+                this._needsAnimUpdate = false;
+            });
+        }
+    }
+
     clearCanvas(){
         this._canvasObjects = [];
         this._canvasLineSegments = [];
@@ -248,14 +260,14 @@ widthSlider.addEventListener('input', (e) => {
     canvasWidth = parseInt(e.target.value);
     document.getElementById('widthValue').textContent = val;
     canvasWidth = val;
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 });
 
 heightSlider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
     document.getElementById('heightValue').textContent = val;
     canvasHeight=val;
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 });
 
 resetView.addEventListener('click', () => {
@@ -263,13 +275,13 @@ resetView.addEventListener('click', () => {
     panX = 0;
     panY = 0;
     zoomLevel.textContent = 100;
-    mainCanvas.draw();
+    mainCanvas.scheduleDraw();
 });
 
 clearCanvas.addEventListener('click', () => {
     //if (confirm('Clear all canvas Items?')) {
         mainCanvas.clearCanvas();
         clearSimulation();
-        mainCanvas.draw();
+        mainCanvas.scheduleDraw();
     //}
 }); 
