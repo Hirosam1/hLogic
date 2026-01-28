@@ -1,6 +1,6 @@
 //===  Simulation logic ====
 const startSimulation = document.getElementById('startSimulation');
-const maxPIterations = 50;
+const maxPIterations = 100;
 let isSimulating = false;
 
 function unReadyOperators(){

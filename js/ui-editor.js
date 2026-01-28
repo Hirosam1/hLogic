@@ -138,8 +138,8 @@ class UIEditor{
         for (let y = 0; y <= canvasHeight; y += gridSize) {
             pathLine(new Vec2(0,y), new Vec2(canvasWidth,y));
         }
-        ctx.stroke();
         ctx.closePath();
+        ctx.stroke();
     }
 
     drawResources(){
@@ -153,9 +153,7 @@ class UIEditor{
                 else if(vA.value === false && vB.value === false){strokeStyle='#100ae5'}
             }
             drawLine(line.startPos, line.endPos, 5, strokeStyle);
-    
         });
-        ctx.closePath();
         // Draw objects
         this._canvasObjects.forEach(obj => {
             if (obj.object.icon.type === 'image' && obj.object.icon.img.complete) {
@@ -170,11 +168,14 @@ class UIEditor{
             });
         }else{
             //Draw nodes
+            ctx.beginPath();
+            ctx.fillStyle = '#11c08cff';
             this._canvasLineSegments.forEach(node => {
-                const fillStyle = '#11c08cff';
-                drawPoint(node.startPos, 2, fillStyle);
-                drawPoint(node.endPos, 2, fillStyle);
+                pathPoint(node.startPos, 2);
+                pathPoint(node.endPos, 2);
             });
+            ctx.closePath();
+            ctx.fill();
         }
     }
 

@@ -15,6 +15,7 @@ function drawLine(startPosVec, endPosVec, lineWidth = 3, strokeStyle='#100ae5'){
         ctx.beginPath();
         ctx.moveTo(startPosVec.x, startPosVec.y);
         ctx.lineTo(endPosVec.x, endPosVec.y);
+        ctx.closePath();
         ctx.stroke();
 }
 
@@ -28,11 +29,12 @@ function drawPoint(posVec, radius=4, fillStyle='#e60a41'){
     ctx.beginPath();
     // Parameters: centerX, centerY, radius, startAngle (radians), endAngle (radians), counterclockwise (boolean)
     ctx.arc(posVec.x, posVec.y, radius, 0, 2 * Math.PI, false);
-    ctx.fill();
     ctx.closePath();
+    ctx.fill();
 }
 
 function pathPoint(posVec, radius=4){
+    ctx.moveTo(posVec.x + radius, posVec.y);
     ctx.arc(posVec.x, posVec.y, radius, 0, 2 * Math.PI, false);
 }
 

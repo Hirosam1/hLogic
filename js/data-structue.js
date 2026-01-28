@@ -31,7 +31,7 @@ class Edge{
 }
 
 //=== Graph logic ===
-const propagateMaxIterations = 500;
+const propagateMaxIterations = 2000;
 let propagateIterations = 0;
 let __verticesMatch = 0;
 let verticesPosList = [];
