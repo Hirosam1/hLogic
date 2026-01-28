@@ -135,9 +135,11 @@ class OperatorCanvasItem extends CanvasItem{
     drawEffects(){}
 }
 
+const lineSegmentObj = new AbsObject();
+
 class LineSegmentCanvasItem extends CanvasItem{
     constructor(startX, startY, endX, endY){
-        super(new AbsObject(), Math.min(startX, endX), Math.min(startY, endY), 
+        super(lineSegmentObj, Math.min(startX, endX), Math.min(startY, endY), 
               Math.abs(startX - endX), Math.abs(startY - endY));
         this.startPos = {x: startX, y: startY, vertex: null};
         this.endPos = {x: endX, y: endY, vertex: null};

@@ -1,8 +1,7 @@
-//===  Sinuation logic ====
+//===  Simulation logic ====
 const startSimulation = document.getElementById('startSimulation');
 const maxPIterations = 50;
 let isSimulating = false;
-let switches = [];
 
 function unReadyOperators(){
     mainCanvas._canvasObjects.forEach(obj =>{
@@ -14,8 +13,6 @@ function unReadyOperators(){
 }
 
 function clearSimulation(){
-    //let isSimulating = false;
-    switches = [];
     clearVertices();
     unReadyOperators();
     canvasControls.style.background = '#2a2a2af2';
@@ -24,13 +21,17 @@ function clearSimulation(){
     editorState = editorStates.objectEditor;
 }
 
-function updateObjectsVertices(vertices){
+/**
+ * @param {Vertex[]} vertices The vertices to be searched.
+ * @returns {CanvasItem[]} The list of canvas items connected to the vertices.
+ */
+function getObjectsFromVertices(vertices){
     let objects = [];
     vertices.forEach(vert =>{
          if(vert.type === verticesTypes.input){
             let vertexPos = getVertexPos(vert);
             let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
-            if(canvasObj){
+            if(canvasObj && !objects.includes(canvasObj)){
                 objects.push(canvasObj);
             }
          }
@@ -38,23 +39,22 @@ function updateObjectsVertices(vertices){
     return objects;
 }
 
-//Perform graph traversal (DFS) to find inputs,
-//until there are no vertices to visit.
-//Any input operator is not updated, the program will check if there is a difference 
-//between the new input value and the current, if they differ, update the 
-//input value, and reprocess the operator.
-//Propagate switch signal across operators until it is not changing the input value, 
-//or it cant search further.
-function simulateDFS(){
+/**
+* For each start object, traverses the graph with DFS, and propagates its value across 
+* the next objects. Then, process the new value for the updated objects, and repeat,
+* until a dead end, or if there are no objects to be updated.
+* @param {*} startObjects
+*/
+function simulateDFS(startObjects){
     let pIterations = 0;
-    for(let i = 0; i < switches.length; i++){
-        let swV = switches[i].graphItem.outputVertex;
-        swV.value = switches[i].graphItem.logic.enabled;
-        switches[i].graphItem.isReady = true;
+    for(let i = 0; i < startObjects.length; i++){
+        let swV = startObjects[i].graphItem.outputVertex;
+        swV.value = startObjects[i].graphItem.logic.enabled;
+        startObjects[i].graphItem.isReady = true;
         let endVerts = propagateVertex(swV);
         pIterations += 1;
         if(!endVerts) break;
-        let nextObjects = updateObjectsVertices(endVerts);
+        let nextObjects = getObjectsFromVertices(endVerts);
         while(nextObjects.length !== 0 && pIterations <= maxPIterations){
             let nextObj = nextObjects.pop();
             if(nextObj.type === 'operator'){
@@ -64,7 +64,7 @@ function simulateDFS(){
                     endVerts = propagateVertex(oV);
                     pIterations += 1;
                     if(endVerts){
-                        nextObjects = nextObjects.concat(updateObjectsVertices(endVerts));
+                        nextObjects = nextObjects.concat(getObjectsFromVertices(endVerts));
                     }else{
                         break;
                     }
@@ -86,12 +86,10 @@ startSimulation.addEventListener('click', () => {
     mainCanvas.cancelSelectedOperator();
     if(isSimulating){
         unReadyOperators();
-        //clearSimulation();
         canvasControls.style.background = '#a34f28f2';
         startSimulation.innerHTML = 'Stop Simulation ⏹️';
         container.classList.add('simulating');
         editorState = editorStates.simulating;
-        switches = [];
         readyOperators = [];
         //Load line segments and edges
         mainCanvas._canvasLineSegments.forEach(lineSeg => { 
@@ -99,6 +97,7 @@ startSimulation.addEventListener('click', () => {
             lineSeg.createEdge();
         });
         //Load operators and vertices
+        let switches = [];
         mainCanvas._canvasObjects.forEach(obj => {
             if(obj.type === 'operator'){
                 obj.graphItem.createVertices();
@@ -110,7 +109,7 @@ startSimulation.addEventListener('click', () => {
         });
         console.log("vertices: "  + verticesPosList.length + " edges: " + edgesList.length);
         console.log("matches: " + __verticesMatch + " switches: " + switches.length);
-        simulateDFS();
+        simulateDFS(switches);
     }else{
         clearSimulation();
         canvasControls.style.background = '#2a2a2af2';

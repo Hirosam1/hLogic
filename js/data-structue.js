@@ -30,22 +30,15 @@ class Edge{
     }
 }
 
-/*Graph rules:
-* One output can link to one and multiple input.
-* One input can link to one and only one output.
-* There can't be any cycles.
-*/
-const maxIt = 20;
+//=== Graph logic ===
+const propagateMaxIterations = 500;
+let propagateIterations = 0;
 let __verticesMatch = 0;
-let __iterationsMade = 0;
-
-let verticesSaved = false;
 let verticesPosList = [];
 let edgesList = [];
 
 function addVertex(vertex, pos){
     verticesPosList.push({pos, vertex});
-    verticesSaved = false;
 }
 
 function checkPosVertex(x, y){
@@ -70,17 +63,16 @@ function getVertexPos(vertex){
 function clearVertices(){
     verticesPosList = [];
     __verticesMatch = 0;
-    __iterationsMade = 0;
-    verticesSaved = false;
     edgesList = [];
 }
 
-const propagateMaxIterations = 500;
-let propagateIterations = 0;
-
+/**
+ * Propagates the value of one vertices. It returns all the last vertices that had a
+ * change of value, the vertex won't return if the has same value as the propagated vertex.
+ * @param {Vertex} startVertex The starting point of the propagation.
+ * @returns {Vertex[]} endVertices The last vertices that were updated.
+ */
 function propagateVertex(startVertex){
-    //Propagates a value across the graph. It returns the end vertices 
-    //(only the ones that were changed).
     const value = startVertex.value;
     let endVertices = [];
     let nextIterations = [{lastVertex: undefined, verts: [startVertex]}];

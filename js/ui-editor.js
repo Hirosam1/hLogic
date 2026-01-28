@@ -80,6 +80,7 @@ class UIEditor{
     }
 
     preloadPalletMenu(){
+        //Editor Objects menu
         this._objects = [
             new AbsObject('debugA', new Icon('imgs/debugA_1x1.svg', gridRatio)),
             new AbsObject('debugB', new Icon('imgs/debugB_1x1.svg', gridRatio)),
@@ -96,7 +97,7 @@ class UIEditor{
         this._objects.forEach(operator =>{
             this.addObjectToPalette(operator);
         });
-        //Node Tool menu
+        //Editor Tools menu
         const node_mode_imgSrc = "imgs/nodes_icon.svg";
         const node_mode_img = new Image();
         node_mode_img.onload = () => {
