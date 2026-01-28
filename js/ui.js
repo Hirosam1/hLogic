@@ -11,11 +11,16 @@ const clearCanvas = document.getElementById('clearCanvas');
 
 function drawLine(startPosVec, endPosVec, lineWidth = 3, strokeStyle='#100ae5'){
         ctx.strokeStyle = strokeStyle;
-        ctx.lineWidth = lineWidth / zoom;
+        ctx.lineWidth = lineWidth;
         ctx.beginPath();
         ctx.moveTo(startPosVec.x, startPosVec.y);
         ctx.lineTo(endPosVec.x, endPosVec.y);
         ctx.stroke();
+}
+
+function pathLine(startPosVec, endPosVec){
+    ctx.moveTo(startPosVec.x, startPosVec.y);
+    ctx.lineTo(endPosVec.x, endPosVec.y);
 }
 
 function drawPoint(posVec, radius=4, fillStyle='#e60a41'){
@@ -25,6 +30,10 @@ function drawPoint(posVec, radius=4, fillStyle='#e60a41'){
     ctx.arc(posVec.x, posVec.y, radius, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.closePath();
+}
+
+function pathPoint(posVec, radius=4){
+    ctx.arc(posVec.x, posVec.y, radius, 0, 2 * Math.PI, false);
 }
 
 function screenToCanvas(screenX, screenY) {

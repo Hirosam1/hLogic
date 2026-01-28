@@ -128,13 +128,18 @@ class UIEditor{
     drawGrid(){
         const lineWidth = 0.75;
         const lineWidthZ = lineWidth / zoom;
+        ctx.beginPath();
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = lineWidthZ;
         for (let x = 0; x <= canvasWidth; x += gridSize) {
-            drawLine(new Vec2(x,0), new Vec2(x,canvasHeight),lineWidthZ,'#555');
+            pathLine(new Vec2(x,0), new Vec2(x,canvasHeight));
         }
 
         for (let y = 0; y <= canvasHeight; y += gridSize) {
-            drawLine(new Vec2(0,y), new Vec2(canvasWidth,y),lineWidthZ,'#555');
+            pathLine(new Vec2(0,y), new Vec2(canvasWidth,y));
         }
+        ctx.stroke();
+        ctx.closePath();
     }
 
     drawResources(){
