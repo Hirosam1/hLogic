@@ -23,7 +23,7 @@ function clearSimulation(){
 
 /**
  * @param {Vertex[]} vertices The vertices to be searched.
- * @returns {CanvasItem[]} The list of canvas items connected to the vertices.
+ * @returns {OperatorCanvasItem[]} The list of canvas items connected to the vertices.
  */
 function getObjectsFromVertices(vertices){
     let objects = [];
@@ -31,7 +31,7 @@ function getObjectsFromVertices(vertices){
          if(vert.type === verticesTypes.input){
             let vertexPos = getVertexPos(vert);
             let canvasObj = mainCanvas.getObjectAt(vertexPos.x, vertexPos.y);
-            if(canvasObj && !objects.includes(canvasObj)){
+            if(canvasObj && canvasObj.type === 'operator' && !objects.includes(canvasObj)){
                 objects.push(canvasObj);
             }
          }
@@ -43,7 +43,7 @@ function getObjectsFromVertices(vertices){
 * For each start object, traverses the graph with DFS, and propagates its value across 
 * the next objects. Then, process the new value for the updated objects, and repeat,
 * until a dead end, or if there are no objects to be updated.
-* @param {*} startObjects
+* @param {OperatorCanvasItem[]} startObjects
 */
 function simulateDFS(startObjects){
     let pIterations = 0;
@@ -53,22 +53,18 @@ function simulateDFS(startObjects){
         startObjects[i].graphItem.isReady = true;
         let endVerts = propagateVertex(swV);
         pIterations += 1;
-        if(!endVerts) break;
+        if(!endVerts){break;}
         let nextObjects = getObjectsFromVertices(endVerts);
         while(nextObjects.length !== 0 && pIterations <= maxPIterations){
             let nextObj = nextObjects.pop();
-            if(nextObj.type === 'operator'){
-                nextObj.process();
-                oV = nextObj.graphItem.outputVertex;
-                if(oV){
-                    endVerts = propagateVertex(oV);
-                    pIterations += 1;
-                    if(endVerts){
-                        nextObjects = nextObjects.concat(getObjectsFromVertices(endVerts));
-                    }else{
-                        break;
-                    }
-                }
+            nextObj.process();
+            const oV = nextObj.graphItem.outputVertex;
+            if(oV){
+                endVerts = propagateVertex(oV);
+                pIterations += 1;
+                if(endVerts){
+                    nextObjects = nextObjects.concat(getObjectsFromVertices(endVerts));
+                }else{break;}
             }
         }
     }

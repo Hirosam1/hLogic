@@ -1,5 +1,16 @@
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
+function throttle(func, limit){
+    let inThrottle;
+    return function(...args){
+        if(!inThrottle){
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(()=> inThrottle = false, limit);
+        }
+    }
+}
+
 class Logic{
     constructor(type){
         this.type = type;
@@ -97,6 +108,10 @@ const logicFactory = {
     'and' : ()=>{return new And();}
 }
 
+/**
+ * @param {string} logicName 
+ * @returns {Logic | undefined}
+ */
 function createLogic(logicName){
     if(logicFactory[logicName]){
         return logicFactory[logicName]();

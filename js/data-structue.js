@@ -1,3 +1,4 @@
+
 class Vec2{
     constructor(x,y){
         this.x = x;
@@ -41,6 +42,11 @@ function addVertex(vertex, pos){
     verticesPosList.push({pos, vertex});
 }
 
+/**
+ * @param {number} x 
+ * @param {number} y 
+ * @returns {Vertex | undefined}
+ */
 function checkPosVertex(x, y){
     let rtrn = undefined;
     verticesPosList.forEach(v => {
@@ -51,6 +57,10 @@ function checkPosVertex(x, y){
     return rtrn;
 }
 
+/**
+ * @param {Vertex} vertex 
+ * @returns {{x: number, y: number} | undefined}
+ */
 function getVertexPos(vertex){
     for(let i = 0; i < verticesPosList.length; i++){
         if(verticesPosList[i].vertex === vertex){

@@ -5,7 +5,6 @@ class UIEditor{
         this._canvasLineSegments = [];
         this._canvasObjects = [];
         this._needsAnimUpdate = false;
-        //this._rafId = 0;
     }
 
     addObjectToPalette(operator){
@@ -74,7 +73,6 @@ class UIEditor{
                 updateInfo();
             }
         };
-
         paletteDiv.appendChild(item);
         paletteImages.push({ img, src: imgSrc });
     }
@@ -134,7 +132,6 @@ class UIEditor{
         for (let x = 0; x <= canvasWidth; x += gridSize) {
             pathLine(new Vec2(x,0), new Vec2(x,canvasHeight));
         }
-
         for (let y = 0; y <= canvasHeight; y += gridSize) {
             pathLine(new Vec2(0,y), new Vec2(canvasWidth,y));
         }
@@ -221,6 +218,11 @@ class UIEditor{
         this.scheduleDraw();
     }
 
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {CanvasItem | undefined}
+     */
     getObjectAt(x, y) {
         for (let i = this._canvasObjects.length - 1; i >= 0; i--) {
             const obj = this._canvasObjects[i];
@@ -231,9 +233,14 @@ class UIEditor{
                 }
             }
         }
-        return null;
+        return undefined;
     }
 
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {LineSegmentCanvasItem | undefined}
+     */
     getLineSegmentAt(x, y){
         for (let i = this._canvasLineSegments.length - 1; i >= 0; i--) {
             const node = this._canvasLineSegments[i];
@@ -244,7 +251,7 @@ class UIEditor{
                 }
             }
         }
-        return null;
+        return undefined;
     }
 
     initCanvas() {

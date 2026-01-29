@@ -52,7 +52,12 @@ function canvasToScreen(canvasX, canvasY) {
     return {x, y};
 }
 
-function snapToGrid(value) {
+/**
+ * 
+ * @param {number} value Value to snap into grid
+ * @returns {number} Return value snapped to the grid
+ */
+function snapToGrid(value){
     return Math.round(value / gridSize) * gridSize;
 }
 
