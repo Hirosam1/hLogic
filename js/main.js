@@ -6,32 +6,9 @@ mainCanvas.initCanvas();
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedObject) {
         // Place the selected object
-        if (pos.x >= 0 && pos.x <= canvasWidth &&
-            pos.y >= 0 && pos.y <= canvasHeight) {
-            if (selectedObject.icon.type == 'image') {
-                let imgSize = [gridSize*selectedObject.icon.ratio.x, gridSize*selectedObject.icon.ratio.y];
-                let opr = null;
-                if(selectedObject.type == 'operatorObject'){
-                    opr = operatorCanvasFactory(selectedObject,
-                                        snapToGrid(pos.x - imgSize[0]/2),
-                                        snapToGrid(pos.y - imgSize[1]/2),
-                                        imgSize[0],
-                                        imgSize[1]);
-                                        
-                }else{
-                    opr = new ObjectCanvasItem(selectedObject,  
-                        snapToGrid(pos.x - imgSize[0]/2),
-                        snapToGrid(pos.y - imgSize[1]/2),
-                        imgSize[0],
-                        imgSize[1]);
-                }
-                mainCanvas._canvasObjects.push(opr);
-            }
-            mainCanvas.scheduleDraw();
-        }
+        mainCanvas.addObject(pos, selectedObject);
         return;
     }
-
     const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj) {
         draggedObject = obj;
@@ -210,13 +187,8 @@ document.addEventListener('keydown', (e) => {
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.scheduleDraw();
     } else if (e.key === 'Delete' && draggedObject) {
-        if(draggedObject.type == 'operator' || draggedObject.type == 'object'){
-            mainCanvas._canvasObjects = mainCanvas._canvasObjects.filter(obj => obj !== draggedObject);
-        }else if(draggedObject.type == 'lineSegment'){
-            mainCanvas._canvasLineSegments = mainCanvas._canvasLineSegments.filter(obj => obj !== draggedObject);
-        }
+        mainCanvas.deleteObject(draggedObject);
         draggedObject = null;
-        mainCanvas.scheduleDraw();
     } else if (e.key === 'Escape') {
         mainCanvas.cancelSelectedOperator();
     }else if(e.key === 'd'){
@@ -233,5 +205,8 @@ document.addEventListener('keydown', (e) => {
     else if(e.key === 's'){
         panY+=panScale;
         mainCanvas.scheduleDraw();
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+        console.log("!!Undo!! " + mainCanvas.undo());
     }
 });

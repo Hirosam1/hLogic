@@ -1,10 +1,158 @@
+let _canvasObjects = [];
+
+class UICommand{
+    execute(){
+        throw new Error('Execute method must be implemented');
+    }
+    undo(){
+        throw new Error('Undo method must be implemented');
+    }
+}
+
+class CommandHistory{
+    constructor(maxHistorySize = 50) {
+        this.history = [];
+        this.currentIndex = -1;
+        this.maxHistorySize = maxHistorySize;
+    }
+
+    execute(command){
+        // Remove any commands after current index (when undoing then doing new action)
+        this.history = this.history.slice(0, this.currentIndex + 1);
+        // Execute the command
+        command.execute();
+        // Add to history
+        this.history.push(command);
+        this.currentIndex++;
+        // Limit history size
+        if (this.history.length > this.maxHistorySize) {
+            this.history.shift();
+            this.currentIndex--;
+        }
+    }
+
+    canUndo() {
+        return this.currentIndex >= 0;
+    }
+    
+    canRedo() {
+        return this.currentIndex < this.history.length - 1;
+    }
+
+    undo() {
+        if (!this.canUndo()) return false;
+        this.history[this.currentIndex].undo();
+        this.currentIndex--;
+        return true;
+    }
+  
+    redo() {
+        if (!this.canRedo()) return false;
+        this.currentIndex++;
+        this.history[this.currentIndex].execute();
+        return true;
+    }
+    
+    clear() {
+        this.history = [];
+        this.currentIndex = -1;
+    }
+}
+
+class MoveObjectCommand extends UICommand{
+    /**
+     * @param {CanvasItem} canvasObject 
+     * @param {{x: number, y: number}} oldPos 
+     * @param {{x: number, y: number}} newPos 
+     */
+    constructor(canvasObject, oldPos, newPos){
+        this.canvasObject = canvasObject;
+        super();
+        this.oldPos = oldPos;
+        this.newPos = newPos;
+    }
+    execute(){ this.canvasObject.updatePos(this.newPos.x, this.newPos.y);}
+    undo(){ this.canvasObject.updatePos(this.oldPos.x, this.oldPos.y);}
+}
+
+class AddObjectCommand extends UICommand{
+    constructor(object, startPos){
+        super();
+        this.object = object;
+        this.startPos = startPos;
+        this.canvasObject = undefined;
+    }
+
+    execute(){
+        let imgSize = [gridSize*this.object.icon.ratio.x, gridSize*this.object.icon.ratio.y];
+        let opr = null;
+        if(this.object.type == 'operatorObject'){
+            opr = operatorCanvasFactory(this.object,
+                                snapToGrid(this.startPos.x - imgSize[0]/2),
+                                snapToGrid(this.startPos.y - imgSize[1]/2),
+                                imgSize[0],
+                                imgSize[1]);
+                                
+        }else{
+            opr = new ObjectCanvasItem(this.object,  
+                snapToGrid(this.startPos.x - imgSize[0]/2),
+                snapToGrid(this.startPos.y - imgSize[1]/2),
+                imgSize[0],
+                imgSize[1]);
+        }
+        this.canvasObject = opr;
+        _canvasObjects.push(opr);
+    }
+
+    undo(){
+        if(this.canvasObject.type == 'operator' || this.canvasObject.type == 'object'){
+            _canvasObjects = _canvasObjects.filter(obj => obj !== this.canvasObject);
+        }/*else if(object.type == 'lineSegment'){
+            this.canvasLineSegments = this.canvasLineSegments.filter(obj => obj !== object);
+        }*/
+    }
+}
+
+class DeleteObjectCommand extends UICommand{
+    constructor(object, canvasObjects){
+        super();
+        this.object = object;
+    }
+
+    execute(){
+        if(this.object.type == 'operator' || this.object.type == 'object'){
+            _canvasObjects = _canvasObjects.filter(obj => obj !== this.object);
+        }
+    }
+
+    undo(){
+        let imgSize = [gridSize*this.object.icon.ratio.x, gridSize*this.object.icon.ratio.y];
+        let opr = null;
+        if(this.object.type == 'operatorObject'){
+            opr = operatorCanvasFactory(this.object,
+                                snapToGrid(this.startPos.x - imgSize[0]/2),
+                                snapToGrid(this.startPos.y - imgSize[1]/2),
+                                imgSize[0],
+                                imgSize[1]);
+                                
+        }else{
+            opr = new ObjectCanvasItem(this.object,  
+                snapToGrid(this.startPos.x - imgSize[0]/2),
+                snapToGrid(this.startPos.y - imgSize[1]/2),
+                imgSize[0],
+                imgSize[1]);
+        }
+        _canvasObjects.push(opr);
+    }
+}
+
 class UIEditor{
     constructor(){
         //States====
         this._objects = [];
         this._canvasLineSegments = [];
-        this._canvasObjects = [];
         this._needsAnimUpdate = false;
+        this.history = new CommandHistory();
     }
 
     addObjectToPalette(operator){
@@ -96,15 +244,20 @@ class UIEditor{
             this.addObjectToPalette(operator);
         });
         //Editor Tools menu
-        const node_mode_imgSrc = "imgs/nodes_icon.svg";
-        const node_mode_img = new Image();
-        node_mode_img.onload = () => {
-            this.addToolToPalette(node_mode_img, node_mode_imgSrc, "nodeEditor");
-        };
-        node_mode_img.onerror = () => {
-            console.error(`Failed to load node mode image`);
-        };
-        node_mode_img.src = node_mode_imgSrc;
+        const _tools = [
+            {name: 'nodeEditor', iconSrc: 'imgs/nodes_icon.svg'}
+        ];
+        _tools.forEach(toolObj =>{
+            const tool_img = new Image();
+            tool_img.onload = () => {
+                this.addToolToPalette(tool_img, toolObj.iconSrc, toolObj.name);
+            };
+            tool_img.onerror = () => {
+                console.error(`Failed to load image: ` + toolObj.iconSrc);
+            };
+            tool_img.src = toolObj.iconSrc;
+        });
+
     }
 
     cancelSelectedOperator(){
@@ -152,7 +305,7 @@ class UIEditor{
             drawLine(line.startPos, line.endPos, 5, strokeStyle);
         });
         // Draw objects
-        this._canvasObjects.forEach(obj => {
+        _canvasObjects.forEach(obj => {
             if (obj.object.icon.type === 'image' && obj.object.icon.img.complete) {
                 ctx.drawImage(obj.object.icon.img, obj.x, obj.y, obj.width, obj.height);
                 if(obj.drawEffects) obj.drawEffects();
@@ -199,7 +352,7 @@ class UIEditor{
         }
 
         ctx.restore();
-        document.getElementById('objectCount').textContent = this._canvasObjects.length + this._canvasLineSegments.length;
+        document.getElementById('objectCount').textContent = _canvasObjects.length + this._canvasLineSegments.length;
     }
 
     scheduleDraw(){
@@ -213,7 +366,7 @@ class UIEditor{
     }
 
     clearCanvas(){
-        this._canvasObjects = [];
+        _canvasObjects = [];
         this._canvasLineSegments = [];
         this.scheduleDraw();
     }
@@ -224,8 +377,8 @@ class UIEditor{
      * @returns {CanvasItem | undefined}
      */
     getObjectAt(x, y) {
-        for (let i = this._canvasObjects.length - 1; i >= 0; i--) {
-            const obj = this._canvasObjects[i];
+        for (let i = _canvasObjects.length - 1; i >= 0; i--) {
+            const obj = _canvasObjects[i];
             if (obj.object) {
                 if (x >= obj.x && x <= obj.x + obj.width &&
                     y >= obj.y && y <= obj.y + obj.height) {
@@ -259,6 +412,33 @@ class UIEditor{
         canvas.width = rect.right - rect.left;
         canvas.height = rect.bottom - rect.top;
         this.scheduleDraw();   
+    }
+
+    addObject(pos, object){
+        // Place the selected object
+        if (pos.x >= 0 && pos.x <= canvasWidth &&
+            pos.y >= 0 && pos.y <= canvasHeight){
+            if (object.icon.type == 'image') {
+                console.log("!!Add Object Command!!");
+                this.history.execute(new AddObjectCommand(object, pos));
+            }
+            this.scheduleDraw();
+        }
+    }
+
+    deleteObject(canvasObject){
+        if(canvasObject.type == 'operator' || canvasObject.type == 'object'){
+            _canvasObjects = _canvasObjects.filter(obj => obj !== canvasObject);
+        }else if(object.type == 'lineSegment'){
+            this._canvasLineSegments = this._canvasLineSegments.filter(obj => obj !== canvasObject);
+        }
+        this.scheduleDraw();
+    }
+
+    undo(){
+        const ok = this.history.undo();
+        this.scheduleDraw();
+        return ok;
     }
 }
 

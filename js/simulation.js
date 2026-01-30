@@ -4,7 +4,7 @@ const maxPIterations = 100;
 let isSimulating = false;
 
 function unReadyOperators(){
-    mainCanvas._canvasObjects.forEach(obj =>{
+    _canvasObjects.forEach(obj =>{
         if(obj.type == 'operator'){
             obj.graphItem.isReady = false;
             obj.graphItem.inputsVertices.forEach(i =>{i.value = undefined;});
@@ -94,7 +94,7 @@ startSimulation.addEventListener('click', () => {
         });
         //Load operators and vertices
         let switches = [];
-        mainCanvas._canvasObjects.forEach(obj => {
+        _canvasObjects.forEach(obj => {
             if(obj.type === 'operator'){
                 obj.graphItem.createVertices();
             }

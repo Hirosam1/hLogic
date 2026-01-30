@@ -10,7 +10,7 @@ function saveScene() {
         zoom: zoom,
         panX: Math.round(panX),
         panY: Math.round(panY),
-        canvasObjects: mainCanvas._canvasObjects.map(obj => ({
+        canvasObjects: _canvasObjects.map(obj => ({
             objectName: obj.object.name,
             objectType: obj.object.type,
             x: obj.x,
@@ -83,7 +83,7 @@ function loadScene() {
                             opr = new ObjectCanvasItem(object, canvasOp.x, canvasOp.y, 
                                                         canvasOp.width, canvasOp.height);   
                         }
-                        mainCanvas._canvasObjects.push(opr);
+                        _canvasObjects.push(opr);
                     }else{
                         console.error("Couldn't load object: " + canvasOp.operatorName);
                     }
