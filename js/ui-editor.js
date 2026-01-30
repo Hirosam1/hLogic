@@ -429,7 +429,7 @@ class UIEditor{
     deleteObject(canvasObject){
         if(canvasObject.type == 'operator' || canvasObject.type == 'object'){
             _canvasObjects = _canvasObjects.filter(obj => obj !== canvasObject);
-        }else if(object.type == 'lineSegment'){
+        }else if(canvasObject.type == 'lineSegment'){
             this._canvasLineSegments = this._canvasLineSegments.filter(obj => obj !== canvasObject);
         }
         this.scheduleDraw();
