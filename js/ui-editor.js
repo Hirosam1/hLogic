@@ -266,9 +266,9 @@ class UIEditor{
         this.scheduleDraw();   
     }
     //Canvas commands === 
-    moveObject(canvasObject, newPos){
+    moveObject(canvasObject, newPos, oldPos){
         console.log("!!Move Object Command!!");
-        this.history.execute(new MoveObjectCommand(canvasObject, newPos));
+        this.history.execute(new MoveObjectCommand(canvasObject, newPos, oldPos));
         mainCanvas.scheduleDraw();
     }
 

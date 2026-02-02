@@ -167,9 +167,7 @@ canvas.addEventListener('mouseup', (e) => {
         const deltaX = gridPos.x - dragTranslationLast.x;
         const deltaY = gridPos.y - dragTranslationLast.y;
         const newPos = {x: draggedObject.x + deltaX, y: draggedObject.y + deltaY};
-        draggedObject.x = draggedObjectLastPos.x;
-        draggedObject.y = draggedObjectLastPos.y;
-        mainCanvas.moveObject(draggedObject, newPos);
+        mainCanvas.moveObject(draggedObject, newPos, draggedObjectLastPos);
         draggedObjectLastPos = undefined;
         draggedObject = null;
     }

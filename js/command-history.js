@@ -61,11 +61,11 @@ class MoveObjectCommand extends UICommand{
      * @param {CanvasItem} canvasObject 
      * @param {{x: number, y: number}} newPos 
      */
-    constructor(canvasObject, newPos){
+    constructor(canvasObject, newPos, oldPos){
         super();
         this.canvasObject = canvasObject;
         this.newPos = newPos;
-        this.oldPos = {x: canvasObject.x, y: canvasObject.y};
+        this.oldPos = oldPos;
         console.log(`OldPosX ${this.oldPos.x}, NewPosX: ${this.newPos.x}`);
     }
     execute(){this.canvasObject.updatePos(this.newPos.x, this.newPos.y);}
