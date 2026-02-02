@@ -88,7 +88,7 @@ startSimulation.addEventListener('click', () => {
         editorState = editorStates.simulating;
         readyOperators = [];
         //Load line segments and edges
-        mainCanvas._canvasLineSegments.forEach(lineSeg => { 
+        _canvasLineSegments.forEach(lineSeg => { 
             lineSeg.graphItem.createVertices(); 
             lineSeg.createEdge();
         });

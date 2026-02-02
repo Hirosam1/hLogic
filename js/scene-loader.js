@@ -18,7 +18,7 @@ function saveScene() {
             width: obj.width,
             height: obj.height
         })),
-        canvasLineSegments: mainCanvas._canvasLineSegments.map(obj => ({
+        canvasLineSegments: _canvasLineSegments.map(obj => ({
             name: obj.type,
             startPos : [obj.startPos.x, obj.startPos.y],
             endPos : [obj.endPos.x, obj.endPos.y]
@@ -90,7 +90,7 @@ function loadScene() {
                 });
                 
                 sceneData.canvasLineSegments.forEach((node, i) =>{
-                    mainCanvas._canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
+                    _canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
                                                                            node.endPos[0], node.endPos[1]));
                 });
 

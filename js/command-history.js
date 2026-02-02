@@ -1,4 +1,5 @@
 let _canvasObjects = [];
+let _canvasLineSegments = [];
 
 class UICommand{
     execute(){
@@ -76,60 +77,42 @@ class MoveObjectCommand extends UICommand{
     undo(){ this.canvasObject.updatePos(this.oldPos.x, this.oldPos.y);}
 }
 
-class AddObjectCommand extends UICommand{
-    constructor(object, startPos){
+class AddCanvasObjectCommand extends UICommand{
+    constructor(canvasObject){
         super();
-        this.object = object;
-        this.startPos = startPos;
-        this.canvasObject = undefined;
+        this.canvasObject = canvasObject;
     }
 
     execute(){
-        let opr = this.canvasObject;
-        if(!opr){
-        let imgSize = [gridSize*this.object.icon.ratio.x, gridSize*this.object.icon.ratio.y];
-            if(this.object.type == 'operatorObject'){
-                opr = operatorCanvasFactory(this.object,
-                                    snapToGrid(this.startPos.x - imgSize[0]/2),
-                                    snapToGrid(this.startPos.y - imgSize[1]/2),
-                                    imgSize[0],
-                                    imgSize[1]);
-                                    
-            }else{
-                opr = new ObjectCanvasItem(this.object,  
-                    snapToGrid(this.startPos.x - imgSize[0]/2),
-                    snapToGrid(this.startPos.y - imgSize[1]/2),
-                    imgSize[0],
-                    imgSize[1]);
-            }
-            this.canvasObject = opr;
-        }
-        _canvasObjects.push(opr);
+        if(this.canvasObject.type === 'lineSegment'){_canvasLineSegments.push(this.canvasObject);}
+        else{_canvasObjects.push(this.canvasObject);}
     }
 
     undo(){
         if(this.canvasObject.type == 'operator' || this.canvasObject.type == 'object'){
             _canvasObjects = _canvasObjects.filter(obj => obj !== this.canvasObject);
-        }/*else if(object.type == 'lineSegment'){
-            this.canvasLineSegments = this.canvasLineSegments.filter(obj => obj !== object);
-        }*/
+        }else if(this.canvasObject.type === 'lineSegment'){
+            _canvasLineSegments = _canvasLineSegments.filter(obj => obj !== this.canvasObject);
+        }
     }
 }
 
-class DeleteObjectCommand extends UICommand{
-    constructor(canvasObject, lastPos){
+class DeleteCanvasObjectCommand extends UICommand{
+    constructor(canvasObject){
         super();
         this.canvasObject = canvasObject;
-        this.lastPos = lastPos;
     }
 
     execute(){
         if(this.canvasObject.type == 'operator' || this.canvasObject.type == 'object'){
             _canvasObjects = _canvasObjects.filter(obj => obj !== this.canvasObject);
+        }else if(this.canvasObject.type == 'lineSegment'){
+            _canvasLineSegments = _canvasLineSegments.filter(obj => obj !== this.canvasObject);
         }
     }
 
     undo(){
-        _canvasObjects.push(this.canvasObject);
+        if(this.canvasObject.type === 'lineSegment'){_canvasLineSegments.push(this.canvasObject);}
+        else{_canvasObjects.push(this.canvasObject);}
     }
 }

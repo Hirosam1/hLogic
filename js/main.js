@@ -5,12 +5,32 @@ mainCanvas.initCanvas();
 //Input logic
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedObject) {
-        // Place the selected object
-        mainCanvas.addObject(pos, selectedObject);
+        if (pos.x >= 0 && pos.x <= canvasWidth &&
+        pos.y >= 0 && pos.y <= canvasHeight){
+            if (selectedObject.icon.type == 'image') {
+                // Place the selected object
+                let obj = undefined;
+                let imgSize = [gridSize*selectedObject.icon.ratio.x, gridSize*selectedObject.icon.ratio.y];
+                if(selectedObject.type == 'operatorObject'){
+                    obj = operatorCanvasFactory(selectedObject,
+                                        snapToGrid(pos.x - imgSize[0]/2),
+                                        snapToGrid(pos.y - imgSize[1]/2),
+                                        imgSize[0],
+                                        imgSize[1]);
+                }else{
+                    obj = new ObjectCanvasItem(selectedObject,
+                        snapToGrid(pos.x - imgSize[0]/2),
+                        snapToGrid(pos.y - imgSize[1]/2),
+                        imgSize[0],
+                        imgSize[1]);
+                }
+                mainCanvas.addCanvasObject(obj);
+            }
+        }
         return;
     }
     const obj = mainCanvas.getObjectAt(pos.x, pos.y);
-    if (obj) {
+    if (obj){
         draggedObject = obj;
         canvas.style.cursor = 'grabbing';
         dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
@@ -31,9 +51,8 @@ function mouseDownNodeEdt(pos, e){
         nodeStartPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
     }else{
         let nodeEndPos = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
-        mainCanvas._canvasLineSegments.push(
-            new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
-                                    nodeEndPos.x, nodeEndPos.y));
+        mainCanvas.addCanvasObject(new LineSegmentCanvasItem(nodeStartPos.x, nodeStartPos.y,
+                                nodeEndPos.x, nodeEndPos.y));
         nodeStartPos=null;
     }
     updateInfo();
@@ -187,7 +206,7 @@ document.addEventListener('keydown', (e) => {
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.scheduleDraw();
     } else if (e.key === 'Delete' && draggedObject) {
-        mainCanvas.deleteObject(draggedObject);
+        mainCanvas.deleteCanvasObject(draggedObject);
         draggedObject = null;
     } else if (e.key === 'Escape') {
         mainCanvas.cancelSelectedOperator();

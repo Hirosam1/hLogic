@@ -2,7 +2,7 @@ class UIEditor{
     constructor(){
         //States====
         this._objects = [];
-        this._canvasLineSegments = [];
+        //this._canvasLineSegments = [];
         this._needsAnimUpdate = false;
         this.history = new CommandHistory();
     }
@@ -146,7 +146,7 @@ class UIEditor{
 
     drawResources(){
         //Draw Lines
-        this._canvasLineSegments.forEach(line => {
+        _canvasLineSegments.forEach(line => {
             let strokeStyle = editorState === editorStates.simulating? '#74738bff' : '#100ae5';
             if(editorState == editorStates.simulating){
                 const vA = line.edge.vertexA;
@@ -172,7 +172,7 @@ class UIEditor{
             //Draw nodes
             ctx.beginPath();
             ctx.fillStyle = '#11c08cff';
-            this._canvasLineSegments.forEach(node => {
+            _canvasLineSegments.forEach(node => {
                 pathPoint(node.startPos, 2);
                 pathPoint(node.endPos, 2);
             });
@@ -204,7 +204,7 @@ class UIEditor{
         }
 
         ctx.restore();
-        document.getElementById('objectCount').textContent = _canvasObjects.length + this._canvasLineSegments.length;
+        document.getElementById('objectCount').textContent = _canvasObjects.length + _canvasLineSegments.length;
     }
 
     scheduleDraw(){
@@ -219,7 +219,7 @@ class UIEditor{
 
     clearCanvas(){
         _canvasObjects = [];
-        this._canvasLineSegments = [];
+        _canvasLineSegments = [];
         this.history.clear();
         this.scheduleDraw();
     }
@@ -248,8 +248,8 @@ class UIEditor{
      * @returns {LineSegmentCanvasItem | undefined}
      */
     getLineSegmentAt(x, y){
-        for (let i = this._canvasLineSegments.length - 1; i >= 0; i--) {
-            const node = this._canvasLineSegments[i];
+        for (let i = _canvasLineSegments.length - 1; i >= 0; i--) {
+            const node = _canvasLineSegments[i];
             if (node.type === 'lineSegment') {
                 if (x >= node.x && x <= node.x + node.width &&
                     y >= node.y && y <= node.y + node.height){
@@ -267,27 +267,16 @@ class UIEditor{
         this.scheduleDraw();   
     }
 
-    addObject(pos, object){
+    addCanvasObject(canvasObject){
         // Place the selected object
-        if (pos.x >= 0 && pos.x <= canvasWidth &&
-            pos.y >= 0 && pos.y <= canvasHeight){
-            if (object.icon.type == 'image') {
-                console.log("!!Add Object Command!!");
-                this.history.execute(new AddObjectCommand(object, pos));
-            }
-            this.scheduleDraw();
-        }
+        console.log("!!Add Object Command!!");
+        this.history.execute(new AddCanvasObjectCommand(canvasObject));
+        this.scheduleDraw();
     }
 
-    deleteObject(canvasObject){
-        if(canvasObject.type == 'operator' || canvasObject.type == 'object'){
-            //_canvasObjects = _canvasObjects.filter(obj => obj !== canvasObject);
-            console.log("!!Delete Object Command!!");
-            const pos = {x: canvasObject.x, y: canvasObject.y};
-            this.history.execute(new DeleteObjectCommand(canvasObject, pos));
-        }else if(canvasObject.type == 'lineSegment'){
-            this._canvasLineSegments = this._canvasLineSegments.filter(obj => obj !== canvasObject);
-        }
+    deleteCanvasObject(canvasObject){    
+        console.log("!!Delete Object Command!!");
+        this.history.execute(new DeleteCanvasObjectCommand(canvasObject));
         this.scheduleDraw();
     }
 
