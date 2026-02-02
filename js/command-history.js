@@ -66,7 +66,6 @@ class MoveObjectCommand extends UICommand{
         this.canvasObject = canvasObject;
         this.newPos = newPos;
         this.oldPos = oldPos;
-        console.log(`OldPosX ${this.oldPos.x}, NewPosX: ${this.newPos.x}`);
     }
     execute(){this.canvasObject.updatePos(this.newPos.x, this.newPos.y);}
     undo(){ this.canvasObject.updatePos(this.oldPos.x, this.oldPos.y);}
