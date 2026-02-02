@@ -141,6 +141,8 @@ class LineSegmentCanvasItem extends CanvasItem{
     constructor(startX, startY, endX, endY){
         super(lineSegmentObj, Math.min(startX, endX), Math.min(startY, endY), 
               Math.abs(startX - endX), Math.abs(startY - endY));
+        this.x = Math.min(startX, endX);
+        this.y = Math.min(startY, endY);
         this.startPos = {x: startX, y: startY, vertex: null};
         this.endPos = {x: endX, y: endY, vertex: null};
         this.type = 'lineSegment';

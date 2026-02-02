@@ -2,7 +2,6 @@ class UIEditor{
     constructor(){
         //States====
         this._objects = [];
-        //this._canvasLineSegments = [];
         this._needsAnimUpdate = false;
         this.history = new CommandHistory();
     }
@@ -265,6 +264,12 @@ class UIEditor{
         canvas.width = rect.right - rect.left;
         canvas.height = rect.bottom - rect.top;
         this.scheduleDraw();   
+    }
+    //Canvas commands === 
+    moveObject(canvasObject, newPos){
+        console.log("!!Move Object Command!!");
+        this.history.execute(new MoveObjectCommand(canvasObject, newPos));
+        mainCanvas.scheduleDraw();
     }
 
     addCanvasObject(canvasObject){

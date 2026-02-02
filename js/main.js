@@ -2,11 +2,13 @@ mainCanvas = new UIEditor();
 mainCanvas.preloadPalletMenu();
 mainCanvas.initCanvas();
 
+draggedObjectLastPos = undefined;
+
 //Input logic
 function mouseDownOperatorEdt(pos, e){
     if (placingMode && selectedObject) {
         if (pos.x >= 0 && pos.x <= canvasWidth &&
-        pos.y >= 0 && pos.y <= canvasHeight){
+            pos.y >= 0 && pos.y <= canvasHeight){
             if (selectedObject.icon.type == 'image') {
                 // Place the selected object
                 let obj = undefined;
@@ -31,6 +33,7 @@ function mouseDownOperatorEdt(pos, e){
     }
     const obj = mainCanvas.getObjectAt(pos.x, pos.y);
     if (obj){
+        draggedObjectLastPos = {x: obj.x, y: obj.y};
         draggedObject = obj;
         canvas.style.cursor = 'grabbing';
         dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
@@ -38,6 +41,7 @@ function mouseDownOperatorEdt(pos, e){
     }else{
         let node = mainCanvas.getLineSegmentAt(snapToGrid(pos.x), snapToGrid(pos.y));
         if(node){
+            draggedObjectLastPos = {x: node.x, y: node.y};
             draggedObject = node;
             canvas.style.cursor = 'grabbing';
             dragTranslationLast = {x: snapToGrid(pos.x), y: snapToGrid(pos.y)};
@@ -156,12 +160,23 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 //Mouse up
-canvas.addEventListener('mouseup', () => {
-    draggedObject = null;
+canvas.addEventListener('mouseup', (e) => {
+    const pos = screenToCanvas(e.clientX, e.clientY);
+    const gridPos = {x :snapToGrid(pos.x), y: snapToGrid(pos.y)};
+    if(draggedObject){
+        const deltaX = gridPos.x - dragTranslationLast.x;
+        const deltaY = gridPos.y - dragTranslationLast.y;
+        const newPos = {x: draggedObject.x + deltaX, y: draggedObject.y + deltaY};
+        draggedObject.x = draggedObjectLastPos.x;
+        draggedObject.y = draggedObjectLastPos.y;
+        mainCanvas.moveObject(draggedObject, newPos);
+        draggedObjectLastPos = undefined;
+        draggedObject = null;
+    }
     isPanning = false;
     if(editorState == editorStates.objectEditor){
-        if (!placingMode) {
-                    draggedObject=null;
+        if (!placingMode){
+            draggedObject=null;
             canvas.style.cursor = 'grab';
             updateInfo();
         }
@@ -225,7 +240,7 @@ document.addEventListener('keydown', (e) => {
         panY+=panScale;
         mainCanvas.scheduleDraw();
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         const ok = mainCanvas.undo();
         console.log(`!!Undo!! H[${mainCanvas.history.currentIndex}/${mainCanvas.history.history.length}] ${ok}`);
     }else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() == 'z' && e.shiftKey) {

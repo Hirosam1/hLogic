@@ -32,13 +32,8 @@ class CommandHistory{
         }
     }
 
-    canUndo() {
-        return this.currentIndex >= 0;
-    }
-    
-    canRedo() {
-        return this.currentIndex < this.history.length - 1;
-    }
+    canUndo() {return this.currentIndex >= 0;}
+    canRedo() {return this.currentIndex < this.history.length - 1;}
 
     undo() {
         if (!this.canUndo()) return false;
@@ -64,16 +59,16 @@ class CommandHistory{
 class MoveObjectCommand extends UICommand{
     /**
      * @param {CanvasItem} canvasObject 
-     * @param {{x: number, y: number}} oldPos 
      * @param {{x: number, y: number}} newPos 
      */
-    constructor(canvasObject, oldPos, newPos){
-        this.canvasObject = canvasObject;
+    constructor(canvasObject, newPos){
         super();
-        this.oldPos = oldPos;
+        this.canvasObject = canvasObject;
         this.newPos = newPos;
+        this.oldPos = {x: canvasObject.x, y: canvasObject.y};
+        console.log(`OldPosX ${this.oldPos.x}, NewPosX: ${this.newPos.x}`);
     }
-    execute(){ this.canvasObject.updatePos(this.newPos.x, this.newPos.y);}
+    execute(){this.canvasObject.updatePos(this.newPos.x, this.newPos.y);}
     undo(){ this.canvasObject.updatePos(this.oldPos.x, this.oldPos.y);}
 }
 
