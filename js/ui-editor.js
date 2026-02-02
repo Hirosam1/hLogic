@@ -220,6 +220,7 @@ class UIEditor{
     clearCanvas(){
         _canvasObjects = [];
         this._canvasLineSegments = [];
+        this.history.clear();
         this.scheduleDraw();
     }
 
@@ -280,7 +281,10 @@ class UIEditor{
 
     deleteObject(canvasObject){
         if(canvasObject.type == 'operator' || canvasObject.type == 'object'){
-            _canvasObjects = _canvasObjects.filter(obj => obj !== canvasObject);
+            //_canvasObjects = _canvasObjects.filter(obj => obj !== canvasObject);
+            console.log("!!Delete Object Command!!");
+            const pos = {x: canvasObject.x, y: canvasObject.y};
+            this.history.execute(new DeleteObjectCommand(canvasObject, pos));
         }else if(canvasObject.type == 'lineSegment'){
             this._canvasLineSegments = this._canvasLineSegments.filter(obj => obj !== canvasObject);
         }
@@ -289,6 +293,12 @@ class UIEditor{
 
     undo(){
         const ok = this.history.undo();
+        this.scheduleDraw();
+        return ok;
+    }
+
+    redo(){
+        const ok = this.history.redo();
         this.scheduleDraw();
         return ok;
     }

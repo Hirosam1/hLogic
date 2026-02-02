@@ -10,7 +10,7 @@ class UICommand{
 }
 
 class CommandHistory{
-    constructor(maxHistorySize = 50) {
+    constructor(maxHistorySize = 75) {
         this.history = [];
         this.currentIndex = -1;
         this.maxHistorySize = maxHistorySize;
@@ -59,6 +59,7 @@ class CommandHistory{
     }
 }
 
+//UI Commands ===
 class MoveObjectCommand extends UICommand{
     /**
      * @param {CanvasItem} canvasObject 
@@ -84,23 +85,25 @@ class AddObjectCommand extends UICommand{
     }
 
     execute(){
+        let opr = this.canvasObject;
+        if(!opr){
         let imgSize = [gridSize*this.object.icon.ratio.x, gridSize*this.object.icon.ratio.y];
-        let opr = null;
-        if(this.object.type == 'operatorObject'){
-            opr = operatorCanvasFactory(this.object,
-                                snapToGrid(this.startPos.x - imgSize[0]/2),
-                                snapToGrid(this.startPos.y - imgSize[1]/2),
-                                imgSize[0],
-                                imgSize[1]);
-                                
-        }else{
-            opr = new ObjectCanvasItem(this.object,  
-                snapToGrid(this.startPos.x - imgSize[0]/2),
-                snapToGrid(this.startPos.y - imgSize[1]/2),
-                imgSize[0],
-                imgSize[1]);
+            if(this.object.type == 'operatorObject'){
+                opr = operatorCanvasFactory(this.object,
+                                    snapToGrid(this.startPos.x - imgSize[0]/2),
+                                    snapToGrid(this.startPos.y - imgSize[1]/2),
+                                    imgSize[0],
+                                    imgSize[1]);
+                                    
+            }else{
+                opr = new ObjectCanvasItem(this.object,  
+                    snapToGrid(this.startPos.x - imgSize[0]/2),
+                    snapToGrid(this.startPos.y - imgSize[1]/2),
+                    imgSize[0],
+                    imgSize[1]);
+            }
+            this.canvasObject = opr;
         }
-        this.canvasObject = opr;
         _canvasObjects.push(opr);
     }
 
@@ -114,34 +117,19 @@ class AddObjectCommand extends UICommand{
 }
 
 class DeleteObjectCommand extends UICommand{
-    constructor(object, canvasObjects){
+    constructor(canvasObject, lastPos){
         super();
-        this.object = object;
+        this.canvasObject = canvasObject;
+        this.lastPos = lastPos;
     }
 
     execute(){
-        if(this.object.type == 'operator' || this.object.type == 'object'){
-            _canvasObjects = _canvasObjects.filter(obj => obj !== this.object);
+        if(this.canvasObject.type == 'operator' || this.canvasObject.type == 'object'){
+            _canvasObjects = _canvasObjects.filter(obj => obj !== this.canvasObject);
         }
     }
 
     undo(){
-        let imgSize = [gridSize*this.object.icon.ratio.x, gridSize*this.object.icon.ratio.y];
-        let opr = null;
-        if(this.object.type == 'operatorObject'){
-            opr = operatorCanvasFactory(this.object,
-                                snapToGrid(this.startPos.x - imgSize[0]/2),
-                                snapToGrid(this.startPos.y - imgSize[1]/2),
-                                imgSize[0],
-                                imgSize[1]);
-                                
-        }else{
-            opr = new ObjectCanvasItem(this.object,  
-                snapToGrid(this.startPos.x - imgSize[0]/2),
-                snapToGrid(this.startPos.y - imgSize[1]/2),
-                imgSize[0],
-                imgSize[1]);
-        }
-        _canvasObjects.push(opr);
+        _canvasObjects.push(this.canvasObject);
     }
 }

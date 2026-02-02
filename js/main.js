@@ -206,7 +206,11 @@ document.addEventListener('keydown', (e) => {
         panY+=panScale;
         mainCanvas.scheduleDraw();
     }
-    if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
-        console.log("!!Undo!! " + mainCanvas.undo());
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        const ok = mainCanvas.undo();
+        console.log(`!!Undo!! H[${mainCanvas.history.currentIndex}/${mainCanvas.history.history.length}] ${ok}`);
+    }else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() == 'z' && e.shiftKey) {
+        const ok = mainCanvas.redo();
+        console.log(`!!Redo!! H[${mainCanvas.history.currentIndex}/${mainCanvas.history.history.length}] ${ok}`);
     }
 });
