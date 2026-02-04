@@ -1,6 +1,3 @@
-let _canvasObjects = [];
-let _canvasLineSegments = [];
-
 class UICommand{
     execute(){
         throw new Error('Execute method must be implemented');
@@ -78,15 +75,15 @@ class AddCanvasObjectCommand extends UICommand{
     }
 
     execute(){
-        if(this.canvasObject.type === 'lineSegment'){_canvasLineSegments.push(this.canvasObject);}
-        else{_canvasObjects.push(this.canvasObject);}
+        if(this.canvasObject.type === 'lineSegment'){canvasLineSegments.push(this.canvasObject);}
+        else{canvasObjects.push(this.canvasObject);}
     }
 
     undo(){
         if(this.canvasObject.type == 'operator' || this.canvasObject.type == 'object'){
-            _canvasObjects = _canvasObjects.filter(obj => obj !== this.canvasObject);
+            canvasObjects = canvasObjects.filter(obj => obj !== this.canvasObject);
         }else if(this.canvasObject.type === 'lineSegment'){
-            _canvasLineSegments = _canvasLineSegments.filter(obj => obj !== this.canvasObject);
+            canvasLineSegments = canvasLineSegments.filter(obj => obj !== this.canvasObject);
         }
     }
 }
@@ -99,14 +96,14 @@ class DeleteCanvasObjectCommand extends UICommand{
 
     execute(){
         if(this.canvasObject.type == 'operator' || this.canvasObject.type == 'object'){
-            _canvasObjects = _canvasObjects.filter(obj => obj !== this.canvasObject);
+            canvasObjects = canvasObjects.filter(obj => obj !== this.canvasObject);
         }else if(this.canvasObject.type == 'lineSegment'){
-            _canvasLineSegments = _canvasLineSegments.filter(obj => obj !== this.canvasObject);
+            canvasLineSegments = canvasLineSegments.filter(obj => obj !== this.canvasObject);
         }
     }
 
     undo(){
-        if(this.canvasObject.type === 'lineSegment'){_canvasLineSegments.push(this.canvasObject);}
-        else{_canvasObjects.push(this.canvasObject);}
+        if(this.canvasObject.type === 'lineSegment'){canvasLineSegments.push(this.canvasObject);}
+        else{canvasObjects.push(this.canvasObject);}
     }
 }

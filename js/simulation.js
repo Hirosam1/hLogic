@@ -4,7 +4,7 @@ const maxPIterations = 100;
 let isSimulating = false;
 
 function unReadyOperators(){
-    _canvasObjects.forEach(obj =>{
+    canvasObjects.forEach(obj =>{
         if(obj.type == 'operator'){
             obj.graphItem.isReady = false;
             obj.graphItem.inputsVertices.forEach(i =>{i.value = undefined;});
@@ -86,15 +86,14 @@ startSimulation.addEventListener('click', () => {
         startSimulation.innerHTML = 'Stop Simulation ⏹️';
         container.classList.add('simulating');
         editorState = editorStates.simulating;
-        readyOperators = [];
         //Load line segments and edges
-        _canvasLineSegments.forEach(lineSeg => { 
+        canvasLineSegments.forEach(lineSeg => { 
             lineSeg.graphItem.createVertices(); 
             lineSeg.createEdge();
         });
         //Load operators and vertices
         let switches = [];
-        _canvasObjects.forEach(obj => {
+        canvasObjects.forEach(obj => {
             if(obj.type === 'operator'){
                 obj.graphItem.createVertices();
             }

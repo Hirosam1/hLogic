@@ -1,4 +1,3 @@
-mainCanvas = new UIEditor();
 mainCanvas.preloadPalletMenu();
 mainCanvas.initCanvas();
 
@@ -218,9 +217,11 @@ document.addEventListener('keydown', (e) => {
         zoom = Math.max(zoom / 1.2, minZoom);
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.scheduleDraw();
-    } else if (e.key === 'Delete' && draggedObject) {
+    } else if (e.key === 'Delete' && draggedObject){
+        draggedObject.updatePos(draggedObjectLastPos.x, draggedObjectLastPos.y);
         mainCanvas.deleteCanvasObject(draggedObject);
         draggedObject = null;
+        draggedObjectLastPos = undefined;
     } else if (e.key === 'Escape') {
         mainCanvas.cancelSelectedOperator();
     }else if(e.key === 'd'){

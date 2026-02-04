@@ -108,3 +108,7 @@ function propagateVertex(startVertex){
     }
     return endVertices;
 }
+
+// Resources Arrays ===
+let canvasObjects = [];
+let canvasLineSegments = [];

@@ -10,7 +10,7 @@ function saveScene() {
         zoom: zoom,
         panX: Math.round(panX),
         panY: Math.round(panY),
-        canvasObjects: _canvasObjects.map(obj => ({
+        canvasObjects: canvasObjects.map(obj => ({
             objectName: obj.object.name,
             objectType: obj.object.type,
             x: obj.x,
@@ -18,7 +18,7 @@ function saveScene() {
             width: obj.width,
             height: obj.height
         })),
-        canvasLineSegments: _canvasLineSegments.map(obj => ({
+        canvasLineSegments: canvasLineSegments.map(obj => ({
             name: obj.type,
             startPos : [obj.startPos.x, obj.startPos.y],
             endPos : [obj.endPos.x, obj.endPos.y]
@@ -72,8 +72,7 @@ function loadScene() {
                     mainCanvas._objects.forEach((obj,i)=>{
                         if(obj.name == canvasOp.objectName){
                             object = obj;
-                        }
-                    });
+                        }});
                     if(object){
                         let opr = null;
                         if(object.type == 'operatorObject'){
@@ -83,14 +82,14 @@ function loadScene() {
                             opr = new ObjectCanvasItem(object, canvasOp.x, canvasOp.y, 
                                                         canvasOp.width, canvasOp.height);   
                         }
-                        _canvasObjects.push(opr);
+                        canvasObjects.push(opr);
                     }else{
                         console.error("Couldn't load object: " + canvasOp.operatorName);
                     }
                 });
                 
                 sceneData.canvasLineSegments.forEach((node, i) =>{
-                    _canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
+                    canvasLineSegments.push(new LineSegmentCanvasItem(node.startPos[0], node.startPos[1],
                                                                            node.endPos[0], node.endPos[1]));
                 });
 

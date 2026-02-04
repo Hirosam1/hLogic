@@ -1,6 +1,6 @@
 class UIEditor{
     constructor(){
-        //States====
+        //States ====
         this._objects = [];
         this._needsAnimUpdate = false;
         this.history = new CommandHistory();
@@ -108,7 +108,6 @@ class UIEditor{
             };
             tool_img.src = toolObj.iconSrc;
         });
-
     }
 
     cancelSelectedOperator(){
@@ -145,7 +144,7 @@ class UIEditor{
 
     drawResources(){
         //Draw Lines
-        _canvasLineSegments.forEach(line => {
+        canvasLineSegments.forEach(line => {
             let strokeStyle = editorState === editorStates.simulating? '#74738bff' : '#100ae5';
             if(editorState == editorStates.simulating){
                 const vA = line.edge.vertexA;
@@ -156,7 +155,7 @@ class UIEditor{
             drawLine(line.startPos, line.endPos, 5, strokeStyle);
         });
         // Draw objects
-        _canvasObjects.forEach(obj => {
+        canvasObjects.forEach(obj => {
             if (obj.object.icon.type === 'image' && obj.object.icon.img.complete) {
                 ctx.drawImage(obj.object.icon.img, obj.x, obj.y, obj.width, obj.height);
                 if(obj.drawEffects) obj.drawEffects();
@@ -171,7 +170,7 @@ class UIEditor{
             //Draw nodes
             ctx.beginPath();
             ctx.fillStyle = '#11c08cff';
-            _canvasLineSegments.forEach(node => {
+            canvasLineSegments.forEach(node => {
                 pathPoint(node.startPos, 2);
                 pathPoint(node.endPos, 2);
             });
@@ -203,7 +202,7 @@ class UIEditor{
         }
 
         ctx.restore();
-        document.getElementById('objectCount').textContent = _canvasObjects.length + _canvasLineSegments.length;
+        document.getElementById('objectCount').textContent = canvasObjects.length + canvasLineSegments.length;
     }
 
     scheduleDraw(){
@@ -217,8 +216,8 @@ class UIEditor{
     }
 
     clearCanvas(){
-        _canvasObjects = [];
-        _canvasLineSegments = [];
+        canvasObjects = [];
+        canvasLineSegments = [];
         this.history.clear();
         this.scheduleDraw();
     }
@@ -229,8 +228,8 @@ class UIEditor{
      * @returns {CanvasItem | undefined}
      */
     getObjectAt(x, y) {
-        for (let i = _canvasObjects.length - 1; i >= 0; i--) {
-            const obj = _canvasObjects[i];
+        for (let i = canvasObjects.length - 1; i >= 0; i--) {
+            const obj = canvasObjects[i];
             if (obj.object) {
                 if (x >= obj.x && x <= obj.x + obj.width &&
                     y >= obj.y && y <= obj.y + obj.height) {
@@ -247,8 +246,8 @@ class UIEditor{
      * @returns {LineSegmentCanvasItem | undefined}
      */
     getLineSegmentAt(x, y){
-        for (let i = _canvasLineSegments.length - 1; i >= 0; i--) {
-            const node = _canvasLineSegments[i];
+        for (let i = canvasLineSegments.length - 1; i >= 0; i--) {
+            const node = canvasLineSegments[i];
             if (node.type === 'lineSegment') {
                 if (x >= node.x && x <= node.x + node.width &&
                     y >= node.y && y <= node.y + node.height){
@@ -273,7 +272,6 @@ class UIEditor{
     }
 
     addCanvasObject(canvasObject){
-        // Place the selected object
         console.log("!!Add Object Command!!");
         this.history.execute(new AddCanvasObjectCommand(canvasObject));
         this.scheduleDraw();
@@ -286,20 +284,23 @@ class UIEditor{
     }
 
     undo(){
-        const ok = this.history.undo();
-        this.scheduleDraw();
-        return ok;
+        if(editorState !== editorStates.simulating){
+            const ok = this.history.undo();
+            this.scheduleDraw();
+            return ok;
+        }
     }
 
     redo(){
-        const ok = this.history.redo();
-        this.scheduleDraw();
-        return ok;
+        if(editorState !== editorStates.simulating){
+            const ok = this.history.redo();
+            this.scheduleDraw();
+            return ok;
+        }
     }
 }
 
-let mainCanvas = undefined;
-
+let mainCanvas = new UIEditor();
 //===== Set up Canvas controls ========
 window.addEventListener('resize', ()=>{
     mainCanvas.initCanvas();
@@ -329,9 +330,8 @@ resetView.addEventListener('click', () => {
 });
 
 clearCanvas.addEventListener('click', () => {
-    //if (confirm('Clear all canvas Items?')) {
-        mainCanvas.clearCanvas();
-        clearSimulation();
-        mainCanvas.scheduleDraw();
-    //}
+    // TODO: Implement confirmation for clear!
+    mainCanvas.clearCanvas();
+    clearSimulation();
+    mainCanvas.scheduleDraw();
 });
