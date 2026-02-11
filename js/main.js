@@ -189,12 +189,14 @@ canvas.addEventListener('mouseup', (e) => {
 // Mouse wheel
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
+    const mousePosCanv = screenToCanvas(e.clientX, e.clientY);
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    zoom = clamp(zoom*delta, minZoom, maxZoom); 
-    const mousePosCanv = screenToCanvas(lastMouseX, lastMouseY);
-    let zoomDspl = -(1.0-delta);
-    panX+=(zoomDspl*(mousePosCanv.x));
-    panY+=(zoomDspl*(mousePosCanv.y));
+    const oldZoom = zoom;
+    zoom = clamp(zoom*delta, minZoom, maxZoom);
+    const deltaW = ((oldZoom*mousePosCanv.x)-(zoom*mousePosCanv.x));
+    const deltaH = ((oldZoom*mousePosCanv.y)-(zoom*mousePosCanv.y));
+    panX+=-deltaW;
+    panY+=-deltaH;
     zoomLevel.textContent = Math.round(zoom * 100);
     mainCanvas.scheduleDraw();
 });

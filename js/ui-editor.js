@@ -264,6 +264,24 @@ class UIEditor{
         canvas.height = rect.bottom - rect.top;
         this.scheduleDraw();   
     }
+    //Canvas manipulation ===
+    zoom(){
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        zoom = clamp(zoom*delta, minZoom, maxZoom); 
+        const mousePosCanv = screenToCanvas(lastMouseX, lastMouseY);
+        let zoomDspl = -(1.0-delta);
+        panX+=(zoomDspl*(mousePosCanv.x));
+        panY+=(zoomDspl*(mousePosCanv.y));
+        zoomLevel.textContent = Math.round(zoom * 100);
+        mainCanvas.scheduleDraw();
+    }
+
+    zoomIn(){
+       
+    }
+    zoomOut(){
+
+    }
     //Canvas commands === 
     moveObject(canvasObject, newPos, oldPos){
         console.log("!!Move Object Command!!");

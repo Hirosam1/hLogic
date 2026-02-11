@@ -1,4 +1,4 @@
-const defaultValue = false;
+const defaultNodeValue = false;
 
 class Icon{
     constructor(imgSrc, ratio, img=null, type='image'){
@@ -63,7 +63,7 @@ class CanvasGraphItem{
 
     process(){
         let inputVec = [];
-        this.inputsVertices.forEach(i => inputVec.push(i.value ? i.value : defaultValue));
+        this.inputsVertices.forEach(i => inputVec.push(i.value ? i.value : defaultNodeValue));
         let o = this.logic.process(inputVec);
         //Propagate result value to output
         if(this.outputVertex){
@@ -182,7 +182,7 @@ class LineSegmentCanvasItem extends CanvasItem{
         }else{
             console.error('Error creating edge!');
         }
-        }
+    }
 }
 
 function operatorCanvasFactory(operatorObj, x, y, width, height, type ='operator'){
