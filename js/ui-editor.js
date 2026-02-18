@@ -266,8 +266,6 @@ class UIEditor{
     }
     //Canvas manipulation ===
     zoom(zoomY, mousePosCanvas){
-        //e.preventDefault();
-        //const mousePosCanv = screenToCanvas(e.clientX, e.clientY);
         const delta = zoomY > 0 ? 0.9 : 1.1;
         const oldZoom = zoom;
         zoom = clamp(zoom*delta, minZoom, maxZoom);
@@ -314,7 +312,7 @@ class UIEditor{
     }
 }
 
-let mainCanvas = new UIEditor();
+const mainCanvas = new UIEditor();
 //===== Set up Canvas controls ========
 window.addEventListener('resize', ()=>{
     mainCanvas.initCanvas();

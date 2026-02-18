@@ -95,7 +95,6 @@ canvas.addEventListener('mousedown', (e) => {
             isPanning = true;
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
-            //canvas.classList.add('panning');
             if(editorState !== editorStates.nodeEditor) canvas.style.cursor = 'grabbing';
         }
     }
