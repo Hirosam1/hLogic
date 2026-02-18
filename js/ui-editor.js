@@ -265,22 +265,18 @@ class UIEditor{
         this.scheduleDraw();   
     }
     //Canvas manipulation ===
-    zoom(){
-        const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        zoom = clamp(zoom*delta, minZoom, maxZoom); 
-        const mousePosCanv = screenToCanvas(lastMouseX, lastMouseY);
-        let zoomDspl = -(1.0-delta);
-        panX+=(zoomDspl*(mousePosCanv.x));
-        panY+=(zoomDspl*(mousePosCanv.y));
+    zoom(zoomY, mousePosCanvas){
+        //e.preventDefault();
+        //const mousePosCanv = screenToCanvas(e.clientX, e.clientY);
+        const delta = zoomY > 0 ? 0.9 : 1.1;
+        const oldZoom = zoom;
+        zoom = clamp(zoom*delta, minZoom, maxZoom);
+        const deltaW = ((oldZoom*mousePosCanvas.x)-(zoom*mousePosCanvas.x));
+        const deltaH = ((oldZoom*mousePosCanvas.y)-(zoom*mousePosCanvas.y));
+        panX+=-deltaW;
+        panY+=-deltaH;
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.scheduleDraw();
-    }
-
-    zoomIn(){
-       
-    }
-    zoomOut(){
-
     }
     //Canvas commands === 
     moveObject(canvasObject, newPos, oldPos){

@@ -189,16 +189,7 @@ canvas.addEventListener('mouseup', (e) => {
 // Mouse wheel
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
-    const mousePosCanv = screenToCanvas(e.clientX, e.clientY);
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    const oldZoom = zoom;
-    zoom = clamp(zoom*delta, minZoom, maxZoom);
-    const deltaW = ((oldZoom*mousePosCanv.x)-(zoom*mousePosCanv.x));
-    const deltaH = ((oldZoom*mousePosCanv.y)-(zoom*mousePosCanv.y));
-    panX+=-deltaW;
-    panY+=-deltaH;
-    zoomLevel.textContent = Math.round(zoom * 100);
-    mainCanvas.scheduleDraw();
+    mainCanvas.zoom(e.deltaY, screenToCanvas(e.clientX, e.clientY));
 });
 
 //Mouse leave
@@ -212,13 +203,13 @@ canvas.addEventListener('mouseleave', () => {
 document.addEventListener('keydown', (e) => {
     const panScale = 25;
     if (e.key === '+' || e.key === '=') {
-        zoom = Math.min(zoom * 1.2, maxZoom);
-        zoomLeveltextContent = Math.round(zoom * 100);
-        mainCanvas.scheduleDraw();
+        const rect = canvas.getBoundingClientRect();
+        const centerPos = screenToCanvas((rect.right + rect.left)/2.0, (rect.bottom + rect.top)/2.0);
+        mainCanvas.zoom(-1.0, centerPos);
     } else if (e.key === '-') {
-        zoom = Math.max(zoom / 1.2, minZoom);
-        zoomLevel.textContent = Math.round(zoom * 100);
-        mainCanvas.scheduleDraw();
+        const rect = canvas.getBoundingClientRect();
+        const centerPos = screenToCanvas((rect.right + rect.left)/2.0, (rect.bottom + rect.top)/2.0);
+        mainCanvas.zoom(1.0, centerPos);
     } else if (e.key === 'Delete' && draggedObject){
         draggedObject.updatePos(draggedObjectLastPos.x, draggedObjectLastPos.y);
         mainCanvas.deleteCanvasObject(draggedObject);
