@@ -96,6 +96,7 @@ class UIEditor{
         });
         //Editor Tools menu
         const _tools = [
+            {name: 'generalEditor', iconSrc: 'imgs/mouse_cursor.svg'},
             {name: 'nodeEditor', iconSrc: 'imgs/nodes_icon.svg'}
         ];
         _tools.forEach(toolObj =>{
