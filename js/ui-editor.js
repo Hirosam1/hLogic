@@ -46,7 +46,7 @@ class UIEditor{
         img.src = operator.icon.imgSrc;
     }
 
-    addToolToPalette(img, imgSrc, id){
+    addToolToPalette(img, imgSrc, id, onClick){
         const paletteDiv = document.getElementById('toolsPalette');
         const item = document.createElement('div');
         item.className = 'palette-item';
@@ -57,21 +57,11 @@ class UIEditor{
         item.id = id;
         item.appendChild(imgElement);
         item.onclick = () => {
-            selectedObject = null;
-            if(editorState == editorStates.objectEditor){
-                this.cancelSelectedOperator();
-                editorState = editorStates.nodeEditor;
-                canvas.classList.add('placing');
-                canvas.style.cursor = 'crosshair';
-
-                //document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
-                item.classList.add('active');
-                updateInfo();
-            }
-            else if(editorState == editorStates.nodeEditor){
-                this.cancelSelectedOperator();
-                updateInfo();
-            }
+            onClick();
+            console.log("HIT0");
+            paletteDiv.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            updateInfo();
         };
         paletteDiv.appendChild(item);
     }
@@ -96,13 +86,22 @@ class UIEditor{
         });
         //Editor Tools menu
         const _tools = [
-            //{name: 'generalEditor', iconSrc: 'imgs/mouse_cursor.svg'},
-            {name: 'nodeEditor', iconSrc: 'imgs/nodes_icon.svg'}
+            {name: 'objectEditor', iconSrc: 'imgs/mouse_cursor.svg', onClick:()=>{
+
+            }},
+            {name: 'nodeEditor', iconSrc: 'imgs/nodes_icon.svg', onClick:()=>{
+                if(editorState == editorStates.objectEditor){
+                    this.cancelSelectedOperator();
+                    editorState = editorStates.nodeEditor;
+                    canvas.classList.add('placing');
+                    canvas.style.cursor = 'crosshair';
+                }
+            }}
         ];
         _tools.forEach(toolObj =>{
             const tool_img = new Image();
             tool_img.onload = () => {
-                this.addToolToPalette(tool_img, toolObj.iconSrc, toolObj.name);
+                this.addToolToPalette(tool_img, toolObj.iconSrc, toolObj.name, toolObj.onClick);
             };
             tool_img.onerror = () => {
                 console.error(`Failed to load image: ` + toolObj.iconSrc);
@@ -114,15 +113,15 @@ class UIEditor{
     cancelSelectedOperator(){
         if(editorState == editorStates.nodeEditor){
             editorState = editorStates.objectEditor;
+            document.getElementById('toolsPalette').querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+            document.getElementById('objectEditor').classList.add('selected');
+            nodeStartPos=null;
         }
-        nodeStartPos=null;
         placingMode = false;
         selectedObject = null;
         canvas.classList.remove('placing');
         canvas.style.cursor = 'grab';
-        document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
-        let nodeEditor = document.getElementById("nodeEditor");
-        nodeEditor.classList.remove('active');
+        document.getElementById('objectPalette').querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
         updateInfo();
         this.scheduleDraw();
     }
