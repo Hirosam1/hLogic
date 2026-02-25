@@ -24,7 +24,7 @@ class UIEditor{
                         if(editorState == editorStates.nodeEditor){
                             this.cancelSelectedOperator();
                         }
-                        document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+                        paletteDiv.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
                         item.classList.add('selected');
                         selectedObject = operator;
                         placingMode = true;
@@ -38,7 +38,6 @@ class UIEditor{
             };
 
             paletteDiv.appendChild(item);
-            paletteImages.push({ img, src: operator.icon.imgSrc });
 
         };
         img.onerror = () => {
@@ -62,9 +61,11 @@ class UIEditor{
             if(editorState == editorStates.objectEditor){
                 this.cancelSelectedOperator();
                 editorState = editorStates.nodeEditor;
-                item.classList.add('active');
                 canvas.classList.add('placing');
                 canvas.style.cursor = 'crosshair';
+
+                //document.querySelectorAll('.palette-item').forEach(i => i.classList.remove('selected'));
+                item.classList.add('active');
                 updateInfo();
             }
             else if(editorState == editorStates.nodeEditor){
@@ -73,7 +74,6 @@ class UIEditor{
             }
         };
         paletteDiv.appendChild(item);
-        paletteImages.push({ img, src: imgSrc });
     }
 
     preloadPalletMenu(){
@@ -96,7 +96,7 @@ class UIEditor{
         });
         //Editor Tools menu
         const _tools = [
-            {name: 'generalEditor', iconSrc: 'imgs/mouse_cursor.svg'},
+            //{name: 'generalEditor', iconSrc: 'imgs/mouse_cursor.svg'},
             {name: 'nodeEditor', iconSrc: 'imgs/nodes_icon.svg'}
         ];
         _tools.forEach(toolObj =>{
@@ -272,8 +272,8 @@ class UIEditor{
         zoom = clamp(zoom*delta, minZoom, maxZoom);
         const deltaW = ((oldZoom*mousePosCanvas.x)-(zoom*mousePosCanvas.x));
         const deltaH = ((oldZoom*mousePosCanvas.y)-(zoom*mousePosCanvas.y));
-        panX+=-deltaW;
-        panY+=-deltaH;
+        panX-=deltaW;
+        panY-=deltaH;
         zoomLevel.textContent = Math.round(zoom * 100);
         mainCanvas.scheduleDraw();
     }

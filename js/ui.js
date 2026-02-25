@@ -104,14 +104,12 @@ let canvasHeight = 900;
 let zoom = 1;
 let panX = 0;
 let panY = 0;
-//Loaded items on Pallet Objects
-let paletteImages = [];
 //Input information
 let lastMouseX = 0;
 let lastMouseY = 0;
 let dragTranslationLast = {x: 0, y: 0};
 //Editor states and settings
-const editorStates = {operatorEditor : 0, nodeEditor : 1, simulating: 2};
+const editorStates = {objectEditor : 0, nodeEditor : 1, simulating: 2};
 let editorState = editorStates.objectEditor;
 let isPanning = false;
 let draggedObject = null;
